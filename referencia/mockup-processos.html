@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Agenda Fiscal – Processos</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F4F6}
+a{color:#0F5E57}a:hover{color:#0B4842}
+button,input{font-family:inherit}
+</style>
+</helmet>
+<div style="min-height: 100vh; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #111827; background: #F3F4F6">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #E5E7EB">
+<div style="max-width: 1360px; margin: 0 auto; padding: 12px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 32px">
+<div style="display: flex; align-items: center; gap: 10px">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#0F766E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="3"></rect><path d="M3 9.5h18"></path><path d="M8 2.5v4"></path><path d="M16 2.5v4"></path><path d="M8.5 15l2.2 2.2L15.5 12.5"></path></svg>
+<span style="font-size: 18px; font-weight: 700; letter-spacing: -0.01em">Agenda Fiscal</span>
+</div>
+<nav aria-label="Principal" style="display: flex; gap: 4px">
+<a href="Main.dc.html" style="padding: 10px 14px; border-radius: 8px; color: #374151; text-decoration: none; font-size: 14px; font-weight: 500">Calendário</a>
+<a href="Processos.dc.html" aria-current="page" style="padding: 10px 14px; border-radius: 8px; background: #E6F2F0; color: #0F5E57; font-weight: 600; text-decoration: none; font-size: 14px">Processos</a>
+</nav>
+<div style="margin-left: auto; font-size: 13px; color: #4B5563">Terça-feira, 20 de outubro de 2026</div>
+</div>
+</header>
+
+<main style="max-width: 1360px; margin: 0 auto; padding: 24px; display: flex; flex-direction: column; gap: 18px; box-sizing: border-box">
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<h1 style="margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.02em">Processos</h1>
+<p style="margin: 0; font-size: 14px; color: #4B5563">Processos administrativos e pedidos em órgãos, visíveis para toda a equipe</p>
+</div>
+<div style="margin-left: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<label style="display: flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 12px; border: 1px solid #D1D5DB; border-radius: 10px; background: #FFFFFF; color: #4B5563">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+<span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Buscar processo</span>
+<input type="search" placeholder="Cliente, órgão ou protocolo" style="border: 0; outline: none; font-size: 14px; width: 220px; background: transparent; color: #111827">
+</label>
+<button type="button" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border: 0; border-radius: 10px; background: {{accent}}; color: #FFFFFF; font-size: 14px; font-weight: 600; cursor: pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>Novo processo</button>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+
+<section aria-label="Quadro de processos" style="flex: 999 1 640px; min-width: 0">
+<div style="overflow-x: auto">
+<div style="min-width: 800px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{columns}}" as="col" hint-placeholder-count="4">
+<div style="display: flex; flex-direction: column; gap: 10px; background: #E9EBEE; border-radius: 12px; padding: 10px">
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 4px 4px 2px">
+<span style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: #1F2937"><span style="{{col.dotStyle}}" aria-hidden="true"></span>{{col.title}}</span>
+<span style="font-size: 12px; font-weight: 600; color: #374151; background: #FFFFFF; border-radius: 999px; padding: 2px 9px">{{col.count}}</span>
+</div>
+<sc-for list="{{col.items}}" as="p" hint-placeholder-count="2">
+<button type="button" onClick="{{p.pick}}" aria-pressed="{{p.pressed}}" style="{{p.cardStyle}}">
+<span style="font-size: 12px; font-weight: 600; color: #4B5563">{{p.orgao}}</span>
+<span style="font-size: 14px; font-weight: 700; line-height: 1.3">{{p.tipo}}</span>
+<span style="font-size: 13px; color: #374151">{{p.cliente}}</span>
+<span style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 4px">
+<span style="{{p.prazoStyle}}">{{p.prazoChip}}</span>
+</span>
+</button>
+</sc-for>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<aside aria-label="Detalhe do processo" style="flex: 1 1 360px; min-width: 0; background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 16px; box-sizing: border-box">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="{{sel.statusStyle}}">{{sel.statusLabel}}</span>
+<h2 style="margin: 4px 0 0; font-size: 20px; font-weight: 700; line-height: 1.25">{{sel.tipo}}</h2>
+<span style="font-size: 14px; color: #374151">{{sel.cliente}}</span>
+</div>
+
+<dl style="margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px">
+<div style="display: flex; flex-direction: column; gap: 2px"><dt style="font-size: 12px; color: #4B5563">Órgão</dt><dd style="margin: 0; font-size: 14px; font-weight: 600">{{sel.orgao}}</dd></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><dt style="font-size: 12px; color: #4B5563">Protocolo</dt><dd style="margin: 0; font-size: 14px; font-weight: 600">{{sel.protocolo}}</dd></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><dt style="font-size: 12px; color: #4B5563">Aberto em</dt><dd style="margin: 0; font-size: 14px; font-weight: 600">{{sel.abertura}}</dd></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><dt style="font-size: 12px; color: #4B5563">Última atualização</dt><dd style="margin: 0; font-size: 14px; font-weight: 600">{{sel.atualizado}}</dd></div>
+</dl>
+
+<sc-if value="{{sel.hasPrazo}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; background: #FEF3C7; color: #78350F">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+<div style="display: flex; flex-direction: column; gap: 1px">
+<span style="font-size: 14px; font-weight: 700">{{sel.prazoLabel}}: {{sel.prazo}}</span>
+<span style="font-size: 12px">Já aparece no calendário da equipe</span>
+</div>
+</div>
+</sc-if>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<h3 style="margin: 0; font-size: 14px; font-weight: 700">Andamentos</h3>
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column">
+<sc-for list="{{sel.timeline}}" as="t" hint-placeholder-count="3">
+<li style="display: flex; gap: 12px">
+<span style="display: flex; flex-direction: column; align-items: center; flex: none; width: 14px">
+<span style="{{t.dotStyle}}" aria-hidden="true"></span>
+<span style="{{t.lineStyle}}" aria-hidden="true"></span>
+</span>
+<span style="display: flex; flex-direction: column; gap: 2px; padding-bottom: 14px">
+<span style="font-size: 12px; font-weight: 600; color: #4B5563">{{t.data}}</span>
+<span style="font-size: 14px; line-height: 1.4">{{t.txt}}</span>
+</span>
+</li>
+</sc-for>
+</ol>
+<button type="button" style="align-self: flex-start; min-height: 40px; padding: 0 14px; border: 1px solid #D1D5DB; border-radius: 8px; background: #FFFFFF; font-size: 13px; font-weight: 600; color: #1F2937; cursor: pointer">Adicionar andamento</button>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h3 style="margin: 0; font-size: 14px; font-weight: 700">Anexos</h3>
+<sc-for list="{{sel.anexos}}" as="a" hint-placeholder-count="2">
+<a href="#" style="display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 10px; border: 1px solid #E5E7EB; border-radius: 8px; text-decoration: none; font-size: 13px; color: #1F2937"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4B5563" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path></svg>{{a}}</a>
+</sc-for>
+</div>
+</aside>
+
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#0F766E","options":["#0F766E","#1D4ED8","#7C3AED","#B45309"]},"$preview":{"width":1440,"height":1060}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { sel: 1 };
+  }
+  renderVals() {
+    var self = this;
+    var st = this.state || { sel: 1 };
+    var accent = this.props.accent ?? '#0F766E';
+    var STATUS = {
+      aberto: { title: 'Em andamento', dot: '#2563EB', bg: '#DBEAFE', fg: '#1E40AF' },
+      aguardando: { title: 'Aguardando órgão', dot: '#D97706', bg: '#FEF3C7', fg: '#92400E' },
+      exigencia: { title: 'Em exigência', dot: '#E11D48', bg: '#FFE4E6', fg: '#9F1239' },
+      concluido: { title: 'Concluído', dot: '#16A34A', bg: '#DCFCE7', fg: '#166534' }
+    };
+    var P = [
+      { id: 1, status: 'aberto', cliente: 'Transportes Atlântico ME', tipo: 'Impugnação de auto de infração', orgao: 'SEFAZ-AL', protocolo: 'AI 0000123-4/2026', abertura: '05/10/2026', atualizado: '16/10/2026', prazo: '30/10', prazoLabel: 'Prazo de impugnação', urgente: false,
+        timeline: [['05/10', 'Ciência do auto de infração pelo domicílio tributário eletrônico'], ['08/10', 'Documentos solicitados ao cliente'], ['14/10', 'Notas fiscais e livros recebidos'], ['16/10', 'Minuta da impugnação em elaboração']],
+        anexos: ['auto-de-infracao.pdf', 'notas-fiscais-set-2025.zip'] },
+      { id: 2, status: 'aberto', cliente: 'Distribuidora Litoral Ltda', tipo: 'Resposta à intimação fiscal', orgao: 'SEFAZ-AL', protocolo: 'INT 2026/00871', abertura: '13/10/2026', atualizado: '15/10/2026', prazo: '27/10', prazoLabel: 'Prazo de resposta', urgente: true,
+        timeline: [['13/10', 'Intimação recebida: divergência entre EFD e notas de entrada'], ['15/10', 'Levantamento das notas divergentes iniciado']],
+        anexos: ['intimacao.pdf'] },
+      { id: 3, status: 'aguardando', cliente: 'Clínica Vida Plena S/S', tipo: 'Pedido de restituição (PER/DCOMP)', orgao: 'Receita Federal', protocolo: 'PER 12345.67890.0', abertura: '02/06/2026', atualizado: '02/06/2026', prazo: '', prazoLabel: '', urgente: false,
+        timeline: [['02/06', 'Pedido transmitido'], ['02/06', 'Aguardando análise da Receita Federal']],
+        anexos: ['recibo-perdcomp.pdf'] },
+      { id: 4, status: 'aguardando', cliente: 'Padaria Trigo de Ouro', tipo: 'Parcelamento de débitos do Simples', orgao: 'Receita Federal', protocolo: 'PARC 2026/0459', abertura: '10/03/2026', atualizado: '30/09/2026', prazo: '30/10', prazoLabel: 'Próxima parcela', urgente: false,
+        timeline: [['10/03', 'Parcelamento deferido em 40 parcelas'], ['30/09', 'Parcela 7 paga']],
+        anexos: ['recibo-parcelamento.pdf'] },
+      { id: 5, status: 'exigencia', cliente: 'Mercadinho Sol Nascente', tipo: 'Alteração contratual', orgao: 'Junta Comercial', protocolo: 'JC 26/118.204-1', abertura: '01/10/2026', atualizado: '17/10/2026', prazo: '22/10', prazoLabel: 'Cumprir exigência', urgente: true,
+        timeline: [['01/10', 'Processo protocolado'], ['17/10', 'Exigência: assinatura de sócio pendente no requerimento']],
+        anexos: ['alteracao-contratual.pdf', 'despacho-exigencia.pdf'] },
+      { id: 6, status: 'concluido', cliente: 'Oficina Boa Viagem ME', tipo: 'Baixa de inscrição municipal', orgao: 'Prefeitura', protocolo: 'PM 2026/33901', abertura: '04/08/2026', atualizado: '09/10/2026', prazo: '', prazoLabel: '', urgente: false,
+        timeline: [['04/08', 'Pedido de baixa protocolado'], ['09/10', 'Baixa deferida']],
+        anexos: ['certidao-baixa.pdf'] },
+      { id: 7, status: 'concluido', cliente: 'Construtora Mar Azul', tipo: 'Certidão negativa de débitos', orgao: 'Receita Federal / PGFN', protocolo: '—', abertura: '06/10/2026', atualizado: '08/10/2026', prazo: '', prazoLabel: '', urgente: false,
+        timeline: [['06/10', 'Pendência regularizada'], ['08/10', 'Certidão emitida']],
+        anexos: ['cnd-federal.pdf'] }
+    ];
+
+    var columns = ['aberto', 'aguardando', 'exigencia', 'concluido'].map(function (s) {
+      var items = P.filter(function (p) { return p.status === s; }).map(function (p) {
+        var on = st.sel === p.id;
+        var prazoChip = p.prazo ? 'Prazo ' + p.prazo : (s === 'concluido' ? 'Concluído em ' + p.atualizado.slice(0, 5) : 'Sem prazo pendente');
+        var prazoStyle = 'font-size:12px; font-weight:600; padding:3px 8px; border-radius:6px; ' + (p.urgente ? 'background:#1F2937; color:#FFFFFF' : p.prazo ? 'background:#FEF3C7; color:#78350F' : 'background:#F3F4F6; color:#4B5563');
+        return {
+          tipo: p.tipo, cliente: p.cliente, orgao: p.orgao, prazoChip: prazoChip, prazoStyle: prazoStyle,
+          pressed: on ? 'true' : 'false',
+          pick: function () { self.setState({ sel: p.id }); },
+          cardStyle: 'display:flex; flex-direction:column; align-items:flex-start; gap:4px; width:100%; text-align:left; padding:12px; border-radius:10px; background:#FFFFFF; font:inherit; color:#111827; cursor:pointer; box-sizing:border-box; ' + (on ? 'border:2px solid ' + accent + '; padding:11px; box-shadow:0 2px 6px rgba(0,0,0,.08)' : 'border:1px solid #DDE0E4')
+        };
+      });
+      return { title: STATUS[s].title, count: items.length, items: items, dotStyle: 'width:9px; height:9px; border-radius:999px; background:' + STATUS[s].dot };
+    });
+
+    var cur = P.filter(function (p) { return p.id === st.sel; })[0] || P[0];
+    var S = STATUS[cur.status];
+    var n = cur.timeline.length;
+    var sel = {
+      tipo: cur.tipo, cliente: cur.cliente, orgao: cur.orgao, protocolo: cur.protocolo,
+      abertura: cur.abertura, atualizado: cur.atualizado,
+      hasPrazo: !!cur.prazo, prazo: cur.prazo + '/2026', prazoLabel: cur.prazoLabel,
+      statusLabel: S.title,
+      statusStyle: 'align-self:flex-start; font-size:12px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; padding:4px 10px; border-radius:999px; background:' + S.bg + '; color:' + S.fg,
+      anexos: cur.anexos,
+      timeline: cur.timeline.map(function (t, i) {
+        var last = i === n - 1;
+        return {
+          data: t[0], txt: t[1],
+          dotStyle: 'width:12px; height:12px; border-radius:999px; margin-top:3px; flex:none; box-sizing:border-box; ' + (last ? 'background:' + accent : 'background:#FFFFFF; border:2px solid #9CA3AF'),
+          lineStyle: 'flex:1; width:2px; background:' + (last ? 'transparent' : '#E5E7EB') + '; margin-top:2px'
+        };
+      })
+    };
+
+    return { columns: columns, sel: sel, accent: accent };
+  }
+}
+</script>
+</body>
+</html>

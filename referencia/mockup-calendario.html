@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Agenda Fiscal – Painel</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F4F6}
+a{color:#0F5E57}a:hover{color:#0B4842}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="min-height: 100vh; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #111827; background: #F3F4F6">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #E5E7EB">
+<div style="max-width: 1360px; margin: 0 auto; padding: 12px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 32px">
+<div style="display: flex; align-items: center; gap: 10px">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#0F766E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="3"></rect><path d="M3 9.5h18"></path><path d="M8 2.5v4"></path><path d="M16 2.5v4"></path><path d="M8.5 15l2.2 2.2L15.5 12.5"></path></svg>
+<span style="font-size: 18px; font-weight: 700; letter-spacing: -0.01em">Agenda Fiscal</span>
+</div>
+<nav aria-label="Principal" style="display: flex; gap: 4px">
+<a href="Main.dc.html" aria-current="page" style="padding: 10px 14px; border-radius: 8px; background: #E6F2F0; color: #0F5E57; font-weight: 600; text-decoration: none; font-size: 14px">Calendário</a>
+<a href="Processos.dc.html" style="padding: 10px 14px; border-radius: 8px; color: #374151; text-decoration: none; font-size: 14px; font-weight: 500">Processos</a>
+</nav>
+<div style="margin-left: auto; font-size: 13px; color: #4B5563">Terça-feira, 20 de outubro de 2026</div>
+</div>
+</header>
+
+<main style="max-width: 1360px; margin: 0 auto; padding: 24px; display: flex; flex-direction: column; gap: 18px; box-sizing: border-box">
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<h1 style="margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.02em">{{heading}}</h1>
+<p style="margin: 0; font-size: 14px; color: #4B5563">{{summary}}</p>
+</div>
+<div style="display: flex; gap: 4px">
+<button type="button" aria-label="Período anterior" style="width: 40px; height: 40px; border: 1px solid #D1D5DB; background: #FFFFFF; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: #374151"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg></button>
+<button type="button" aria-label="Próximo período" style="width: 40px; height: 40px; border: 1px solid #D1D5DB; background: #FFFFFF; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: #374151"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button>
+</div>
+<div role="group" aria-label="Visualização" style="margin-left: auto; display: flex; background: #E5E7EB; padding: 4px; border-radius: 10px; gap: 4px">
+<sc-for list="{{views}}" as="v" hint-placeholder-count="3">
+<button type="button" onClick="{{v.pick}}" aria-pressed="{{v.pressed}}" style="{{v.style}}">{{v.label}}</button>
+</sc-for>
+</div>
+</div>
+
+<div role="group" aria-label="Filtrar por tipo" style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{filters}}" as="f" hint-placeholder-count="6">
+<button type="button" onClick="{{f.pick}}" aria-pressed="{{f.pressed}}" style="{{f.style}}"><span style="{{f.dotStyle}}" aria-hidden="true"></span>{{f.label}}</button>
+</sc-for>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+
+<section aria-label="Calendário" style="flex: 999 1 620px; min-width: 0; background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 14px; padding: 16px; box-sizing: border-box">
+
+<sc-if value="{{isMes}}" hint-placeholder-val="{{ true }}">
+<div style="overflow-x: auto">
+<div style="min-width: 680px; display: flex; flex-direction: column; gap: 6px">
+<div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{dowHead}}" as="w" hint-placeholder-count="7">
+<div style="font-size: 12px; font-weight: 600; color: #4B5563; text-transform: uppercase; letter-spacing: 0.04em; padding: 4px 8px">{{w}}</div>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{cells}}" as="c" hint-placeholder-count="35">
+<button type="button" onClick="{{c.pick}}" aria-label="{{c.aria}}" style="{{c.style}}">
+<span style="{{c.numStyle}}">{{c.num}}</span>
+<sc-for list="{{c.events}}" as="e" hint-placeholder-count="2">
+<span style="{{e.chipStyle}}">{{e.label}}</span>
+</sc-for>
+</button>
+</sc-for>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isSemana}}" hint-placeholder-val="{{ false }}">
+<div style="overflow-x: auto">
+<div style="min-width: 760px; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{week}}" as="d" hint-placeholder-count="7">
+<button type="button" onClick="{{d.pick}}" style="{{d.colStyle}}">
+<span style="{{d.headStyle}}">{{d.head}}</span>
+<sc-for list="{{d.events}}" as="e" hint-placeholder-count="2">
+<span style="display: flex; flex-direction: column; gap: 4px; padding: 8px; border-radius: 8px; background: #F9FAFB; border: 1px solid #E5E7EB">
+<span style="{{e.tagStyle}}">{{e.catName}}</span>
+<span style="font-size: 13px; font-weight: 600; line-height: 1.3">{{e.label}}</span>
+<span style="font-size: 12px; color: #4B5563; line-height: 1.35">{{e.sub}}</span>
+</span>
+</sc-for>
+<sc-if value="{{d.empty}}" hint-placeholder-val="{{ false }}">
+<span style="font-size: 12px; color: #6B7280; padding: 4px 2px">Sem vencimentos</span>
+</sc-if>
+</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isHoje}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 10px">
+<sc-for list="{{todayEvents}}" as="e" hint-placeholder-count="3">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding: 16px; border: 1px solid #E5E7EB; border-radius: 12px">
+<span style="{{e.tagStyle}}">{{e.catName}}</span>
+<div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 17px; font-weight: 600">{{e.label}}</span>
+<span style="font-size: 13px; color: #4B5563">{{e.sub}}</span>
+</div>
+<sc-if value="{{e.hasClientes}}" hint-placeholder-val="{{ true }}">
+<span style="font-size: 13px; font-weight: 600; color: #374151; background: #F3F4F6; padding: 6px 10px; border-radius: 8px">{{e.clientes}}</span>
+</sc-if>
+<a href="#" style="font-size: 14px; font-weight: 600; padding: 10px 4px">Ver clientes</a>
+</div>
+</sc-for>
+<sc-if value="{{todayEmpty}}" hint-placeholder-val="{{ false }}">
+<p style="margin: 0; padding: 24px; text-align: center; color: #4B5563">Nada vence hoje com este filtro.</p>
+</sc-if>
+</div>
+</sc-if>
+
+</section>
+
+<aside style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+
+<section aria-label="Dia selecionado" style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 12px; font-weight: 600; color: #0F5E57; text-transform: uppercase; letter-spacing: 0.06em">{{selKicker}}</span>
+<h2 style="margin: 0; font-size: 19px; font-weight: 700">{{selTitle}}</h2>
+</div>
+<sc-for list="{{selEvents}}" as="e" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 12px; border-radius: 10px; background: #F9FAFB; border: 1px solid #EEF0F2">
+<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+<span style="{{e.tagStyle}}">{{e.catName}}</span>
+<sc-if value="{{e.hasClientes}}" hint-placeholder-val="{{ true }}">
+<span style="font-size: 12px; color: #4B5563">{{e.clientes}}</span>
+</sc-if>
+</div>
+<span style="font-size: 15px; font-weight: 600">{{e.label}}</span>
+<span style="font-size: 13px; color: #4B5563; line-height: 1.4">{{e.sub}}</span>
+</div>
+</sc-for>
+<sc-if value="{{selEmpty}}" hint-placeholder-val="{{ false }}">
+<p style="margin: 0; font-size: 14px; color: #4B5563">Nada vence neste dia.</p>
+</sc-if>
+</section>
+
+<section aria-label="Próximos 7 dias" style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 10px">
+<h2 style="margin: 0; font-size: 16px; font-weight: 700">Próximos 7 dias</h2>
+<sc-for list="{{upcoming}}" as="u" hint-placeholder-count="4">
+<div style="display: flex; align-items: center; gap: 12px; padding: 6px 0; border-bottom: 1px solid #F3F4F6">
+<div style="width: 46px; flex: none; display: flex; flex-direction: column; align-items: center; padding: 4px 0; border-radius: 8px; background: #F3F4F6">
+<span style="font-size: 10px; font-weight: 700; color: #4B5563; letter-spacing: 0.05em">{{u.dow}}</span>
+<span style="font-size: 18px; font-weight: 700; line-height: 1.1">{{u.day}}</span>
+</div>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 14px; font-weight: 600; line-height: 1.3">{{u.label}}</span>
+<span style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #4B5563"><span style="{{u.dotStyle}}" aria-hidden="true"></span>{{u.catName}}</span>
+</div>
+</div>
+</sc-for>
+</section>
+
+<p style="margin: 0; font-size: 12px; color: #4B5563; line-height: 1.5; padding: 0 4px">Prazos de processos entram aqui automaticamente quando cadastrados na aba Processos.</p>
+
+</aside>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#0F766E","options":["#0F766E","#1D4ED8","#7C3AED","#B45309"]},"$preview":{"width":1440,"height":1060}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { view: 'mes', day: 20, filter: 'todas' };
+  }
+  renderVals() {
+    var self = this;
+    var st = this.state || { view: 'mes', day: 20, filter: 'todas' };
+    var accent = this.props.accent ?? '#0F766E';
+    var TODAY = 20;
+    var CAT = {
+      fed: { name: 'Federal', fg: '#1E40AF', bg: '#DBEAFE', dot: '#2563EB' },
+      est: { name: 'Estadual', fg: '#9A3412', bg: '#FFEDD5', dot: '#EA580C' },
+      mun: { name: 'Municipal', fg: '#5B21B6', bg: '#EDE9FE', dot: '#7C3AED' },
+      trab: { name: 'Trabalhista', fg: '#166534', bg: '#DCFCE7', dot: '#16A34A' },
+      proc: { name: 'Processo', fg: '#FFFFFF', bg: '#1F2937', dot: '#1F2937' },
+      hol: { name: 'Feriado', fg: '#374151', bg: '#E5E7EB', dot: '#9CA3AF' }
+    };
+    var RAW = {
+      9: [['est', 'ICMS normal', 'Competência 09/2026', 41], ['mun', 'ISS próprio', 'Antecipado: dia 10 cai no sábado', 28]],
+      12: [['hol', 'Feriado nacional', 'Nossa Senhora Aparecida', 0]],
+      15: [['fed', 'EFD-Contribuições', 'Competência 08/2026 · 10º dia útil', 37], ['fed', 'EFD-Reinf', 'Competência 09/2026', 52], ['fed', 'DCTFWeb', 'Competência 09/2026', 52]],
+      16: [['est', 'EFD ICMS/IPI', 'Competência 09/2026', 33]],
+      20: [['fed', 'DAS – Simples Nacional', 'Competência 09/2026', 64], ['trab', 'FGTS Digital', 'Competência 09/2026', 71], ['fed', 'INSS – guia da DCTFWeb', 'Competência 09/2026', 52]],
+      22: [['proc', 'Exigência na Junta Comercial', 'Alteração contratual · Mercadinho Sol Nascente', 0]],
+      23: [['fed', 'PIS/COFINS', 'Antecipado: dia 25 cai no domingo', 37], ['fed', 'IPI', 'Antecipado: dia 25 cai no domingo', 6]],
+      27: [['proc', 'Resposta à intimação da SEFAZ', 'Distribuidora Litoral Ltda', 0]],
+      30: [['fed', 'IRPJ/CSLL trimestral', '3º trimestre · quota única ou 1ª quota', 19], ['proc', 'Impugnação de auto de infração', 'Transportes Atlântico ME', 0]]
+    };
+    var DOW = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+    var DOWF = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+    var dow = function (d) { return (d + 3) % 7; };
+    var show = function (c) { return st.filter === 'todas' || st.filter === c || c === 'hol'; };
+    var evs = function (d) {
+      return (RAW[d] || []).filter(function (e) { return show(e[0]); }).map(function (e) {
+        var c = CAT[e[0]];
+        return {
+          label: e[1], sub: e[2], catName: c.name,
+          hasClientes: e[3] > 0, clientes: e[3] + ' clientes',
+          chipStyle: 'display:block; font-size:12px; font-weight:600; line-height:1.3; padding:3px 7px; border-radius:6px; background:' + c.bg + '; color:' + c.fg + '; white-space:nowrap; overflow:hidden; text-overflow:ellipsis',
+          tagStyle: 'display:inline-block; align-self:flex-start; font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:3px 8px; border-radius:999px; background:' + c.bg + '; color:' + c.fg,
+          dot: c.dot
+        };
+      });
+    };
+    var pickDay = function (d) { return function () { self.setState({ day: d }); }; };
+
+    var views = [['hoje', 'Hoje'], ['semana', 'Semana'], ['mes', 'Mês']].map(function (v) {
+      var on = st.view === v[0];
+      return {
+        label: v[1], pressed: on ? 'true' : 'false',
+        pick: function () { self.setState({ view: v[0], day: v[0] === 'hoje' ? TODAY : st.day }); },
+        style: 'min-height:40px; padding:8px 18px; border:0; border-radius:8px; font-size:14px; cursor:pointer; ' + (on ? 'background:#FFFFFF; color:#111827; font-weight:600; box-shadow:0 1px 2px rgba(0,0,0,.1)' : 'background:transparent; color:#374151; font-weight:500')
+      };
+    });
+
+    var filters = [['todas', 'Todas', '#6B7280'], ['fed', 'Federal', CAT.fed.dot], ['est', 'Estadual', CAT.est.dot], ['mun', 'Municipal', CAT.mun.dot], ['trab', 'Trabalhista', CAT.trab.dot], ['proc', 'Prazos de processos', CAT.proc.dot]].map(function (f) {
+      var on = st.filter === f[0];
+      return {
+        label: f[1], pressed: on ? 'true' : 'false',
+        pick: function () { self.setState({ filter: f[0] }); },
+        style: 'display:inline-flex; align-items:center; gap:8px; min-height:40px; padding:8px 14px; border-radius:999px; font-size:13px; font-weight:600; cursor:pointer; ' + (on ? 'background:#111827; color:#FFFFFF; border:1px solid #111827' : 'background:#FFFFFF; color:#374151; border:1px solid #D1D5DB'),
+        dotStyle: 'width:8px; height:8px; border-radius:999px; background:' + (on && f[0] === 'proc' ? '#FFFFFF' : f[2])
+      };
+    });
+
+    var cells = [];
+    [27, 28, 29, 30].forEach(function (n) {
+      cells.push({
+        num: n, events: [], aria: n + ' de setembro', pick: function () {},
+        style: 'display:flex; flex-direction:column; gap:4px; min-height:112px; padding:8px; text-align:left; border-radius:10px; font:inherit; box-sizing:border-box; min-width:0; background:#F9FAFB; border:1px solid #F3F4F6; color:#9CA3AF; cursor:default',
+        numStyle: 'font-size:13px; font-weight:500; padding:3px 4px; color:#6B7280'
+      });
+    });
+    for (var d = 1; d <= 31; d++) {
+      var sel = st.day === d;
+      var wk = dow(d) === 0 || dow(d) === 6;
+      var list = evs(d);
+      cells.push({
+        num: d, events: list, aria: d + ' de outubro, ' + list.length + ' itens', pick: pickDay(d),
+        style: 'display:flex; flex-direction:column; align-items:stretch; gap:4px; min-height:112px; text-align:left; border-radius:10px; font:inherit; color:#111827; box-sizing:border-box; min-width:0; cursor:pointer; ' + (sel ? 'padding:7px; border:2px solid ' + accent + '; background:#FFFFFF' : 'padding:8px; border:1px solid #E5E7EB; background:' + (wk ? '#FAFAFA' : '#FFFFFF')),
+        numStyle: d === TODAY ? 'display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:999px; background:' + accent + '; color:#FFFFFF; font-weight:700; font-size:13px' : 'font-size:13px; font-weight:600; padding:3px 4px'
+      });
+    }
+
+    var week = [];
+    for (var w = 18; w <= 24; w++) {
+      var we = evs(w);
+      var isT = w === TODAY;
+      var isS = st.day === w;
+      week.push({
+        head: DOW[dow(w)] + ' ' + w, events: we, empty: we.length === 0, pick: pickDay(w),
+        colStyle: 'display:flex; flex-direction:column; gap:8px; min-height:420px; padding:10px; text-align:left; border-radius:10px; font:inherit; color:#111827; cursor:pointer; box-sizing:border-box; min-width:0; background:#FFFFFF; ' + (isS ? 'border:2px solid ' + accent + '; padding:9px' : 'border:1px solid #E5E7EB'),
+        headStyle: 'font-size:13px; font-weight:700; padding:4px 6px; border-radius:6px; ' + (isT ? 'background:' + accent + '; color:#FFFFFF' : 'color:#374151')
+      });
+    }
+
+    var upcoming = [];
+    for (var u = 21; u <= 27; u++) {
+      evs(u).forEach(function (e) {
+        upcoming.push({ day: u, dow: DOW[dow(u)].toUpperCase(), label: e.label, catName: e.catName, dotStyle: 'width:8px; height:8px; border-radius:999px; background:' + e.dot });
+      });
+    }
+
+    var todayEvents = evs(TODAY);
+    var selEvents = evs(st.day);
+    var heading = st.view === 'mes' ? 'Outubro 2026' : st.view === 'semana' ? '18 a 24 de outubro' : 'Hoje, 20 de outubro';
+    var summary = todayEvents.length + ' vencimentos hoje · ' + upcoming.length + ' nos próximos 7 dias';
+
+    return {
+      views: views, filters: filters, cells: cells, week: week, upcoming: upcoming,
+      dowHead: DOW,
+      isMes: st.view === 'mes', isSemana: st.view === 'semana', isHoje: st.view === 'hoje',
+      todayEvents: todayEvents, todayEmpty: todayEvents.length === 0,
+      selEvents: selEvents, selEmpty: selEvents.length === 0,
+      selKicker: st.day === TODAY ? 'Hoje' : 'Dia selecionado',
+      selTitle: DOWF[dow(st.day)] + ', ' + st.day + ' de outubro',
+      heading: heading, summary: summary
+    };
+  }
+}
+</script>
+</body>
+</html>
