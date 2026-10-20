@@ -68,3 +68,9 @@ test('competencia defasada atravessa o ano', () => {
   const r = vencimentosDaObrigacao(base, jan, jan, new Set())
   expect(r[0]).toMatchObject({ data: '2027-01-20', competencia: '12/2026' })
 })
+
+test('posterga pode empurrar a data para o mes seguinte, mantendo a competencia do mes base', () => {
+  const o = { ...base, diaVencimento: 31 }
+  const r = vencimentosDaObrigacao(o, mes, mes, new Set())
+  expect(r[0]).toMatchObject({ data: '2026-11-02', competencia: '09/2026' })
+})

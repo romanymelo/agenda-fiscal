@@ -16,7 +16,14 @@ function formatarCompetencia({ ano, mes }: AnoMes): string {
   return `${String(mes).padStart(2, '0')}/${ano}`
 }
 
-// Calcula as datas de vencimento de uma obrigacao entre dois meses (inclusive), ordenadas por data.
+/**
+ * Calcula as datas de vencimento de uma obrigacao, ordenadas por data.
+ *
+ * `de` e `ate` (inclusivos) delimitam os meses-base do vencimento, nao os limites da data resultante.
+ * Quando a regra de dia nao util desloca a data, ela pode cair no mes vizinho
+ * (ex.: 31/10/2026 e sabado; com `posterga` o vencimento sai em 02/11/2026).
+ * A `competencia` e sempre calculada sobre o mes-base, nunca sobre o mes da data ajustada.
+ */
 export function vencimentosDaObrigacao(
   o: Obrigacao,
   de: AnoMes,
@@ -36,7 +43,7 @@ export function vencimentosDaObrigacao(
     let data: Data
     if (o.regraDiaNaoUtil === 'dia_util_n') {
       // Sem N valido, obrigacao mal cadastrada nao gera data (melhor vazio que data errada).
-      if (o.diaUtilN === null || o.diaUtilN < 1) continue
+      if (o.diaUtilN == null || o.diaUtilN < 1) continue
       // N-esimo dia util do mes: diaVencimento nao e usado.
       data = nEsimoDiaUtil(ano, mes, o.diaUtilN, feriados)
     } else {
