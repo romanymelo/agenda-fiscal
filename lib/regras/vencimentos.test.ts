@@ -51,3 +51,20 @@ test('intervalo de varios meses vem ordenado por data', () => {
   const r = vencimentosDaObrigacao(base, { ano: 2026, mes: 10 }, { ano: 2026, mes: 12 }, new Set())
   expect(r.map(v => v.data)).toEqual(['2026-10-20', '2026-11-20', '2026-12-21'])
 })
+
+test('dia_util_n sem o N nao gera vencimento', () => {
+  const o = { ...base, regraDiaNaoUtil: 'dia_util_n' as const, diaUtilN: null }
+  expect(vencimentosDaObrigacao(o, mes, mes, new Set())).toEqual([])
+})
+
+test('antecipa encadeia quando a vespera tambem e feriado', () => {
+  const o = { ...base, diaVencimento: 25, regraDiaNaoUtil: 'antecipa' as const }
+  const feriados = new Set(['2026-10-23', '2026-10-22'])
+  expect(vencimentosDaObrigacao(o, mes, mes, feriados)[0].data).toBe('2026-10-21')
+})
+
+test('competencia defasada atravessa o ano', () => {
+  const jan = { ano: 2027, mes: 1 }
+  const r = vencimentosDaObrigacao(base, jan, jan, new Set())
+  expect(r[0]).toMatchObject({ data: '2027-01-20', competencia: '12/2026' })
+})

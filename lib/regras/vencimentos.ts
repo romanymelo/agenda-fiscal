@@ -34,7 +34,9 @@ export function vencimentosDaObrigacao(
     if (o.periodicidade !== 'mensal' && !(o.meses ?? []).includes(mes)) continue
 
     let data: Data
-    if (o.regraDiaNaoUtil === 'dia_util_n' && o.diaUtilN !== null) {
+    if (o.regraDiaNaoUtil === 'dia_util_n') {
+      // Sem N valido, obrigacao mal cadastrada nao gera data (melhor vazio que data errada).
+      if (o.diaUtilN === null || o.diaUtilN < 1) continue
       // N-esimo dia util do mes: diaVencimento nao e usado.
       data = nEsimoDiaUtil(ano, mes, o.diaUtilN, feriados)
     } else {
