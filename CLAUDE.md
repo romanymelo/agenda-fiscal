@@ -33,16 +33,20 @@ cores, textos e comportamento, e reconstrua as telas como componentes React.
    - Quadro em colunas por status: Em andamento, Aguardando órgão, Em exigência, Concluído.
    - Busca por cliente, órgão ou protocolo; botão "Novo processo".
    - Detalhe: órgão, protocolo, abertura, última atualização, prazo destacado, linha do tempo de andamentos, anexos.
-3. **Cadastros**: clientes, obrigações e feriados.
+3. **Cadastros**: clientes, obrigações, feriados e configuração do escritório.
+   - Cliente tem um campo `particularidades` de digitação livre (como a nota fiscal é emitida, portal, etc.).
+4. **Equipe**: usuários do escritório, com papel. Só o admin edita.
 
 ## Modelo de dados (Supabase)
 
-- `clientes`: id, nome, cnpj, regime (simples, presumido, real, mei), uf, municipio, ativo
+- `usuarios`: id, nome, email, papel (admin, membro), ativo
+- `clientes`: id, nome, cnpj, regime (simples, presumido, real, mei), uf, municipio, particularidades, ativo
 - `obrigacoes`: id, nome, esfera (federal, estadual, municipal, trabalhista), periodicidade (mensal, trimestral, anual),
   dia_vencimento, meses (para trimestral/anual), regra_dia_nao_util (antecipa, posterga, dia_util_n),
   competencia_defasagem (ex.: EFD-Contribuições vence no mês seguinte ao seguinte), regimes_aplicaveis, observacao, base_legal
-- `obrigacoes_clientes`: obrigacao_id, cliente_id (quais clientes têm cada obrigação; contagem aparece no calendário)
-- `feriados`: data, descricao, abrangencia (nacional, estadual AL, municipal)
+- `feriados`: data, descricao, abrangencia (nacional, estadual, municipal), uf, municipio
+- `configuracao`: linha única com uf e municipio do escritório (define a praça do recorte de feriados)
+- `historico`: tabela, registro_id, acao, campos_alterados, usuario_id, usuario_nome, em
 - `processos`: id, cliente_id, tipo, orgao, protocolo, status, data_abertura, prazo, prazo_descricao, criado_por, atualizado_em
 - `andamentos`: id, processo_id, data, descricao, criado_por
 - `anexos`: id, processo_id, nome_arquivo, caminho_storage, enviado_por
@@ -50,7 +54,9 @@ cores, textos e comportamento, e reconstrua as telas como componentes React.
 Regras:
 - O calendário calcula as datas de vencimento a partir das regras (não grava uma linha por mês), ajustando
   fins de semana e feriados conforme `regra_dia_nao_util`.
+- Obrigações não são vinculadas a clientes: isso já é feito em outro sistema do escritório.
 - Prazo de processo entra automaticamente no calendário com a cor "Processo".
+- Toda escrita (criação, alteração, exclusão) grava o usuário e gera linha em `historico`. Exclusão é lógica.
 - RLS ativo em todas as tabelas: só usuários autenticados do escritório leem e escrevem.
 - Cadastro de usuários só por convite (sem cadastro aberto).
 - Migrations SQL versionadas em `supabase/migrations/`.

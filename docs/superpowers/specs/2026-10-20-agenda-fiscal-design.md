@@ -6,10 +6,15 @@ Status: aprovado em conversa, aguardando revisão escrita
 ## 1. Objetivo
 
 Painel interno e compartilhado do escritório de contabilidade. Quem abre vê o que vence
-hoje, na semana e no mês, e acompanha os processos administrativos em andamento.
+hoje, na semana e no mês, acompanha os processos administrativos em andamento e consulta
+as particularidades de cada cliente.
 
 Não é gestão de tarefas: não controla quem fez ou deixou de fazer o quê. A autoria
 registrada é rastro de quem registrou cada informação, não cobrança de responsável.
+
+Também não é controle de obrigações por cliente: o escritório já tem um sistema que faz
+isso. Aqui as obrigações entram pelas suas regras de vencimento, para aparecerem no
+calendário, e os clientes entram como cadastro de consulta.
 
 ## 2. Escopo desta fase
 
@@ -17,16 +22,17 @@ Construir a aplicação inteira rodando na máquina do usuário, sem Supabase e 
 O destino continua sendo Supabase + Vercel, então o banco local é Postgres de verdade e
 as migrations escritas aqui são as que serão aplicadas no Supabase depois, sem reescrita.
 
-Critério de sucesso: com `npm run dev`, é possível cadastrar usuário, cliente com
-particularidades, obrigação, feriado e processo; ver os vencimentos calculados no
-calendário junto com os prazos dos processos; e abrir o histórico de qualquer registro e
-ler quem alterou o quê e quando.
+Critério de sucesso: com `npm run dev`, é possível se identificar, cadastrar um cliente
+com particularidades, cadastrar obrigação e feriado, abrir um processo com andamentos e
+anexo, ver no calendário os vencimentos calculados junto com os prazos dos processos, e
+abrir o histórico de qualquer registro para ler quem alterou o quê e quando.
 
 ### Fora de escopo
 
 - Subir para Supabase, Vercel ou GitHub remoto.
 - Login real com senha (ver seção 5).
 - Supabase Storage: anexos ficam em pasta local.
+- Vincular obrigações a clientes, e qualquer contagem de clientes por vencimento.
 - Notificações, e-mails, relatórios, exportações.
 - Qualquer controle de tarefa, responsável ou cobrança.
 
@@ -93,9 +99,6 @@ excluido_em    timestamptz
 
 Existem para a tela mostrar "última atualização por Fulano" sem consulta extra.
 
-Exceção: `obrigacoes_clientes` recebe apenas `criado_por` e `criado_em`, pelo motivo
-descrito em 4.2.
-
 ### 4.2 Tabelas
 
 `usuarios`: id, nome, email (único), papel (`admin` ou `membro`, default `membro`),
@@ -105,21 +108,24 @@ sobreviver no histórico.
 `clientes`: id, nome, cnpj, regime (`simples`, `presumido`, `real`, `mei`), uf,
 municipio, **particularidades text**, ativo, + auditoria.
 
+`particularidades` é um campo de digitação livre, de várias linhas, sem estrutura
+imposta: é onde a equipe escreve como a nota fiscal daquele cliente é emitida, por qual
+portal, com qual observação, e o que mais for próprio dele. É o motivo principal da tela
+de clientes existir.
+
 `obrigacoes`: id, nome, esfera (`federal`, `estadual`, `municipal`, `trabalhista`),
 periodicidade (`mensal`, `trimestral`, `anual`), dia_vencimento int, meses int[] (para
 trimestral e anual), regra_dia_nao_util (`antecipa`, `posterga`, `dia_util_n`),
 dia_util_n int, competencia_defasagem int default 0, regimes_aplicaveis text[],
 observacao, base_legal, ativo, + auditoria.
 
-`obrigacoes_clientes`: obrigacao_id, cliente_id, chave primária composta, criado_por,
-criado_em. Única tabela com exclusão física: o vínculo é removido de fato e o histórico
-guarda o registro. Manter vínculos desfeitos poluiria a contagem de clientes no
-calendário.
+`regimes_aplicaveis` é informativo, exibido no cadastro e no detalhe do vencimento: como
+as obrigações não são vinculadas a clientes, nada é filtrado por ele.
 
 `feriados`: id, data, descricao, abrangencia (`nacional`, `estadual`, `municipal`), uf,
-municipio, + auditoria. `abrangencia` define a quem o feriado se aplica: `nacional` vale
-para todos os clientes; `estadual` exige `uf` e vale para os clientes daquela UF;
-`municipal` exige `uf` e `municipio` e vale só para os clientes daquele município.
+municipio, + auditoria. `abrangencia` define a quem o feriado se aplica, confrontado com
+a praça do escritório (ver 7.1): `nacional` sempre vale; `estadual` exige `uf`;
+`municipal` exige `uf` e `municipio`.
 
 `processos`: id, cliente_id, tipo, orgao, protocolo, status (`em_andamento`,
 `aguardando_orgao`, `em_exigencia`, `concluido`), data_abertura, prazo,
@@ -131,17 +137,26 @@ prazo_descricao, + auditoria.
 arquivo vai para a pasta `arquivos/` e `caminho_storage` guarda o caminho relativo, com o
 mesmo formato que o Supabase Storage usará depois.
 
-`historico`: id, tabela text, registro_id text, acao (`criacao`, `alteracao`,
-`exclusao`), campos_alterados jsonb (antes e depois de cada campo mudado), usuario_id
-uuid, **usuario_nome text**, em timestamptz default now().
+`historico`: id, tabela text, registro_id uuid, acao (`criacao`, `alteracao`,
+`exclusao`), campos_alterados jsonb, usuario_id uuid, **usuario_nome text**,
+em timestamptz default now().
 
-`registro_id` é text para acomodar a chave composta de `obrigacoes_clientes`.
 `usuario_nome` é copiado no momento do fato: o histórico precisa continuar legível se o
 usuário for renomeado ou desativado.
 
 `campos_alterados` guarda, em `alteracao`, apenas os campos que mudaram, cada um com
 `antes` e `depois`. Em `criacao` guarda os valores iniciais do registro; em `exclusao`
 fica nulo, porque o registro permanece no banco e já é consultável.
+
+### 4.3 Configuração do escritório
+
+`configuracao`: tabela de uma única linha, com `uf` e `municipio` do escritório, +
+auditoria. Define a praça usada no recorte de feriados (7.1). Editável pelo admin na tela
+de Cadastros. A migration inicial a preenche com AL / Maceió.
+
+Uma tabela de uma linha, e não variável de ambiente, porque é dado do escritório que o
+admin precisa poder corrigir pela interface, e porque a alteração entra no histórico como
+qualquer outra.
 
 ## 5. Quem está usando
 
@@ -177,20 +192,20 @@ Alternativa descartada: triggers no Postgres com `SET LOCAL app.usuario_id`. Mai
 blindado, bem mais complexo, e desnecessário enquanto toda escrita passa por Server
 Actions.
 
-Exclusão é lógica em todas as tabelas de domínio: apagar a linha destruiria o rastro. As
-consultas das telas filtram `excluido_em is null`.
+Exclusão é lógica em todas as tabelas: apagar a linha destruiria o rastro. As consultas
+das telas filtram `excluido_em is null`.
 
 ### Permissões
 
-- `admin`: tudo, e exclusivamente ele cadastra usuários, altera papel, desativa usuários
-  e exclui qualquer registro.
+- `admin`: tudo, e exclusivamente ele cadastra usuários, altera papel, desativa
+  usuários, edita a configuração do escritório e exclui qualquer registro.
 - `membro`: cria e altera todo o resto; não exclui e não mexe na equipe.
 
 ## 7. Cálculo de vencimentos
 
 Função pura em `lib/regras/vencimentos.ts`: recebe a obrigação, um intervalo de meses e a
-lista de feriados que vale para uma praça, devolve as datas de vencimento. O calendário
-nunca grava uma linha por mês.
+lista de feriados que vale para o escritório, devolve as datas de vencimento. O
+calendário nunca grava uma linha por mês.
 
 - `competencia_defasagem` desloca a competência em N meses em relação ao vencimento.
 - `mensal` gera todo mês; `trimestral` e `anual` apenas nos meses listados em `meses`.
@@ -200,38 +215,18 @@ nunca grava uma linha por mês.
 - Prazo de processo entra no calendário com a cor "Processo", sem passar por este
   cálculo.
 
-### 7.1 Feriados por praça
+### 7.1 Feriados e a praça do escritório
 
-Os feriados são recortados por abrangência, conforme 4.2. Como o conjunto de feriados
-muda de cliente para cliente, o vencimento é calculado por **praça** — o par
-(UF, município) — e não uma vez só para o escritório.
-
-Para cada obrigação, o cálculo:
-
-1. reúne os clientes vinculados que o regime da obrigação alcança;
-2. agrupa esses clientes pelas praças distintas que eles ocupam;
-3. calcula a data uma vez por praça, com os feriados nacionais mais os estaduais da UF e
-   os municipais do município daquela praça.
-
-Agrupar por praça, e não por cliente, mantém o cálculo barato: um escritório com
-centenas de clientes ocupa poucas praças distintas.
+Como as obrigações não pertencem a clientes, a praça do cálculo é a do escritório,
+guardada na tabela `configuracao` (4.3). Entram no cálculo os feriados `nacional`, os
+`estadual` da UF configurada e os `municipal` daquele município. Os demais ficam
+cadastrados, visíveis na tela de feriados, sem afetar as datas.
 
 Comparação de UF e município é feita sobre texto normalizado — minúsculas e sem acentos —
 para que "Maceió" e "Maceio" cadastrados em momentos diferentes não deixem de casar.
 
 A migration inicial cadastra os feriados nacionais. Estaduais e municipais a equipe
 acrescenta à mão e passam a valer no cálculo a partir daí.
-
-### 7.2 Efeito no calendário
-
-Uma mesma obrigação pode aparecer em mais de um dia do mês, uma vez por data resultante,
-cada ocorrência com a contagem dos clientes afetados. Exemplo: ISS próprio aparece no dia
-9 com 12 clientes, porque o dia 10 é feriado municipal na praça deles, e no dia 10 com os
-3 clientes restantes. Isso é informação, não duplicação: o chip do dia e o link
-"Ver clientes" mostram exatamente quem vence naquela data.
-
-Obrigação sem nenhum cliente vinculado não gera vencimento no calendário — sem cliente
-não há praça para calcular, e não há nada a fazer naquele dia.
 
 ## 8. Telas
 
@@ -250,12 +245,20 @@ que lista a equipe ativa e não faz parte da navegação.
 2. **Processos**: quadro em quatro colunas por status, busca por cliente, órgão ou
    protocolo, "Novo processo", e detalhe lateral com dados, prazo destacado, andamentos,
    anexos e o novo bloco de histórico.
-3. **Cadastros**: clientes (com o campo de particularidades), obrigações e feriados.
-   Detalhe do cliente exibe particularidades e histórico.
+3. **Cadastros**: clientes, obrigações, feriados e a configuração do escritório. O
+   detalhe do cliente mostra as particularidades em destaque, mais o histórico.
 4. **Equipe**: lista de usuários com papel e situação. Visível a todos, editável só pelo
    admin.
 
-Os mockups não cobrem Cadastros nem Equipe; essas telas seguem a mesma linguagem visual.
+### Diferenças deliberadas em relação aos mockups
+
+Os mockups mostram a contagem de clientes por vencimento — o badge "N clientes" e o link
+"Ver clientes". Ambos saem: as obrigações não são vinculadas a clientes nesta
+aplicação. O espaço do badge passa a mostrar a competência da obrigação, que é a
+informação útil restante.
+
+Os mockups também não cobrem Cadastros, Equipe nem "Quem é você?"; essas telas seguem a
+mesma linguagem visual.
 
 ## 9. Verificação
 
@@ -263,10 +266,8 @@ Vitest para a lógica pura e para as regras que o usuário pediu:
 
 - cálculo de vencimento por periodicidade e por `competencia_defasagem`;
 - as três regras de dia não útil, contra fins de semana e feriados;
-- recorte de feriados por abrangência: nacional atinge todos, estadual só a UF,
-  municipal só o município, com UF e município normalizados;
-- a mesma obrigação gerando duas datas para praças diferentes, com a contagem de
-  clientes certa em cada uma;
+- recorte de feriados pela praça do escritório: nacional sempre entra, estadual só na UF
+  configurada, municipal só no município configurado, com texto normalizado;
 - toda escrita gera linha de histórico com o nome do usuário escolhido;
 - sem usuário escolhido, a escrita é recusada;
 - `membro` não exclui e não altera a equipe; só `admin` exclui.
