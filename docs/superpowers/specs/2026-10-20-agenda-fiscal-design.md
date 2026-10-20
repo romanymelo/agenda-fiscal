@@ -117,8 +117,9 @@ guarda o registro. Manter vínculos desfeitos poluiria a contagem de clientes no
 calendário.
 
 `feriados`: id, data, descricao, abrangencia (`nacional`, `estadual`, `municipal`), uf,
-municipio, + auditoria. `abrangencia`, `uf` e `municipio` são rótulos informativos,
-exibidos na tela de cadastro: o cálculo de vencimentos não filtra por eles (ver 7).
+municipio, + auditoria. `abrangencia` define a quem o feriado se aplica: `nacional` vale
+para todos os clientes; `estadual` exige `uf` e vale para os clientes daquela UF;
+`municipal` exige `uf` e `municipio` e vale só para os clientes daquele município.
 
 `processos`: id, cliente_id, tipo, orgao, protocolo, status (`em_andamento`,
 `aguardando_orgao`, `em_exigencia`, `concluido`), data_abertura, prazo,
@@ -188,8 +189,8 @@ consultas das telas filtram `excluido_em is null`.
 ## 7. Cálculo de vencimentos
 
 Função pura em `lib/regras/vencimentos.ts`: recebe a obrigação, um intervalo de meses e a
-lista de feriados, devolve as datas de vencimento. O calendário nunca grava uma linha por
-mês.
+lista de feriados que vale para uma praça, devolve as datas de vencimento. O calendário
+nunca grava uma linha por mês.
 
 - `competencia_defasagem` desloca a competência em N meses em relação ao vencimento.
 - `mensal` gera todo mês; `trimestral` e `anual` apenas nos meses listados em `meses`.
@@ -199,15 +200,38 @@ mês.
 - Prazo de processo entra no calendário com a cor "Processo", sem passar por este
   cálculo.
 
-Feriados: o cálculo considera todas as linhas da tabela `feriados`, sem filtrar por
-abrangência, UF ou município. A tabela nasce com os feriados nacionais já cadastrados
-pela migration inicial; feriados estaduais e municipais a equipe acrescenta à mão quando
-afetarem algum vencimento, e passam a valer para o cálculo a partir daí.
+### 7.1 Feriados por praça
 
-Consequência: um feriado municipal cadastrado desloca o vencimento para todos os
-clientes, não só os daquele município. É o comportamento escolhido — mais simples e
-suficiente enquanto o escritório atende uma praça. Vencimento por município de cliente
-fica fora desta fase.
+Os feriados são recortados por abrangência, conforme 4.2. Como o conjunto de feriados
+muda de cliente para cliente, o vencimento é calculado por **praça** — o par
+(UF, município) — e não uma vez só para o escritório.
+
+Para cada obrigação, o cálculo:
+
+1. reúne os clientes vinculados que o regime da obrigação alcança;
+2. agrupa esses clientes pelas praças distintas que eles ocupam;
+3. calcula a data uma vez por praça, com os feriados nacionais mais os estaduais da UF e
+   os municipais do município daquela praça.
+
+Agrupar por praça, e não por cliente, mantém o cálculo barato: um escritório com
+centenas de clientes ocupa poucas praças distintas.
+
+Comparação de UF e município é feita sobre texto normalizado — minúsculas e sem acentos —
+para que "Maceió" e "Maceio" cadastrados em momentos diferentes não deixem de casar.
+
+A migration inicial cadastra os feriados nacionais. Estaduais e municipais a equipe
+acrescenta à mão e passam a valer no cálculo a partir daí.
+
+### 7.2 Efeito no calendário
+
+Uma mesma obrigação pode aparecer em mais de um dia do mês, uma vez por data resultante,
+cada ocorrência com a contagem dos clientes afetados. Exemplo: ISS próprio aparece no dia
+9 com 12 clientes, porque o dia 10 é feriado municipal na praça deles, e no dia 10 com os
+3 clientes restantes. Isso é informação, não duplicação: o chip do dia e o link
+"Ver clientes" mostram exatamente quem vence naquela data.
+
+Obrigação sem nenhum cliente vinculado não gera vencimento no calendário — sem cliente
+não há praça para calcular, e não há nada a fazer naquele dia.
 
 ## 8. Telas
 
@@ -239,6 +263,10 @@ Vitest para a lógica pura e para as regras que o usuário pediu:
 
 - cálculo de vencimento por periodicidade e por `competencia_defasagem`;
 - as três regras de dia não útil, contra fins de semana e feriados;
+- recorte de feriados por abrangência: nacional atinge todos, estadual só a UF,
+  municipal só o município, com UF e município normalizados;
+- a mesma obrigação gerando duas datas para praças diferentes, com a contagem de
+  clientes certa em cada uma;
 - toda escrita gera linha de histórico com o nome do usuário escolhido;
 - sem usuário escolhido, a escrita é recusada;
 - `membro` não exclui e não altera a equipe; só `admin` exclui.
