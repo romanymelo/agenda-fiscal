@@ -71,7 +71,7 @@ Cinco comportamentos que a spec implica sem descrever, cada um com o teste atrib
 ### Task 1: Scaffold e verificação
 
 **Files:**
-- Create: projeto Next.js na raiz, `vitest.config.ts`, `lib/tipos.ts`
+- Create: projeto Next.js na raiz, `vitest.config.mts`, `lib/tipos.ts`
 - Modify: `.gitignore`, `app/layout.tsx`, `app/globals.css`
 
 **Interfaces:**
@@ -104,7 +104,7 @@ npm install -D vitest @playwright/test
 
 - [ ] **Step 2: Configurar Vitest**
 
-`vitest.config.ts` com ambiente `node` e `include: ['lib/**/*.test.ts']`. Adicionar `"test": "vitest run"` aos scripts.
+`vitest.config.mts` com ambiente `node` e `include: ['lib/**/*.test.ts']`. Adicionar `"test": "vitest run"` aos scripts.
 
 - [ ] **Step 3: Ajustar `.gitignore`**
 
