@@ -1,0 +1,59 @@
+import type { Data, Esfera, Obrigacao } from '../tipos'
+import { montarData, somarMeses } from './data'
+import { diaUtilAnterior, diaUtilSeguinte, ehDiaUtil, nEsimoDiaUtil } from './dia-util'
+
+export type Vencimento = {
+  obrigacaoId: string
+  nome: string
+  esfera: Esfera
+  data: Data
+  competencia: string // 'MM/AAAA'
+}
+
+type AnoMes = { ano: number; mes: number }
+
+function formatarCompetencia({ ano, mes }: AnoMes): string {
+  return `${String(mes).padStart(2, '0')}/${ano}`
+}
+
+// Calcula as datas de vencimento de uma obrigacao entre dois meses (inclusive), ordenadas por data.
+export function vencimentosDaObrigacao(
+  o: Obrigacao,
+  de: AnoMes,
+  ate: AnoMes,
+  feriados: Set<Data>,
+): Vencimento[] {
+  const resultado: Vencimento[] = []
+  const fim = ate.ano * 12 + ate.mes
+
+  for (let i = 0; ; i++) {
+    const { ano, mes } = somarMeses(de.ano, de.mes, i)
+    if (ano * 12 + mes > fim) break
+
+    // Trimestral e anual so vencem nos meses cadastrados; sem meses, nao inventa data.
+    if (o.periodicidade !== 'mensal' && !(o.meses ?? []).includes(mes)) continue
+
+    let data: Data
+    if (o.regraDiaNaoUtil === 'dia_util_n' && o.diaUtilN !== null) {
+      // N-esimo dia util do mes: diaVencimento nao e usado.
+      data = nEsimoDiaUtil(ano, mes, o.diaUtilN, feriados)
+    } else {
+      // Primeiro monta a data (limitando o dia ao fim do mes), so depois aplica a regra de dia nao util.
+      data = montarData(ano, mes, o.diaVencimento)
+      if (!ehDiaUtil(data, feriados)) {
+        if (o.regraDiaNaoUtil === 'antecipa') data = diaUtilAnterior(data, feriados)
+        else if (o.regraDiaNaoUtil === 'posterga') data = diaUtilSeguinte(data, feriados)
+      }
+    }
+
+    resultado.push({
+      obrigacaoId: o.id,
+      nome: o.nome,
+      esfera: o.esfera,
+      data,
+      competencia: formatarCompetencia(somarMeses(ano, mes, -o.competenciaDefasagem)),
+    })
+  }
+
+  return resultado.sort((a, b) => (a.data < b.data ? -1 : a.data > b.data ? 1 : 0))
+}
