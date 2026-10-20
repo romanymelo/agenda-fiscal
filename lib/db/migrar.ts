@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import type { PGlite } from '@electric-sql/pglite'
 
+// Assume execução a partir da raiz do projeto (npm run dev, vitest).
 const PASTA = path.resolve(process.cwd(), 'supabase', 'migrations')
 
 // Aplica as migrations pendentes, em ordem de nome. Arquivos com prefixo 9 (RLS) ficam de fora:

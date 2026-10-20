@@ -56,7 +56,10 @@ create table obrigacoes (
   atualizado_por        uuid references usuarios(id),
   atualizado_em         timestamptz,
   excluido_por          uuid references usuarios(id),
-  excluido_em           timestamptz
+  excluido_em           timestamptz,
+  -- precisa de um dia que produza data: dia_util_n para essa regra, dia_vencimento nas demais
+  check ((regra_dia_nao_util = 'dia_util_n' and dia_util_n is not null)
+      or (regra_dia_nao_util <> 'dia_util_n' and dia_vencimento is not null))
 );
 
 -- Feriados; a abrangência é confrontada com a praça do escritório (tabela configuracao).
@@ -101,11 +104,11 @@ create table processos (
   id              uuid primary key default gen_random_uuid(),
   cliente_id      uuid not null references clientes(id),
   tipo            text not null,
-  orgao           text,
+  orgao           text not null,
   protocolo       text,
   status          text not null default 'em_andamento'
                   check (status in ('em_andamento', 'aguardando_orgao', 'em_exigencia', 'concluido')),
-  data_abertura   date,
+  data_abertura   date not null,
   prazo           date,
   prazo_descricao text,
   criado_por      uuid not null references usuarios(id),
@@ -152,7 +155,7 @@ create table historico (
   registro_id      uuid not null,
   acao             text not null check (acao in ('criacao', 'alteracao', 'exclusao')),
   campos_alterados jsonb,
-  usuario_id       uuid references usuarios(id),
+  usuario_id       uuid not null references usuarios(id),
   usuario_nome     text not null,
   em               timestamptz not null default now()
 );
