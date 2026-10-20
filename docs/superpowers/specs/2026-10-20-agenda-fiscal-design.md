@@ -117,7 +117,8 @@ guarda o registro. Manter vínculos desfeitos poluiria a contagem de clientes no
 calendário.
 
 `feriados`: id, data, descricao, abrangencia (`nacional`, `estadual`, `municipal`), uf,
-municipio, + auditoria.
+municipio, + auditoria. `abrangencia`, `uf` e `municipio` são rótulos informativos,
+exibidos na tela de cadastro: o cálculo de vencimentos não filtra por eles (ver 7).
 
 `processos`: id, cliente_id, tipo, orgao, protocolo, status (`em_andamento`,
 `aguardando_orgao`, `em_exigencia`, `concluido`), data_abertura, prazo,
@@ -143,19 +144,25 @@ fica nulo, porque o registro permanece no banco e já é consultável.
 
 ## 5. Quem está usando
 
-Nesta fase não há login. Um único módulo, `lib/usuario-atual.ts`, devolve o usuário fixo
-cujo id vem de `.env.local`. Toda a aplicação pergunta a autoria só a essa função.
+Nesta fase não há senha. Na primeira visita a aplicação mostra uma tela "Quem é você?"
+que lista a equipe ativa; a pessoa se escolhe e a escolha fica num cookie. O header
+passa a exibir o nome escolhido, com a opção de trocar.
 
-Consequência explícita: enquanto o login não existir, toda edição será atribuída a esse
-mesmo usuário. O rastro é testável de ponta a ponta, mas não distingue pessoas. Quando o
-Supabase Auth entrar, muda essa função e nada mais.
+Um único módulo, `lib/usuario-atual.ts`, lê esse cookie e devolve o usuário — id, nome e
+papel. Toda a aplicação pergunta a autoria e a permissão só a essa função. Quando o
+Supabase Auth entrar, muda essa função e nada mais: as telas, o helper de escrita e as
+permissões continuam iguais.
 
-A checagem de papel é ligada desde já, contra esse usuário fixo, para a regra não nascer
-morta. A primeira migration cria um usuário admin inicial, que é o usuário fixo padrão —
-sem isso não haveria como cadastrar a equipe nem exercer as permissões de admin.
+Consequência explícita: isto identifica, não autentica. Qualquer pessoa com acesso ao
+painel pode se declarar qualquer membro da equipe. É aceitável porque o painel é interno
+e porque a finalidade da autoria é saber quem registrou cada informação, não impedir
+fraude. A autenticação de verdade chega com o Supabase Auth.
 
-Para conferir o comportamento de `membro`, troca-se o id no `.env.local`. Os testes
-automatizados cobrem os dois papéis diretamente, sem depender dessa troca.
+Sem usuário escolhido, a aplicação não permite escrita — não existe registro anônimo.
+
+A primeira migration cria um usuário admin inicial, senão não haveria como cadastrar a
+equipe nem exercer as permissões de admin. A checagem de papel vale desde já, contra o
+usuário escolhido no cookie.
 
 ## 6. Autoria e histórico
 
@@ -192,10 +199,15 @@ mês.
 - Prazo de processo entra no calendário com a cor "Processo", sem passar por este
   cálculo.
 
-Suposição declarada: os feriados usados no cálculo são os nacionais, os estaduais de AL e
-os municipais do município do escritório. Feriados municipais distintos por cliente
-fariam a mesma obrigação vencer em datas diferentes para clientes diferentes; isso fica
-fora desta fase.
+Feriados: o cálculo considera todas as linhas da tabela `feriados`, sem filtrar por
+abrangência, UF ou município. A tabela nasce com os feriados nacionais já cadastrados
+pela migration inicial; feriados estaduais e municipais a equipe acrescenta à mão quando
+afetarem algum vencimento, e passam a valer para o cálculo a partir daí.
+
+Consequência: um feriado municipal cadastrado desloca o vencimento para todos os
+clientes, não só os daquele município. É o comportamento escolhido — mais simples e
+suficiente enquanto o escritório atende uma praça. Vencimento por município de cliente
+fica fora desta fase.
 
 ## 8. Telas
 
@@ -204,7 +216,9 @@ Reconstruídas como componentes React a partir de `referencia/mockup-calendario.
 cartões brancos com borda `#E5E7EB`, cores por esfera e por status conforme os mockups.
 Layout empilha em telas pequenas; quadros largos rolam na horizontal.
 
-A navegação do header passa a ter quatro itens.
+A navegação do header passa a ter quatro itens, e o header ganha à direita o nome do
+usuário escolhido, com a opção de trocar. Antes disso existe a tela **Quem é você?**,
+que lista a equipe ativa e não faz parte da navegação.
 
 1. **Calendário** (inicial): Hoje / Semana / Mês, setas de período, filtros por esfera e
    "Prazos de processos", lateral com o dia selecionado e os próximos 7 dias. Feriados
@@ -225,7 +239,8 @@ Vitest para a lógica pura e para as regras que o usuário pediu:
 
 - cálculo de vencimento por periodicidade e por `competencia_defasagem`;
 - as três regras de dia não útil, contra fins de semana e feriados;
-- toda escrita gera linha de histórico com o nome do usuário;
+- toda escrita gera linha de histórico com o nome do usuário escolhido;
+- sem usuário escolhido, a escrita é recusada;
 - `membro` não exclui e não altera a equipe; só `admin` exclui.
 
 As telas são verificadas com Playwright CLI ao fim de cada etapa, com saída reduzida.
