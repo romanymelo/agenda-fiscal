@@ -93,6 +93,9 @@ excluido_em    timestamptz
 
 Existem para a tela mostrar "última atualização por Fulano" sem consulta extra.
 
+Exceção: `obrigacoes_clientes` recebe apenas `criado_por` e `criado_em`, pelo motivo
+descrito em 4.2.
+
 ### 4.2 Tabelas
 
 `usuarios`: id, nome, email (único), papel (`admin` ou `membro`, default `membro`),
@@ -134,6 +137,10 @@ uuid, **usuario_nome text**, em timestamptz default now().
 `usuario_nome` é copiado no momento do fato: o histórico precisa continuar legível se o
 usuário for renomeado ou desativado.
 
+`campos_alterados` guarda, em `alteracao`, apenas os campos que mudaram, cada um com
+`antes` e `depois`. Em `criacao` guarda os valores iniciais do registro; em `exclusao`
+fica nulo, porque o registro permanece no banco e já é consultável.
+
 ## 5. Quem está usando
 
 Nesta fase não há login. Um único módulo, `lib/usuario-atual.ts`, devolve o usuário fixo
@@ -144,7 +151,11 @@ mesmo usuário. O rastro é testável de ponta a ponta, mas não distingue pesso
 Supabase Auth entrar, muda essa função e nada mais.
 
 A checagem de papel é ligada desde já, contra esse usuário fixo, para a regra não nascer
-morta.
+morta. A primeira migration cria um usuário admin inicial, que é o usuário fixo padrão —
+sem isso não haveria como cadastrar a equipe nem exercer as permissões de admin.
+
+Para conferir o comportamento de `membro`, troca-se o id no `.env.local`. Os testes
+automatizados cobrem os dois papéis diretamente, sem depender dessa troca.
 
 ## 6. Autoria e histórico
 
