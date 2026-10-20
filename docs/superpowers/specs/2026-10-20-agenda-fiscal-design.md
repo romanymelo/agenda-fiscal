@@ -105,8 +105,12 @@ Existem para a tela mostrar "última atualização por Fulano" sem consulta extr
 ativo (default true), + auditoria. Usuário não é apagado, é desativado — o nome precisa
 sobreviver no histórico.
 
-`clientes`: id, nome, cnpj, regime (`simples`, `presumido`, `real`, `mei`), uf,
-municipio, **particularidades text**, ativo, + auditoria.
+`clientes`: id, nome, **codigo_dominio text**, cnpj, regime (`simples`, `presumido`,
+`real`, `mei`), uf, municipio, **particularidades text**, ativo, + auditoria.
+
+`codigo_dominio` é o código do cliente no Domínio. Guardado como texto, não número,
+porque o código pode ter zero à esquerda. Opcional, e exibido junto do nome no cadastro e
+no detalhe, por ser como a equipe identifica o cliente no dia a dia.
 
 `particularidades` é um campo de digitação livre, de várias linhas, sem estrutura
 imposta: é onde a equipe escreve como a nota fiscal daquele cliente é emitida, por qual
@@ -245,8 +249,9 @@ que lista a equipe ativa e não faz parte da navegação.
 2. **Processos**: quadro em quatro colunas por status, busca por cliente, órgão ou
    protocolo, "Novo processo", e detalhe lateral com dados, prazo destacado, andamentos,
    anexos e o novo bloco de histórico.
-3. **Cadastros**: clientes, obrigações, feriados e a configuração do escritório. O
-   detalhe do cliente mostra as particularidades em destaque, mais o histórico.
+3. **Cadastros**: clientes, obrigações, feriados e a configuração do escritório. A lista
+   de clientes busca por nome, código do Domínio ou CNPJ; o detalhe mostra as
+   particularidades em destaque, mais o histórico.
 4. **Equipe**: lista de usuários com papel e situação. Visível a todos, editável só pelo
    admin.
 

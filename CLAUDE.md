@@ -40,7 +40,8 @@ cores, textos e comportamento, e reconstrua as telas como componentes React.
 ## Modelo de dados (Supabase)
 
 - `usuarios`: id, nome, email, papel (admin, membro), ativo
-- `clientes`: id, nome, cnpj, regime (simples, presumido, real, mei), uf, municipio, particularidades, ativo
+- `clientes`: id, nome, codigo_dominio (texto, pode ter zero à esquerda), cnpj,
+  regime (simples, presumido, real, mei), uf, municipio, particularidades, ativo
 - `obrigacoes`: id, nome, esfera (federal, estadual, municipal, trabalhista), periodicidade (mensal, trimestral, anual),
   dia_vencimento, meses (para trimestral/anual), regra_dia_nao_util (antecipa, posterga, dia_util_n),
   competencia_defasagem (ex.: EFD-Contribuições vence no mês seguinte ao seguinte), regimes_aplicaveis, observacao, base_legal
