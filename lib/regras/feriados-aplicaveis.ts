@@ -11,7 +11,8 @@ export function normalizar(texto: string): string {
 
 /**
  * Datas de feriado que valem para a praça (UF + município).
- * Nacional vale sempre; estadual só na UF; municipal só no município.
+ * Nacional vale sempre; estadual só na UF; municipal só na UF e no município
+ * (nomes de município se repetem entre estados).
  * Cadastro incompleto (estadual sem uf, municipal sem município) é ignorado,
  * para não deslocar vencimento de ninguém.
  */
@@ -25,7 +26,10 @@ export function feriadosDaPraca(feriados: Feriado[], praca: Praca): Set<Data> {
     } else if (f.abrangencia === 'estadual') {
       if (f.uf && normalizar(f.uf) === uf) datas.add(f.data)
     } else if (f.abrangencia === 'municipal') {
-      if (f.municipio && normalizar(f.municipio) === municipio) datas.add(f.data)
+      if (
+        f.uf && normalizar(f.uf) === uf &&
+        f.municipio && normalizar(f.municipio) === municipio
+      ) datas.add(f.data)
     }
   }
   return datas

@@ -18,3 +18,10 @@ test('normalizar casa acento e caixa', () => {
   expect(normalizar('Maceió')).toBe(normalizar('maceio'))
   expect(normalizar(' al ')).toBe('al')
 })
+
+test('feriado municipal de cidade homonima em outra UF nao entra na praca', () => {
+  const r = feriadosDaPraca([
+    { data: '2026-03-10', descricao: 'Homonima', abrangencia: 'municipal', uf: 'SP', municipio: 'Maceio' },
+  ], { uf: 'AL', municipio: 'Maceió' })
+  expect([...r]).toEqual([])
+})

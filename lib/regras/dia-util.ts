@@ -23,7 +23,8 @@ export function diaUtilSeguinte(d: Data, feriados: Set<Data>): Data {
 
 /**
  * N-ésimo dia útil do mês, contado a partir do dia 1.
- * Se n exceder a quantidade de dias úteis do mês, devolve o último dia útil.
+ * Contrato: n >= 1; quem chama valida isso (a validação de dia_util_n fica no
+ * cadastro de obrigações). Se n exceder a quantidade de dias úteis do mês, devolve o último dia útil.
  */
 export function nEsimoDiaUtil(
   ano: number,
