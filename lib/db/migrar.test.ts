@@ -1,4 +1,5 @@
-import { rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { PGlite } from '@electric-sql/pglite'
 import { expect, test } from 'vitest'
@@ -55,19 +56,21 @@ test('check de feriados rejeita cadastro incoerente', async () => {
 })
 
 test('migration que falha no meio nao fica registrada', async () => {
-  // Arquivo temporário na pasta real, removido no finally; usa o migrar sem alterá-lo.
-  const nome = '0003_teste_invalida.sql'
-  const arquivo = path.resolve(process.cwd(), 'supabase', 'migrations', nome)
-  writeFileSync(arquivo, 'create table tabela_temporaria (a int); select * from tabela_que_nao_existe;')
+  // Pasta temporária própria: a pasta real de migrations nunca é tocada.
+  const dir = mkdtempSync(path.join(tmpdir(), 'migrar-'))
   try {
+    writeFileSync(path.join(dir, '0001_valida.sql'), 'create table tabela_valida (a int);')
+    writeFileSync(path.join(dir, '0002_invalida.sql'),
+      'create table tabela_temporaria (a int); select * from tabela_que_nao_existe;')
     const db = new PGlite()
-    await expect(migrar(db)).rejects.toThrow()
-    const reg = await db.query('select 1 from migrations_aplicadas where nome = $1', [nome])
-    expect(reg.rows).toHaveLength(0)
-    const tab = await db.query("select 1 from information_schema.tables where table_name = 'tabela_temporaria'")
-    expect(tab.rows).toHaveLength(0)
+    await expect(migrar(db, dir)).rejects.toThrow()
+    const reg = await db.query<{ nome: string }>('select nome from migrations_aplicadas')
+    expect(reg.rows).toEqual([{ nome: '0001_valida.sql' }])
+    const tab = await db.query<{ table_name: string }>(
+      "select table_name from information_schema.tables where table_name in ('tabela_valida', 'tabela_temporaria')")
+    expect(tab.rows).toEqual([{ table_name: 'tabela_valida' }])
   } finally {
-    rmSync(arquivo)
+    rmSync(dir, { recursive: true, force: true })
   }
 })
 
