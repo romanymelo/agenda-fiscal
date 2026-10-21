@@ -14,11 +14,15 @@ import type { Acao } from '@/lib/tipos'
 // e quem o usar numa tela nova tem de garantir que quem vê a tela pode ver aquele registro.
 //
 // Uso:
+//   // O nome de um registro relacionado (cliente no lugar do uuid) sai de UM mapa carregado antes, pela página,
+//   // numa consulta só. `formatar` roda uma vez por valor (duas por campo alterado), em paralelo, sem lote nem
+//   // cache: se ele consultar o banco, cada linha do histórico dispara várias consultas ao mesmo tempo.
+//   const nomes = new Map((await listarClientes(db)).map((c) => [c.id, c.nome]))
 //   <Historico
 //     tabela="processos"
 //     registroId={processo.id}
 //     rotulos={{ orgao: 'Órgão', prazo: 'Prazo', cliente_id: 'Cliente' }}
-//     formatar={async (campo, valor) => (campo === 'cliente_id' ? await nomeDoCliente(valor) : undefined)}
+//     formatar={(campo, valor) => (campo === 'cliente_id' ? nomes.get(String(valor)) : undefined)}
 //   />
 
 /** Nome de coluna do banco (`codigo_dominio`) para o rótulo que a equipe lê ("Código do Domínio"). */
@@ -30,9 +34,10 @@ export type Rotulos = Record<string, string>
  *   "Em andamento" para `em_andamento`);
  * - `null` para mostrar "(vazio)";
  * - `undefined` para deixar o componente formatar do jeito padrão.
- * Pode ser assíncrona (para buscar o nome de um registro relacionado). É chamada uma vez por valor
- * antes e depois de cada alteração; `valor` é o que o histórico guardou (jsonb: texto, número,
- * booleano, `null`...).
+ * É chamada uma vez por valor, antes e depois de cada alteração, em paralelo e sem lote nem cache; `valor`
+ * é o que o histórico guardou (jsonb: texto, número, booleano, `null`...). Prefira uma função SÍNCRONA que
+ * lê de um `Map` já carregado pela página (nome do cliente, por exemplo). Pode ser assíncrona, mas nunca
+ * consulte o banco a cada chamada: são duas consultas simultâneas por campo alterado, por linha.
  */
 export type FormatarValor = (
   campo: string,

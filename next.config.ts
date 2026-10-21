@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
   // pacote do servidor, o Node o carrega por require nativo e ele funciona.
   serverExternalPackages: ['@electric-sql/pglite'],
   partialPrefetching: true,
+  // Anexos de processo (até 10 MB) chegam por Server Action, cujo corpo tem limite padrão de 1 MB.
+  // A folga de 2 MB cobre o envelope do multipart.
+  experimental: { serverActions: { bodySizeLimit: '12mb' } },
   turbopack: {
     rules: {
       "*.css": {

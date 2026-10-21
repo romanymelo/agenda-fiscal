@@ -111,3 +111,37 @@ export const ROTULO_ABRANGENCIA: Record<Abrangencia, string> = {
   estadual: 'Estadual',
   municipal: 'Municipal',
 }
+
+/** Nome de cada situação do processo e suas cores (texto, fundo, ponto), as mesmas no quadro e no detalhe. A ordem é a das colunas. */
+export const ROTULO_STATUS: Record<StatusProcesso, string> = {
+  em_andamento: 'Em andamento',
+  aguardando_orgao: 'Aguardando órgão',
+  em_exigencia: 'Em exigência',
+  concluido: 'Concluído',
+}
+export const COR_STATUS: Record<StatusProcesso, { texto: string; fundo: string; ponto: string }> = {
+  em_andamento: { texto: '#1E40AF', fundo: '#DBEAFE', ponto: '#2563EB' },
+  aguardando_orgao: { texto: '#92400E', fundo: '#FEF3C7', ponto: '#D97706' },
+  em_exigencia: { texto: '#9F1239', fundo: '#FFE4E6', ponto: '#E11D48' },
+  concluido: { texto: '#166534', fundo: '#DCFCE7', ponto: '#16A34A' },
+}
+
+/** Processo administrativo em um órgão, como o quadro o enxerga. */
+export type Processo = {
+  id: string
+  clienteId: string
+  clienteNome: string
+  tipo: string
+  orgao: string
+  protocolo: string | null
+  status: StatusProcesso
+  dataAbertura: Data
+  prazo: Data | null
+  prazoDescricao: string | null
+  /** Instante da última mudança: alteração do processo ou andamento novo, o que for mais recente. */
+  atualizadoEm: string | null
+}
+
+export type Andamento = { id: string; data: Data; descricao: string; criadoPorNome: string }
+
+export type Anexo = { id: string; nomeArquivo: string; caminhoStorage: string; criadoPorNome: string }

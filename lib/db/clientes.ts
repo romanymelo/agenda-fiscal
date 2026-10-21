@@ -9,7 +9,7 @@ import { UUID } from './usuarios'
 // locale) e `lower()`; o termo digitado é normalizado em JS pela mesma regra de `normalizar`.
 const COM_ACENTO = 'ÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÛÜÇÑáàâãäéèêëíìîïóòôõöúùûüçñ'
 const SEM_ACENTO = 'AAAAAEEEEIIIIOOOOOUUUUCNaaaaaeeeeiiiiooooouuuucn'
-const normalizada = (coluna: string) =>
+export const normalizada = (coluna: string) =>
   `lower(translate(coalesce(${coluna}, ''), '${COM_ACENTO}', '${SEM_ACENTO}'))`
 
 type Linha = {
