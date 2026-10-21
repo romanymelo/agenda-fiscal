@@ -12,9 +12,9 @@ let ctx: Contexto
 vi.mock('@/lib/usuario-atual', () => ({ contextoAtual: async () => ctx }))
 vi.mock('next/cache', () => ({ revalidatePath: () => {} }))
 
-import { alterarObrigacao, criarObrigacao } from '@/app/(painel)/cadastros/obrigacoes/acoes'
+import { alterarObrigacao, criarObrigacao, excluirObrigacao } from '@/app/(painel)/cadastros/obrigacoes/acoes'
 import { validarObrigacao } from '@/app/(painel)/cadastros/obrigacoes/validacao'
-import { listarObrigacoes } from './obrigacoes'
+import { buscarObrigacao, listarObrigacoes } from './obrigacoes'
 
 // Campo repetido (meses, regimes) vira lista de valores, como as caixas de marcação do navegador.
 function formulario(campos: Record<string, string | string[]>): FormData {
@@ -159,4 +159,22 @@ test('dia de vencimento fora de 1..31 e recusado', async () => {
     erro: expect.stringMatching(/dia do vencimento/),
   })
   expect((await listarObrigacoes(ctx.db))[0].diaVencimento).toBe(20)
+})
+
+test('obrigacao inativa nao vem por padrao, so quando pedida, e excluida nunca vem', async () => {
+  await criarObrigacao(formulario(DAS))
+  await criarObrigacao(formulario({ ...DAS, nome: 'Antiga', ativo: 'false' }))
+  await criarObrigacao(formulario({ ...DAS, nome: 'Apagada' }))
+  const apagada = (await listarObrigacoes(ctx.db)).find((o) => o.nome === 'Apagada')!
+  expect(await excluirObrigacao(apagada.id)).toEqual({ ok: true })
+  // Padrão: só as ativas (é o que chega ao calendário); com o pedido, as inativas também, já marcadas como tais.
+  expect((await listarObrigacoes(ctx.db)).map((o) => o.nome)).toEqual(['DAS'])
+  expect((await listarObrigacoes(ctx.db, { incluirInativos: true })).map((o) => [o.nome, o.ativo])).toEqual([
+    ['Antiga', false],
+    ['DAS', true],
+  ])
+  // A inativa continua abrindo no detalhe; a excluída não.
+  const [antiga] = await listarObrigacoes(ctx.db, { incluirInativos: true })
+  expect((await buscarObrigacao(ctx.db, antiga.id))?.ativo).toBe(false)
+  expect(await buscarObrigacao(ctx.db, apagada.id)).toBeNull()
 })

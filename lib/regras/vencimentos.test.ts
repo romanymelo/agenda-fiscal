@@ -74,3 +74,8 @@ test('posterga pode empurrar a data para o mes seguinte, mantendo a competencia 
   const r = vencimentosDaObrigacao(o, mes, mes, new Set())
   expect(r[0]).toMatchObject({ data: '2026-11-02', competencia: '09/2026' })
 })
+
+test('antecipa e posterga sem diaVencimento nao geram data (obrigacao mal cadastrada)', () => {
+  for (const regraDiaNaoUtil of ['posterga', 'antecipa'] as const)
+    expect(vencimentosDaObrigacao({ ...base, diaVencimento: null, regraDiaNaoUtil }, mes, mes, new Set())).toEqual([])
+})

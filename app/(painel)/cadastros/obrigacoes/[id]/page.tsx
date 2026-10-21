@@ -42,7 +42,7 @@ async function Conteudo({ params }: { params: Promise<{ id: string }> }) {
   const dados: [string, string][] = [
     ['Periodicidade', ROTULO_PERIODICIDADE[o.periodicidade]],
     ['Vencimento', descreverVencimento(o)],
-    ['Se cair em dia não útil', ROTULO_REGRA[o.regraDiaNaoUtil]],
+    ['Regra de vencimento', ROTULO_REGRA[o.regraDiaNaoUtil]],
     ['Competência', descreverCompetencia(o.competenciaDefasagem)],
     ['Base legal', o.baseLegal ?? '—'],
     [

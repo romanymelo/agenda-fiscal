@@ -118,7 +118,7 @@ function FormularioObrigacao({
           />
         </Condicional>
         <Selecao
-          rotulo="Se o vencimento cair em dia não útil"
+          rotulo="Regra de vencimento"
           nome="regra_dia_nao_util"
           obrigatorio
           vazio="Escolha…"

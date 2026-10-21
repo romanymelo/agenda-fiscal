@@ -70,7 +70,7 @@ export const ROTULOS_OBRIGACAO: Rotulos = {
   esfera: 'Esfera',
   periodicidade: 'Periodicidade',
   meses: 'Meses',
-  regra_dia_nao_util: 'Regra para dia não útil',
+  regra_dia_nao_util: 'Regra de vencimento',
   dia_vencimento: 'Dia do vencimento',
   dia_util_n: 'Número do dia útil',
   competencia_defasagem: 'Defasagem da competência',

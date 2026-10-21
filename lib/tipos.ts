@@ -63,9 +63,9 @@ export const ROTULO_PERIODICIDADE: Record<Periodicidade, string> = {
   anual: 'Anual',
 }
 export const ROTULO_REGRA: Record<RegraDiaNaoUtil, string> = {
-  antecipa: 'Antecipa para o dia útil anterior',
-  posterga: 'Posterga para o próximo dia útil',
-  dia_util_n: 'Vence no N-ésimo dia útil do mês',
+  antecipa: 'Dia fixo; se cair em dia não útil, antecipa para o dia útil anterior',
+  posterga: 'Dia fixo; se cair em dia não útil, posterga para o próximo dia útil',
+  dia_util_n: 'N-ésimo dia útil do mês (por exemplo, o 10º dia útil)',
 }
 
 export type Regime = 'simples' | 'presumido' | 'real' | 'mei'
