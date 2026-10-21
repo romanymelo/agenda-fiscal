@@ -115,3 +115,43 @@ test('admin muda o papel de outro usuario e o historico registra quem mudou', as
   expect(h.rows[0].usuario_nome).toBe('Administrador')
   expect(h.rows[0].campos_alterados.papel).toEqual({ antes: 'membro', depois: 'admin' })
 })
+
+async function virarMembro() {
+  const membro = await criar<Usuario>(ctx, 'usuarios', {
+    nome: 'Bia',
+    email: 'bia@escritorio.local',
+    papel: 'membro',
+  })
+  const admin = ctx.usuario
+  ctx = { db: ctx.db, usuario: membro }
+  return admin
+}
+
+test('membro e recusado ao alterar e ao desativar, mesmo com id inexistente', async () => {
+  const admin = await virarMembro()
+  const inexistente = '00000000-0000-4000-8000-000000000000'
+  for (const id of [admin.id, inexistente]) {
+    expect((await alterarUsuario(id, formulario({ papel: 'membro' }))).erro).toMatch(/administrador/i)
+    expect((await desativarUsuario(id)).erro).toMatch(/administrador/i)
+  }
+  const l = await ctx.db.query<{ papel: string; ativo: boolean }>('select papel, ativo from usuarios where id = $1', [admin.id])
+  expect(l.rows[0]).toEqual({ papel: 'admin', ativo: true })
+})
+
+test('e-mail sem arroba e recusado', async () => {
+  const novo = await criarUsuario(formulario({ nome: 'Ana', email: 'ana.escritorio', papel: 'membro' }))
+  expect(novo.erro).toBe('Informe um e-mail válido.')
+  const ana = await criar<Usuario>(ctx, 'usuarios', { nome: 'Ana', email: 'ana@escritorio.local', papel: 'membro' })
+  const alt = await alterarUsuario(ana.id, formulario({ email: 'sem-arroba' }))
+  expect(alt.erro).toBe('Informe um e-mail válido.')
+})
+
+test('papel invalido e recusado, e situacao invalida nao desativa ninguem', async () => {
+  const novo = await criarUsuario(formulario({ nome: 'Ana', email: 'ana@escritorio.local', papel: 'dono' }))
+  expect(novo.erro).toBe('Escolha o papel.')
+  const ana = await criar<Usuario>(ctx, 'usuarios', { nome: 'Ana', email: 'ana@escritorio.local', papel: 'membro' })
+  expect((await alterarUsuario(ana.id, formulario({ papel: 'dono' }))).erro).toBe('Escolha o papel.')
+  expect((await alterarUsuario(ana.id, formulario({ ativo: 'banana' }))).erro).toMatch(/true ou false/)
+  const l = await ctx.db.query<{ papel: string; ativo: boolean }>('select papel, ativo from usuarios where id = $1', [ana.id])
+  expect(l.rows[0]).toEqual({ papel: 'membro', ativo: true })
+})

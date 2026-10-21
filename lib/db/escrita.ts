@@ -18,7 +18,7 @@ const EXIGEM_ADMIN = {
   acoes: new Set<Acao>(['exclusao']),
 }
 
-function exigirPermissao(usuario: Usuario, tabela: string, acao: Acao): void {
+export function exigirPermissao(usuario: Usuario, tabela: string, acao: Acao): void {
   if (!usuario.ativo)
     throw new SemPermissao(`O usuário ${usuario.nome} está inativo e não pode escrever.`)
   if (usuario.papel === 'admin') return
