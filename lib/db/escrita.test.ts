@@ -53,6 +53,20 @@ test('alterar sem mudanca efetiva nao gera linha de historico', async () => {
   expect(await historicoDe(ctx.db, 'clientes', c.id)).toHaveLength(1)
 })
 
+test('valor igual em tipo diferente nao conta como mudanca', async () => {
+  const ctx = await ctxCom('membro', 'Ana')
+  const cliente = await criar<{ id: string }>(ctx, 'clientes', { nome: 'Padaria' })
+  const p = await criar<{ id: string }>(ctx, 'processos', {
+    cliente_id: cliente.id,
+    tipo: 'Parcelamento',
+    orgao: 'Receita Federal',
+    status: 'em_andamento',
+    data_abertura: '2026-10-05',
+  })
+  await alterar(ctx, 'processos', p.id, { data_abertura: '2026-10-05' })
+  expect(await historicoDe(ctx.db, 'processos', p.id)).toHaveLength(1)
+})
+
 test('membro nao exclui', async () => {
   const ctx = await ctxCom('membro', 'Ana')
   const c = await criar<{ id: string }>(ctx, 'clientes', { nome: 'Padaria' })

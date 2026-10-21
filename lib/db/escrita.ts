@@ -26,6 +26,16 @@ function exigirPermissao(usuario: Usuario, tabela: string, acao: Acao): void {
     throw new SemPermissao('Só o administrador pode excluir registros.')
 }
 
+// Colunas preenchidas pelo próprio helper: o chamador nunca as informa.
+const AUDITORIA = new Set([
+  'criado_por',
+  'criado_em',
+  'atualizado_por',
+  'atualizado_em',
+  'excluido_por',
+  'excluido_em',
+])
+
 // Quem executa: o banco ou a transação aberta sobre ele.
 type Executor = Pick<PGlite, 'query'>
 type Campos = Record<string, { antes: unknown; depois: unknown }>
@@ -49,9 +59,21 @@ function conferirCampos(
   dados: Record<string, unknown>,
 ): string[] {
   const nomes = Object.keys(dados)
-  for (const nome of nomes)
+  for (const nome of nomes) {
+    if (AUDITORIA.has(nome))
+      throw new Error(
+        `As colunas de auditoria (${[...AUDITORIA].join(', ')}) são geridas pelo helper de escrita ` +
+          `e não podem vir do chamador: ${tabela}.${nome}.`,
+      )
     if (!colunas.has(nome)) throw new Error(`Coluna desconhecida em ${tabela}: ${nome}`)
+  }
   return nomes
+}
+
+async function registroAtual<T>(tx: Executor, tabela: string, id: string): Promise<T> {
+  const r = await tx.query<Record<string, unknown>>(`select * from "${tabela}" where id = $1`, [id])
+  if (r.rows.length === 0) throw new Error(`Registro inexistente em ${tabela}: ${id}`)
+  return r.rows[0] as T
 }
 
 async function gravarHistorico(
@@ -94,10 +116,13 @@ export async function criar<T>(
       valores,
     )
     // Em criação o histórico guarda os valores iniciais do registro (spec 4.2), já no formato
-    // canônico do jsonb, com "antes" nulo para manter a mesma forma da alteração.
+    // canônico do jsonb, com "antes" nulo para manter a mesma forma da alteração. As colunas de
+    // auditoria ficam de fora: quem criou e quando são o usuario_nome e o em da própria linha.
     const linha = r.rows[0]._linha as Record<string, unknown>
     const iniciais = Object.fromEntries(
-      Object.entries(linha).map(([k, v]) => [k, { antes: null, depois: v }]),
+      Object.entries(linha)
+        .filter(([k]) => !AUDITORIA.has(k))
+        .map(([k, v]) => [k, { antes: null, depois: v }]),
     )
     await gravarHistorico(tx, ctx, tabela, linha.id as string, 'criacao', iniciais)
     delete r.rows[0]._linha
@@ -115,6 +140,8 @@ export async function alterar<T>(
     exigirPermissao(ctx.usuario, tabela, 'alteracao')
     const colunas = await colunasDe(tx, tabela)
     const campos = conferirCampos(colunas, tabela, dados)
+    // Nenhum campo é o caso degenerado de "nada mudou": devolve o registro como está.
+    if (campos.length === 0) return registroAtual<T>(tx, tabela, id)
     // Quem compara é o Postgres: o valor recebido é convertido ao tipo da coluna e confrontado
     // com "is distinct from", então '2026-10-20' e a data equivalente do banco não contam
     // como mudança. "antes" e "depois" saem como jsonb, no mesmo formato canônico.
@@ -133,13 +160,7 @@ export async function alterar<T>(
       .map((nome, i) => ({ nome, antes: cmp[`a${i}`], depois: cmp[`d${i}`], mudou: cmp[`m${i}`] }))
       .filter((c) => c.mudou === true)
 
-    if (mudaram.length === 0) {
-      const atual = await tx.query<Record<string, unknown>>(
-        `select * from "${tabela}" where id = $1`,
-        [id],
-      )
-      return atual.rows[0] as T
-    }
+    if (mudaram.length === 0) return registroAtual<T>(tx, tabela, id)
 
     const n = mudaram.length
     const r = await tx.query<Record<string, unknown>>(
