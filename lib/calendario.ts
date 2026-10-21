@@ -7,7 +7,7 @@ import { listarProcessos } from './db/processos'
 import { feriadosDaPraca } from './regras/feriados-aplicaveis'
 import { montarData, somarDias, somarMeses, ultimoDiaDoMes, diaDaSemana } from './regras/data'
 import { vencimentosDaObrigacao } from './regras/vencimentos'
-import { ROTULO_ABRANGENCIA, type CategoriaCalendario, type Data } from './tipos'
+import { ROTULO_ABRANGENCIA, type CategoriaCalendario, type Data, type Regime } from './tipos'
 
 export type ItemCalendario = {
   data: Data
@@ -15,6 +15,8 @@ export type ItemCalendario = {
   titulo: string
   subtitulo: string
   href?: string
+  /** Só em vencimentos de obrigação: informativo (spec 4.2), nada no calendário é filtrado por ele. */
+  regimesAplicaveis?: Regime[] | null
 }
 
 function paraAnoMes(d: Data): { ano: number; mes: number } {
@@ -59,7 +61,13 @@ export async function itensDoPeriodo(db: PGlite, de: Data, ate: Data): Promise<I
       if (v.data < de || v.data > ate) continue
       if (vistos.has(v.data)) continue
       vistos.add(v.data)
-      itens.push({ data: v.data, categoria: v.esfera, titulo: v.nome, subtitulo: `Competência ${v.competencia}` })
+      itens.push({
+        data: v.data,
+        categoria: v.esfera,
+        titulo: v.nome,
+        subtitulo: `Competência ${v.competencia}`,
+        regimesAplicaveis: o.regimesAplicaveis,
+      })
     }
   }
 
@@ -77,7 +85,9 @@ export async function itensDoPeriodo(db: PGlite, de: Data, ate: Data): Promise<I
   }
 
   for (const f of feriadosCadastrados) {
-    if (!feriadosPraca.has(f.data)) continue
+    // Confronta o feriado individualmente com a praça (e não só a data): dois feriados municipais
+    // na mesma data, de praças diferentes, não podem se confundir no `Set` de datas que vale.
+    if (feriadosDaPraca([f], praca).size === 0) continue
     // Aqui sim filtramos pelo período pedido (sem a folga): a folga só serve ao cálculo de dia não útil acima.
     if (f.data < de || f.data > ate) continue
     itens.push({

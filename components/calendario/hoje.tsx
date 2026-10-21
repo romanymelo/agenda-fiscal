@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { ItemCalendario } from '@/lib/calendario'
-import { COR_CATEGORIA, ROTULO_CATEGORIA } from '@/lib/tipos'
+import { COR_CATEGORIA, ROTULO_CATEGORIA, ROTULO_REGIME } from '@/lib/tipos'
 
 export function Hoje({ itens }: { itens: ItemCalendario[] }) {
   if (itens.length === 0) {
@@ -22,6 +22,11 @@ export function Hoje({ itens }: { itens: ItemCalendario[] }) {
           <div className="flex min-w-[260px] flex-1 flex-col gap-0.5">
             <span className="text-[17px] font-semibold">{e.titulo}</span>
             <span className="text-sm text-[#4B5563]">{e.subtitulo}</span>
+            {e.regimesAplicaveis && e.regimesAplicaveis.length > 0 && (
+              <span className="text-sm text-[#4B5563]">
+                Regimes aplicáveis (informativo): {e.regimesAplicaveis.map((r) => ROTULO_REGIME[r]).join(', ')}
+              </span>
+            )}
           </div>
           {e.href && (
             <Link href={e.href} className="px-1 py-2.5 text-sm font-semibold">

@@ -48,12 +48,16 @@ async function Conteudo({ searchParams }: { searchParams: Parametros }) {
   const esfera = (ESFERAS as readonly string[]).includes(esferaPedida ?? '') ? esferaPedida! : 'todas'
 
   const { de, ate } = periodoDaVisao(visao, dia)
-  // Dois intervalos: o do período mostrado (grade/semana/hoje) e o fixo de hoje a hoje+7, para o
-  // resumo do cabeçalho e para "Próximos 7 dias" — que não mudam ao navegar entre meses.
-  const [itensPeriodo, itensProximos] = await Promise.all([
-    itensDaTela(de, ate),
-    itensDaTela(hoje, somarDias(hoje, 7)),
-  ])
+  // Dois intervalos precisam de itens: o período mostrado (grade/semana/hoje) e o fixo de hoje a
+  // hoje+7, para o resumo do cabeçalho e para "Próximos 7 dias" — que não mudam ao navegar entre
+  // meses. Uma só consulta, na união dos dois intervalos, evita buscar duas vezes a mesma lista de
+  // obrigações e processos.
+  const fimProximos = somarDias(hoje, 7)
+  const uniaoDe = de < hoje ? de : hoje
+  const uniaoAte = ate > fimProximos ? ate : fimProximos
+  const itens = await itensDaTela(uniaoDe, uniaoAte)
+  const itensPeriodo = itens.filter((i) => i.data >= de && i.data <= ate)
+  const itensProximos = itens.filter((i) => i.data >= hoje && i.data <= fimProximos)
 
   // Feriado aparece em qualquer filtro (decisão 1 do brief): o filtro nunca o esconde.
   const visivel = (i: ItemCalendario) =>

@@ -1,6 +1,6 @@
 import type { ItemCalendario } from '@/lib/calendario'
 import { diaDaSemana } from '@/lib/regras/data'
-import { COR_CATEGORIA, ROTULO_CATEGORIA, type Data } from '@/lib/tipos'
+import { COR_CATEGORIA, ROTULO_CATEGORIA, ROTULO_REGIME, type Data } from '@/lib/tipos'
 
 const MESES = [
   'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
@@ -63,6 +63,11 @@ export function Lateral({
               </span>
               <span className="text-[15px] font-semibold">{e.titulo}</span>
               <span className="text-[13px] leading-snug text-[#4B5563]">{e.subtitulo}</span>
+              {e.regimesAplicaveis && e.regimesAplicaveis.length > 0 && (
+                <span className="text-[13px] leading-snug text-[#4B5563]">
+                  Regimes aplicáveis (informativo): {e.regimesAplicaveis.map((r) => ROTULO_REGIME[r]).join(', ')}
+                </span>
+              )}
             </div>
           ))
         )}

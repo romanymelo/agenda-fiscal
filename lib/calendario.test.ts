@@ -61,6 +61,12 @@ test('junta vencimento de obrigacao, prazo de processo e feriado', async () => {
   ])
 })
 
+test('item do vencimento carrega os regimes aplicaveis da obrigacao (informativo)', async () => {
+  await novaObrigacao({ regimes_aplicaveis: ['simples', 'mei'] })
+  const r = await itensDoPeriodo(ctx.db, '2026-10-01', '2026-10-31')
+  expect(r.find((i) => i.categoria === 'federal')?.regimesAplicaveis).toEqual(['simples', 'mei'])
+})
+
 test('subtitulo do vencimento traz a competencia', async () => {
   await novaObrigacao()
   const r = await itensDoPeriodo(ctx.db, '2026-10-01', '2026-10-31')
@@ -102,4 +108,26 @@ test('feriado da praca aparece; de outra praca nao', async () => {
     categoria: 'feriado',
     data: '2026-09-08',
   })
+})
+
+test('dois feriados municipais na mesma data: so o da praca do escritorio aparece', async () => {
+  await criar(ctx, 'feriados', {
+    data: '2026-11-21',
+    descricao: 'Emancipação de Arapiraca',
+    abrangencia: 'municipal',
+    uf: 'AL',
+    municipio: 'Arapiraca',
+  })
+  await criar(ctx, 'feriados', {
+    data: '2026-11-21',
+    descricao: 'Aniversário de Maceió',
+    abrangencia: 'municipal',
+    uf: 'AL',
+    municipio: 'Maceió',
+  })
+  // A praça do escritório (dado inicial) é AL/Maceió: na mesma data, só o feriado de Maceió aparece.
+  const r = await itensDoPeriodo(ctx.db, '2026-11-01', '2026-11-30')
+  const feriadosDoDia = r.filter((i) => i.categoria === 'feriado' && i.data === '2026-11-21')
+  expect(feriadosDoDia).toHaveLength(1)
+  expect(feriadosDoDia[0].titulo).toBe('Aniversário de Maceió')
 })
