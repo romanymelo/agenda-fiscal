@@ -57,6 +57,23 @@ export const COR_ESFERA: Record<Esfera, { texto: string; fundo: string; ponto: s
   municipal: { texto: '#5B21B6', fundo: '#EDE9FE', ponto: '#7C3AED' },
   trabalhista: { texto: '#166534', fundo: '#DCFCE7', ponto: '#16A34A' },
 }
+
+/** Categoria de um item do calendário: as quatro esferas, mais processo e feriado. */
+export type CategoriaCalendario = Esfera | 'processo' | 'feriado'
+
+/** Nome de cada categoria do calendário, nas mesmas cores do resto do app. */
+export const ROTULO_CATEGORIA: Record<CategoriaCalendario, string> = {
+  ...ROTULO_ESFERA,
+  processo: 'Processo',
+  feriado: 'Feriado',
+}
+
+// Processo não tem `ponto` (spec: fundo escuro com texto branco, sem marcador de cor à parte).
+export const COR_CATEGORIA: Record<CategoriaCalendario, { texto: string; fundo: string; ponto?: string }> = {
+  ...COR_ESFERA,
+  processo: { texto: '#FFFFFF', fundo: '#1F2937' },
+  feriado: { texto: '#374151', fundo: '#E5E7EB', ponto: '#9CA3AF' },
+}
 export const ROTULO_PERIODICIDADE: Record<Periodicidade, string> = {
   mensal: 'Mensal',
   trimestral: 'Trimestral',
