@@ -1,7 +1,8 @@
 import { PGlite } from '@electric-sql/pglite'
 import { beforeEach, expect, test, vi } from 'vitest'
-import { criar, type Contexto } from '@/lib/db/escrita'
+import { criar, excluir, type Contexto } from '@/lib/db/escrita'
 import { migrar } from '@/lib/db/migrar'
+import { listarUsuarios } from '@/lib/db/usuarios'
 import type { Usuario } from '@/lib/tipos'
 
 // As Server Actions pegam o contexto pelo cookie, que não existe fora de uma requisição:
@@ -76,4 +77,41 @@ test('desativar nao apaga a linha', async () => {
     [alvo.rows[0].id],
   )
   expect(linha.rows).toEqual([{ ativo: false, excluido_em: null }])
+})
+
+test('desativar a si mesmo e recusado, com mensagem em portugues', async () => {
+  const r = await desativarUsuario(ctx.usuario.id)
+  expect(r.erro).toBe('Você não pode desativar nem rebaixar a si mesmo.')
+  const l = await ctx.db.query<{ ativo: boolean }>('select ativo from usuarios where id = $1', [ctx.usuario.id])
+  expect(l.rows[0].ativo).toBe(true)
+})
+
+test('rebaixar a si mesmo de admin para membro e recusado', async () => {
+  const r = await alterarUsuario(ctx.usuario.id, formulario({ papel: 'membro' }))
+  expect(r.erro).toBe('Você não pode desativar nem rebaixar a si mesmo.')
+  const l = await ctx.db.query<{ papel: string }>('select papel from usuarios where id = $1', [ctx.usuario.id])
+  expect(l.rows[0].papel).toBe('admin')
+})
+
+test('usuario excluido logicamente nao aparece na listagem da tela', async () => {
+  const ana = await criar<Usuario>(ctx, 'usuarios', { nome: 'Ana', email: 'ana@escritorio.local', papel: 'membro' })
+  expect((await listarUsuarios(ctx.db)).map((u) => u.nome)).toContain('Ana')
+  await excluir(ctx, 'usuarios', ana.id)
+  expect((await listarUsuarios(ctx.db)).map((u) => u.nome)).not.toContain('Ana')
+  // E a ação não edita quem foi excluído: o helper de escrita sozinho deixaria.
+  const r = await alterarUsuario(ana.id, formulario({ papel: 'admin' }))
+  expect(r.erro).toBe('Usuário não encontrado.')
+})
+
+test('admin muda o papel de outro usuario e o historico registra quem mudou', async () => {
+  const ana = await criar<Usuario>(ctx, 'usuarios', { nome: 'Ana', email: 'ana@escritorio.local', papel: 'membro' })
+  const r = await alterarUsuario(ana.id, formulario({ papel: 'admin' }))
+  expect(r).toEqual({ ok: true })
+  const h = await ctx.db.query<{ campos_alterados: Record<string, { antes: string; depois: string }>; usuario_nome: string }>(
+    "select campos_alterados, usuario_nome from historico where tabela = 'usuarios' and registro_id = $1 and acao = 'alteracao'",
+    [ana.id],
+  )
+  expect(h.rows).toHaveLength(1)
+  expect(h.rows[0].usuario_nome).toBe('Administrador')
+  expect(h.rows[0].campos_alterados.papel).toEqual({ antes: 'membro', depois: 'admin' })
 })
