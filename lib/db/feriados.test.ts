@@ -11,7 +11,7 @@ let ctx: Contexto
 vi.mock('@/lib/usuario-atual', () => ({ contextoAtual: async () => ctx }))
 vi.mock('next/cache', () => ({ revalidatePath: () => {} }))
 
-import { alterarConfiguracao, alterarFeriado, criarFeriado } from '@/app/(painel)/cadastros/feriados/acoes'
+import { alterarConfiguracao, alterarFeriado, criarFeriado, excluirFeriado } from '@/app/(painel)/cadastros/feriados/acoes'
 import { obterConfiguracao } from './configuracao'
 import { feriadosEntre, listarFeriados } from './feriados'
 
@@ -42,6 +42,11 @@ test('feriados nacionais de 2026 vem dos dados iniciais, e o intervalo cruza o a
   const virada = await feriadosEntre(ctx.db, '2026-12-28', '2027-01-03')
   expect(virada.map((f) => f.data)).toEqual(['2027-01-01'])
   expect(feriadosDaPraca(virada, { uf: 'AL', municipio: 'Maceió' }).has('2027-01-01')).toBe(true)
+  // As duas pontas do intervalo entram (o calendário monta o período por intervalo): 12/10/2026 é feriado, 13/10 não.
+  expect(await feriadosEntre(ctx.db, '2026-10-12', '2026-10-12')).toHaveLength(1)
+  expect(await feriadosEntre(ctx.db, '2026-10-13', '2026-10-13')).toHaveLength(0)
+  expect(await feriadosEntre(ctx.db, '2026-10-11', '2026-10-12')).toHaveLength(1)
+  expect(await feriadosEntre(ctx.db, '2026-10-12', '2026-10-13')).toHaveLength(1)
 })
 
 test('estadual sem uf e recusado com mensagem em portugues', async () => {
@@ -106,4 +111,30 @@ test('uf que nao existe e recusada no feriado e na praca, em vez de nunca casar 
   // As 27 existem: minúscula é aceita e gravada em maiúscula.
   expect(await criarFeriado(formulario({ data: '2026-06-24', descricao: 'São João', abrangencia: 'estadual', uf: 'pe' }))).toEqual({ ok: true })
   expect((await listarFeriados(ctx.db, 2026)).find((f) => f.descricao === 'São João')).toMatchObject({ uf: 'PE' })
+})
+
+test('feriado excluido sai da lista, do intervalo e do calculo, e so o admin exclui', async () => {
+  const praca = await obterConfiguracao(ctx.db)
+  expect(await criarFeriado(formulario({ data: '2026-12-08', descricao: 'Conceição', abrangencia: 'municipal', uf: 'AL', municipio: 'Maceió' }))).toEqual({ ok: true })
+  const id = (await listarFeriados(ctx.db, 2026)).find((f) => f.data === '2026-12-08')!.id
+  expect(feriadosDaPraca(await feriadosEntre(ctx.db, '2026-12-08', '2026-12-08'), praca).has('2026-12-08')).toBe(true)
+
+  // Membro não exclui, e o feriado continua valendo.
+  const admin = ctx
+  const membro = await criar<Usuario>(ctx, 'usuarios', { nome: 'Bia', email: 'bia@escritorio.local', papel: 'membro' })
+  ctx = { db: ctx.db, usuario: membro }
+  const recusado = await excluirFeriado(id)
+  expect(recusado.ok).toBeUndefined()
+  expect(recusado.erro).toMatch(/administrador/i)
+  expect(await feriadosEntre(ctx.db, '2026-12-08', '2026-12-08')).toHaveLength(1)
+
+  // Admin exclui: a exclusão é lógica (a linha fica, com excluido_em), e o feriado sai de tudo que o cálculo lê.
+  ctx = admin
+  expect(await excluirFeriado(id)).toEqual({ ok: true })
+  expect(await listarFeriados(ctx.db, 2026)).not.toContainEqual(expect.objectContaining({ id }))
+  expect(await feriadosEntre(ctx.db, '2026-12-08', '2026-12-08')).toHaveLength(0)
+  expect(feriadosDaPraca(await listarFeriados(ctx.db, 2026), praca).has('2026-12-08')).toBe(false)
+  expect((await ctx.db.query('select 1 from feriados where id = $1 and excluido_em is not null', [id])).rows).toHaveLength(1)
+  // Excluir de novo: não encontrado, sem erro cru.
+  expect(await excluirFeriado(id)).toEqual({ erro: 'Feriado não encontrado.' })
 })

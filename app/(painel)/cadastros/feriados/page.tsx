@@ -35,10 +35,12 @@ export default function Feriados({
   )
 }
 
-// Ano da URL (4 dígitos); sem ele ou com lixo, o ano corrente no fuso do escritório.
+// Ano da URL, de 1900 a 2100; sem ele, com lixo ou fora da faixa (`0000` viraria uma data que o banco recusa),
+// o ano corrente no fuso do escritório.
 function anoDe(valor: string | string[] | undefined, corrente: number): number {
   const v = Array.isArray(valor) ? valor[0] : valor
-  return v && /^\d{4}$/.test(v) ? Number(v) : corrente
+  const ano = v && /^\d{4}$/.test(v) ? Number(v) : NaN
+  return ano >= 1900 && ano <= 2100 ? ano : corrente
 }
 
 async function Conteudo({ searchParams }: { searchParams: Promise<{ [chave: string]: string | string[] | undefined }> }) {
