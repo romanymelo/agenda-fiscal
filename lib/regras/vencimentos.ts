@@ -47,6 +47,8 @@ export function vencimentosDaObrigacao(
       // N-esimo dia util do mes: diaVencimento nao e usado.
       data = nEsimoDiaUtil(ano, mes, o.diaUtilN, feriados)
     } else {
+      // Sem dia de vencimento, a obrigação mal cadastrada também não gera data.
+      if (o.diaVencimento == null) continue
       // Primeiro monta a data (limitando o dia ao fim do mes), so depois aplica a regra de dia nao util.
       data = montarData(ano, mes, o.diaVencimento)
       if (!ehDiaUtil(data, feriados)) {

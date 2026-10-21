@@ -14,6 +14,11 @@ const CADASTROS = [
     titulo: 'Clientes',
     descricao: 'Quem o escritório atende, com código no Domínio, CNPJ, regime e as particularidades de cada um.',
   },
+  {
+    href: '/cadastros/obrigacoes',
+    titulo: 'Obrigações',
+    descricao: 'DAS, EFD-Contribuições, FGTS Digital, ICMS, ISS e as regras que definem quando cada uma vence.',
+  },
 ]
 
 export default function Cadastros() {

@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { booleano, ErroDeFormulario, inteiro, inteiroOuNulo, texto, textoOuNulo } from './formulario'
+import { booleano, ErroDeFormulario, inteiro, inteiroOuNulo, inteiros, lista, texto, textoOuNulo } from './formulario'
 
 function form(campos: Record<string, string>): FormData {
   const f = new FormData()
@@ -46,4 +46,26 @@ test('inteiroOuNulo converte, devolve null quando vazio, undefined quando ausent
   for (const ruim of ['1.5', 'abc', '12a'])
     expect(() => inteiroOuNulo(form({ a: ruim }), 'a')).toThrow(ErroDeFormulario)
   expect(() => inteiroOuNulo(form({ a: 'abc' }), 'a')).toThrow(/número inteiro/)
+})
+
+test('lista devolve todos os valores marcados, sem espacos e sem vazios, e [] quando ausente', () => {
+  const f = new FormData()
+  f.append('r', ' simples ')
+  f.append('r', 'mei')
+  f.append('r', '  ')
+  f.append('outro', 'x')
+  expect(lista(f, 'r')).toEqual(['simples', 'mei'])
+  expect(lista(f, 'nada')).toEqual([])
+})
+
+test('inteiros converte todos os valores do campo, devolve [] quando ausente e recusa o resto', () => {
+  const f = new FormData()
+  for (const m of ['1', ' 4 ', '', '10']) f.append('meses', m)
+  expect(inteiros(f, 'meses')).toEqual([1, 4, 10])
+  expect(inteiros(f, 'nada')).toEqual([])
+  const ruim = new FormData()
+  ruim.append('meses', '3')
+  ruim.append('meses', '1.5')
+  expect(() => inteiros(ruim, 'meses')).toThrow(ErroDeFormulario)
+  expect(() => inteiros(ruim, 'meses')).toThrow(/números inteiros/)
 })

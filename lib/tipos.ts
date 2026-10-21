@@ -36,11 +36,36 @@ export type Obrigacao = {
   nome: string
   esfera: Esfera
   periodicidade: Periodicidade
-  diaVencimento: number
+  /** `null` na regra `dia_util_n`: o dia vem de `diaUtilN`. */
+  diaVencimento: number | null
   meses: number[] | null
   regraDiaNaoUtil: RegraDiaNaoUtil
   diaUtilN: number | null
   competenciaDefasagem: number
+}
+
+/** Nome de cada esfera e suas cores (texto, fundo, ponto), as mesmas em lista, detalhe e calendário. */
+export const ROTULO_ESFERA: Record<Esfera, string> = {
+  federal: 'Federal',
+  estadual: 'Estadual',
+  municipal: 'Municipal',
+  trabalhista: 'Trabalhista',
+}
+export const COR_ESFERA: Record<Esfera, { texto: string; fundo: string; ponto: string }> = {
+  federal: { texto: '#1E40AF', fundo: '#DBEAFE', ponto: '#2563EB' },
+  estadual: { texto: '#9A3412', fundo: '#FFEDD5', ponto: '#EA580C' },
+  municipal: { texto: '#5B21B6', fundo: '#EDE9FE', ponto: '#7C3AED' },
+  trabalhista: { texto: '#166534', fundo: '#DCFCE7', ponto: '#16A34A' },
+}
+export const ROTULO_PERIODICIDADE: Record<Periodicidade, string> = {
+  mensal: 'Mensal',
+  trimestral: 'Trimestral',
+  anual: 'Anual',
+}
+export const ROTULO_REGRA: Record<RegraDiaNaoUtil, string> = {
+  antecipa: 'Antecipa para o dia útil anterior',
+  posterga: 'Posterga para o próximo dia útil',
+  dia_util_n: 'Vence no N-ésimo dia útil do mês',
 }
 
 export type Regime = 'simples' | 'presumido' | 'real' | 'mei'
@@ -51,6 +76,17 @@ export const ROTULO_REGIME: Record<Regime, string> = {
   presumido: 'Lucro Presumido',
   real: 'Lucro Real',
   mei: 'MEI',
+}
+
+/** Obrigação como o cadastro a enxerga: o que o cálculo consome (`Obrigacao`) mais os campos informativos. */
+export type ObrigacaoCadastro = Obrigacao & {
+  /** Informativo: nada é filtrado por ele. */
+  regimesAplicaveis: Regime[] | null
+  observacao: string | null
+  baseLegal: string | null
+  ativo: boolean
+  atualizadoEm: string | null
+  atualizadoPorNome: string | null
 }
 
 export type Cliente = {

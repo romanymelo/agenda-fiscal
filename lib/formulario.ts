@@ -52,3 +52,24 @@ export function inteiroOuNulo(fd: FormData, campo: string): number | null | unde
   if (v === undefined) return undefined
   return v === '' ? null : inteiro(fd, campo)
 }
+
+/**
+ * Todos os valores de um campo repetido (caixas de marcação com o mesmo `name`), sem espaços nas pontas e
+ * sem os vazios. Campo ausente ou nada marcado: `[]` (não há como distinguir os dois; quem precisa de
+ * "não mexa" decide pela presença de outro campo).
+ */
+export function lista(fd: FormData, campo: string): string[] {
+  return fd
+    .getAll(campo)
+    .filter((v): v is string => typeof v === 'string')
+    .map((v) => v.trim())
+    .filter((v) => v !== '')
+}
+
+/** Como `lista`, convertendo cada valor para inteiro. Valor que não for inteiro: erro. */
+export function inteiros(fd: FormData, campo: string): number[] {
+  return lista(fd, campo).map((v) => {
+    if (!/^-?\d+$/.test(v)) throw new ErroDeFormulario(`O campo ${campo} precisa conter só números inteiros.`)
+    return Number(v)
+  })
+}
