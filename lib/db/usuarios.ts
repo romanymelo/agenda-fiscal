@@ -41,3 +41,18 @@ export async function buscarUsuario(db: PGlite, id: string): Promise<Usuario | n
 export async function listarEquipeAtiva(): Promise<Usuario[]> {
   return listarUsuarios(await obterBanco(), { apenasAtivos: true })
 }
+
+/**
+ * O usuário existe e não foi excluído (ativo ou não)? `alterar` não filtra `excluido_em`,
+ * então quem recebe um id de fora confere aqui antes de editar.
+ */
+export async function usuarioExiste(db: PGlite, id: string): Promise<boolean> {
+  if (!UUID.test(id)) return false
+  const r = await db.query(`select 1 from usuarios where id = $1 and excluido_em is null`, [id])
+  return r.rows.length > 0
+}
+
+/** A equipe inteira para a tela Equipe: ativos e inativos, nunca os excluídos. */
+export async function listarEquipe(): Promise<Usuario[]> {
+  return listarUsuarios(await obterBanco())
+}
