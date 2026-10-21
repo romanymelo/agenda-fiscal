@@ -134,27 +134,29 @@ export function Detalhe({ processo, papel, hoje, clientes, acoes, historico }: P
         ) : (
           <ul className="m-0 flex list-none flex-col gap-2 p-0">
             {processo.anexos.map((x) => (
-              <li
-                key={x.id}
-                className="flex min-h-10 items-center gap-2.5 rounded-lg border border-[#E5E7EB] px-2.5 py-1.5 text-[13px] text-[#1F2937]"
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#4B5563"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                  className="shrink-0"
+              <li key={x.id}>
+                {/* A rota recebe o id do anexo, nunca um caminho; baixa com o nome que a pessoa enviou. */}
+                <a
+                  href={`/processos/anexo/${x.id}`}
+                  className="flex min-h-10 items-center gap-2.5 rounded-lg border border-[#E5E7EB] px-2.5 py-1.5 text-[13px] text-[#1F2937] hover:bg-[#F9FAFB] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F766E]"
                 >
-                  <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
-                  <path d="M14 3v5h5" />
-                </svg>
-                {/* O nome que a pessoa enviou, só como texto: nunca vira caminho. */}
-                <span className="min-w-0 break-all">{x.nomeArquivo}</span>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#4B5563"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                    className="shrink-0"
+                  >
+                    <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+                    <path d="M14 3v5h5" />
+                  </svg>
+                  <span className="min-w-0 break-all">{x.nomeArquivo}</span>
+                </a>
               </li>
             ))}
           </ul>

@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, realpath, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { ErroDeFormulario } from './formulario'
 
@@ -45,4 +45,24 @@ export async function salvarAnexo(original: string, conteudo: Buffer): Promise<s
   // `wx`: nunca sobrescreve um arquivo que já exista.
   await writeFile(path.join(pasta, nome), conteudo, { flag: 'wx' })
   return nome
+}
+
+/**
+ * Lê um anexo a partir do `caminho_storage` gravado no banco. O caminho vem de uma coluna, não de código
+ * nosso: nada garante que uma linha adulterada tenha um caminho são. Por isso ele é resolvido e confirmado
+ * dentro de `arquivos/` (também depois de seguir ligações simbólicas) antes de abrir qualquer coisa.
+ * `fora`: o caminho escapa da pasta (ou nem parece um nome gerado); `ausente`: a pasta ou o arquivo não existe.
+ */
+export async function lerAnexo(caminho: string): Promise<{ conteudo: Buffer } | { erro: 'fora' | 'ausente' }> {
+  if (!caminho || caminho.includes('\\') || caminho.includes('\0') || path.isAbsolute(caminho)) return { erro: 'fora' }
+  const pasta = path.resolve(PASTA)
+  const destino = path.resolve(pasta, caminho)
+  if (!destino.startsWith(pasta + path.sep)) return { erro: 'fora' }
+  try {
+    const [real, pastaReal] = await Promise.all([realpath(destino), realpath(pasta)])
+    if (!real.startsWith(pastaReal + path.sep)) return { erro: 'fora' }
+    return { conteudo: await readFile(real) }
+  } catch {
+    return { erro: 'ausente' }
+  }
 }

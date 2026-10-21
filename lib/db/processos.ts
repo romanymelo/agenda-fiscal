@@ -121,3 +121,18 @@ export async function processosDaTela(busca?: string): Promise<Processo[]> {
 export async function processoDaTela(id: string) {
   return buscarProcesso(await obterBanco(), id)
 }
+
+/** Anexo para download: só se a linha e o processo não foram excluídos. `null` também para id que não é uuid. */
+export async function buscarAnexo(
+  db: PGlite,
+  id: string,
+): Promise<{ nomeArquivo: string; caminhoStorage: string } | null> {
+  if (!UUID.test(id)) return null
+  const r = await db.query<{ nome_arquivo: string; caminho_storage: string }>(
+    `select x.nome_arquivo, x.caminho_storage
+     from anexos x join processos p on p.id = x.processo_id
+     where x.id = $1 and x.excluido_em is null and p.excluido_em is null`,
+    [id],
+  )
+  return r.rows[0] ? { nomeArquivo: r.rows[0].nome_arquivo, caminhoStorage: r.rows[0].caminho_storage } : null
+}

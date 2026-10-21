@@ -1,5 +1,7 @@
+import { readFile, rm } from 'node:fs/promises'
+import path from 'node:path'
 import { PGlite } from '@electric-sql/pglite'
-import { beforeEach, expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { criar, type Contexto } from '@/lib/db/escrita'
 import { historicoDe } from '@/lib/db/historico'
 import { migrar } from '@/lib/db/migrar'
@@ -13,7 +15,9 @@ vi.mock('next/cache', () => ({ revalidatePath: () => {} }))
 
 import {
   adicionarAndamento,
+  alterarProcesso,
   criarProcesso,
+  enviarAnexo,
   excluirProcesso,
   mudarStatus,
 } from '@/app/(painel)/processos/acoes'
@@ -49,6 +53,12 @@ async function novoProcesso(clienteId: string, campos: Record<string, string> = 
   const todos = await listarProcessos(ctx.db)
   return todos.find((p) => p.clienteId === clienteId && p.orgao === (campos.orgao ?? 'SEFAZ-AL'))!.id
 }
+
+// enviarAnexo grava de verdade em arquivos/ (fora do Git): cada teste apaga o que criou.
+afterEach(async () => {
+  const r = await ctx.db.query<{ caminho_storage: string }>('select caminho_storage from anexos')
+  await Promise.all(r.rows.map((l) => rm(path.resolve('arquivos', l.caminho_storage), { force: true })))
+})
 
 beforeEach(async () => {
   const db = new PGlite()
@@ -126,4 +136,79 @@ test('membro nao exclui processo', async () => {
   // A ação devolve a mensagem em português (SemPermissao traduzida), como as outras telas.
   expect(await excluirProcesso(id)).toEqual({ erro: 'Só o administrador pode excluir registros.' })
   expect(await buscarProcesso(ctx.db, id)).not.toBeNull()
+})
+
+test('enviarAnexo grava com nome gerado e preserva o nome original so na coluna', async () => {
+  const id = await novoProcesso(await novoCliente('Padaria Trigo de Ouro'))
+  const form = new FormData()
+  // Nome hostil, como se chegasse ao servidor com caminho (o File do Node não o tira).
+  form.set('arquivo', new File([Buffer.from('conteudo-do-auto')], '../../Auto de Infração.pdf'))
+  expect(await enviarAnexo(id, form)).toEqual({ ok: true })
+
+  const [anexo] = (await buscarProcesso(ctx.db, id))!.anexos
+  // O nome da tela é o que a pessoa enviou, sem o caminho; nunca o nome de disco.
+  expect(anexo.nomeArquivo).toBe('Auto de Infração.pdf')
+  expect(anexo.caminhoStorage).toMatch(/^[0-9a-f-]{36}\.pdf$/)
+  expect(anexo.caminhoStorage).not.toContain('Auto')
+  const dentro = path.resolve('arquivos', anexo.caminhoStorage)
+  expect(dentro.startsWith(path.resolve('arquivos') + path.sep)).toBe(true)
+  expect((await readFile(dentro)).toString()).toBe('conteudo-do-auto')
+  // Anexo gera a linha de histórico de criação, com o nome de quem enviou.
+  const h = await ctx.db.query<{ usuario_nome: string }>("select usuario_nome from historico where tabela = 'anexos' and acao = 'criacao'")
+  expect(h.rows.map((l) => l.usuario_nome)).toEqual([ctx.usuario.nome])
+})
+
+test('enviarAnexo recusa extensao fora da lista, arquivo vazio e processo inexistente, sem gravar nada', async () => {
+  const id = await novoProcesso(await novoCliente('Padaria Trigo de Ouro'))
+  const com = (nome: string, conteudo: string) => {
+    const f = new FormData()
+    f.set('arquivo', new File([Buffer.from(conteudo)], nome))
+    return f
+  }
+  expect(await enviarAnexo(id, com('programa.exe', 'MZ'))).toEqual({ erro: expect.stringMatching(/Tipo de arquivo não aceito/) })
+  expect(await enviarAnexo(id, com('vazio.pdf', ''))).toEqual({ erro: 'Escolha um arquivo para anexar.' })
+  expect(await enviarAnexo(id, new FormData())).toEqual({ erro: 'Escolha um arquivo para anexar.' })
+  expect(await enviarAnexo('00000000-0000-4000-8000-000000000000', com('a.pdf', 'x'))).toEqual({
+    erro: 'Processo não encontrado.',
+  })
+  expect((await ctx.db.query('select 1 from anexos')).rows).toHaveLength(0)
+})
+
+test('alterarProcesso muda os dados e grava a alteracao no historico so com o que mudou', async () => {
+  const antigo = await novoCliente('Padaria Trigo de Ouro')
+  const novo = await novoCliente('Oficina Boa Viagem')
+  const id = await novoProcesso(antigo, { protocolo: 'AI 1', prazo: '2026-10-30', prazo_descricao: 'Prazo de impugnação' })
+
+  const r = await alterarProcesso(
+    id,
+    formulario({
+      cliente_id: novo,
+      tipo: 'Impugnação de auto de infração',
+      orgao: 'SEFAZ-AL',
+      protocolo: '',
+      data_abertura: '2026-10-05',
+      prazo: '2026-11-10',
+      prazo_descricao: 'Prazo de impugnação',
+    }),
+  )
+  expect(r).toEqual({ ok: true })
+
+  const p = (await buscarProcesso(ctx.db, id))!
+  expect([p.clienteId, p.clienteNome, p.protocolo, p.prazo]).toEqual([novo, 'Oficina Boa Viagem', null, '2026-11-10'])
+  const [maisRecente] = await historicoDe(ctx.db, 'processos', id)
+  expect(maisRecente.acao).toBe('alteracao')
+  expect(maisRecente.usuarioNome).toBe(ctx.usuario.nome)
+  // Só o que mudou entra no histórico; tipo, órgão e descrição do prazo ficaram como estavam.
+  expect(maisRecente.camposAlterados).toEqual({
+    cliente_id: { antes: antigo, depois: novo },
+    protocolo: { antes: 'AI 1', depois: null },
+    prazo: { antes: '2026-10-30', depois: '2026-11-10' },
+  })
+  // Recusas: cliente inexistente, órgão apagado, data impossível; o processo não muda.
+  const recusa = async (campos: Record<string, string>) =>
+    (await alterarProcesso(id, formulario(campos))).erro
+  expect(await recusa({ cliente_id: '00000000-0000-4000-8000-000000000000' })).toBe('Cliente não encontrado.')
+  expect(await recusa({ orgao: '' })).toBe('Informe o órgão.')
+  expect(await recusa({ prazo: '2026-02-31' })).toBe('Informe o prazo como uma data válida.')
+  expect((await buscarProcesso(ctx.db, id))!.orgao).toBe('SEFAZ-AL')
 })
