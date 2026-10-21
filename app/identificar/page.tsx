@@ -1,7 +1,6 @@
 import { connection } from 'next/server'
 import { Suspense } from 'react'
-import { obterBanco } from '@/lib/db/conexao'
-import { listarUsuarios } from '@/lib/db/usuarios'
+import { listarEquipeAtiva } from '@/lib/db/usuarios'
 import { escolherUsuario } from './acoes'
 
 const PAPEL: Record<string, string> = { admin: 'Administrador', membro: 'Membro' }
@@ -30,7 +29,7 @@ async function Equipe() {
   // O PGlite é um banco local: sem `connection()` a consulta rodaria durante o build, onde
   // não há banco. Ela só pode acontecer com a requisição em mãos.
   await connection()
-  const equipe = await listarUsuarios(await obterBanco(), { apenasAtivos: true })
+  const equipe = await listarEquipeAtiva()
   if (equipe.length === 0)
     return (
       <p className="text-sm text-[#4B5563]">

@@ -55,6 +55,10 @@ export async function gravarEscolha(id: string): Promise<void> {
     path: '/',
     sameSite: 'lax',
     maxAge: UM_ANO_EM_SEGUNDOS,
+    // Nenhum código do navegador lê este cookie: só o servidor precisa dele.
+    httpOnly: true,
+    // Em desenvolvimento o painel roda em http, onde um cookie `secure` não seria enviado.
+    secure: process.env.NODE_ENV === 'production',
   })
 }
 

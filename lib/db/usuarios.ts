@@ -1,5 +1,6 @@
 import type { PGlite } from '@electric-sql/pglite'
 import type { Usuario } from '../tipos'
+import { obterBanco } from './conexao'
 
 const CAMPOS = 'id, nome, email, papel, ativo'
 
@@ -31,4 +32,12 @@ export async function buscarUsuario(db: PGlite, id: string): Promise<Usuario | n
     [id],
   )
   return r.rows[0] ?? null
+}
+
+/**
+ * A equipe que pode ser escolhida na tela de identificação. Existe para que nenhuma página
+ * precise importar `obterBanco`: quem abre o banco é a camada de leitura.
+ */
+export async function listarEquipeAtiva(): Promise<Usuario[]> {
+  return listarUsuarios(await obterBanco(), { apenasAtivos: true })
 }

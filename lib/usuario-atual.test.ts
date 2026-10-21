@@ -55,6 +55,14 @@ test('cookie com id inexistente devolve null', async () => {
   expect(await usuarioDoCookie(ctx.db, '2f6c1b90-7d4e-4a1c-8b35-9e0f2a7c4d11')).toBeNull()
 })
 
+// O cookie pode ser adulterado: sem a guarda de forma, `where id = $1` estouraria um erro de
+// conversão e a tela mostraria 500 em vez de mandar a pessoa se identificar de novo.
+test('cookie adulterado, sem forma de uuid, devolve null', async () => {
+  const ctx = await bancoComAdmin()
+  expect(await usuarioDoCookie(ctx.db, 'nao-sou-um-uuid')).toBeNull()
+  expect(await usuarioDoCookie(ctx.db, "' or true --")).toBeNull()
+})
+
 test('sem cookie devolve null', async () => {
   const ctx = await bancoComAdmin()
   expect(await usuarioDoCookie(ctx.db, undefined)).toBeNull()
