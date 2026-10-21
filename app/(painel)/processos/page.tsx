@@ -6,6 +6,7 @@ import { Historico } from '@/components/historico'
 import { Detalhe } from '@/components/processos/detalhe'
 import { NovoProcesso } from '@/components/processos/formularios'
 import { Quadro } from '@/components/processos/quadro'
+import { RolarAoDetalhe } from '@/components/processos/rolar-ao-detalhe'
 import { clientesDaTela } from '@/lib/db/clientes'
 import { processoDaTela, processosDaTela } from '@/lib/db/processos'
 import { exigirUsuario } from '@/lib/usuario-atual'
@@ -27,7 +28,7 @@ const primeiro = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] 
 
 export default function Processos({ searchParams }: { searchParams: Parametros }) {
   return (
-    <main className="mx-auto flex w-full max-w-[1360px] flex-col gap-[18px] px-4 py-6 sm:px-6">
+    <main className="mx-auto flex w-full max-w-[1360px] flex-col gap-5 px-4 py-6 sm:px-8 lg:py-8">
       {/* Lê o banco, o cookie, a data de hoje e a URL: só com a requisição em mãos, atrás de um Suspense. */}
       <Suspense fallback={<p className="text-sm text-suave">Carregando os processos…</p>}>
         <Conteudo searchParams={searchParams} />
@@ -59,9 +60,9 @@ async function Conteudo({ searchParams }: { searchParams: Parametros }) {
     <>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
         <div className="flex flex-col gap-0.5">
-          <h1 className="text-[28px] font-bold tracking-tight">Processos</h1>
+          <h1 className="font-display text-[32px] leading-none font-semibold tracking-tight">Processos</h1>
           <p className="text-sm text-suave">
-            Processos administrativos e pedidos em órgãos, visíveis para toda a equipe
+            Pedidos e processos em órgãos, visíveis para toda a equipe
           </p>
         </div>
         <Form action="/processos" className="ml-auto flex items-end gap-2">
@@ -83,7 +84,7 @@ async function Conteudo({ searchParams }: { searchParams: Parametros }) {
       </div>
 
       {processos.length === 0 && (
-        <p className="rounded-[14px] border border-linha bg-white p-5 text-sm text-suave">
+        <p className="rounded-2xl border border-linha bg-papel p-5 text-sm text-suave">
           {busca ? 'Nenhum processo encontrado para essa busca.' : 'Nenhum processo cadastrado ainda.'}
         </p>
       )}
@@ -92,7 +93,7 @@ async function Conteudo({ searchParams }: { searchParams: Parametros }) {
         <div className="min-w-0 flex-[999_1_640px]">
           <Quadro processos={processos} selecionadoId={detalhe?.id ?? null} hoje={hoje} busca={busca} />
         </div>
-        <div className="min-w-0 flex-[1_1_360px]">
+        <RolarAoDetalhe id={detalhe?.id ?? null}>
           {detalhe ? (
             <Detalhe
               key={detalhe.id}
@@ -113,12 +114,12 @@ async function Conteudo({ searchParams }: { searchParams: Parametros }) {
           ) : (
             <aside
               aria-label="Detalhe do processo"
-              className="rounded-[14px] border border-linha bg-white p-5 text-sm text-suave"
+              className="rounded-2xl border border-linha bg-papel p-5 text-sm text-suave"
             >
               Escolha um processo no quadro para ver o detalhe.
             </aside>
           )}
-        </div>
+        </RolarAoDetalhe>
       </div>
     </>
   )

@@ -42,7 +42,7 @@ function Mensagem({ resultado, sucesso }: { resultado: Resultado | null; sucesso
     )
   if (resultado?.ok)
     return (
-      <p role="status" className="text-sm font-medium text-[#166534]">
+      <p role="status" className="text-sm font-medium text-sucesso">
         {sucesso}
       </p>
     )
@@ -133,9 +133,9 @@ export function NovoProcesso({
       {aberto && (
         <section
           aria-label="Novo processo"
-          className="flex basis-full flex-col gap-4 rounded-[14px] border border-linha bg-white p-4 sm:p-5"
+          className="flex basis-full flex-col gap-4 rounded-2xl border border-linha bg-papel p-4 shadow-flutua sm:p-5"
         >
-          <h2 className="text-base font-bold">Novo processo</h2>
+          <h2 className="font-display text-lg font-semibold">Novo processo</h2>
           <FormularioProcesso
             clientes={clientes}
             hoje={hoje}
@@ -164,13 +164,13 @@ export function EditarProcesso({
   const [aberto, setAberto] = useState(false)
   return (
     <div className="flex flex-col gap-3">
-      <Botao variante="secundario" aria-expanded={aberto} onClick={() => setAberto(!aberto)} className="self-start">
+      <Botao variante="discreto" tamanho="compacto" aria-expanded={aberto} onClick={() => setAberto(!aberto)} className="-ml-3.5 self-start">
         {aberto ? 'Fechar edição' : 'Editar processo'}
       </Botao>
       {aberto && (
         <section
           aria-label="Editar processo"
-          className="flex flex-col gap-4 rounded-[10px] border border-linha bg-sutil p-4"
+          className="flex flex-col gap-4 rounded-xl bg-sutil p-4"
         >
           <FormularioProcesso
             processo={processo}
@@ -238,14 +238,14 @@ export function NovoAndamento({
   )
   return (
     <div className="flex flex-col gap-3">
-      <Botao variante="secundario" aria-expanded={aberto} onClick={() => setAberto(!aberto)} className="self-start">
-        {aberto ? 'Fechar' : 'Adicionar andamento'}
+      <Botao variante="discreto" tamanho="compacto" aria-expanded={aberto} onClick={() => setAberto(!aberto)} className="-ml-3.5 self-start">
+        {aberto ? 'Fechar' : '+ Adicionar andamento'}
       </Botao>
       {aberto && (
         <form
           onSubmit={enviar}
           aria-label="Novo andamento"
-          className="flex flex-col gap-3 rounded-[10px] border border-linha bg-sutil p-4"
+          className="flex flex-col gap-3 rounded-xl bg-sutil p-4"
         >
           <Campo rotulo="Data do andamento" nome="data" type="date" obrigatorio defaultValue={hoje} />
           <AreaTexto rotulo="O que aconteceu" nome="descricao" obrigatorio rows={3} />
@@ -274,14 +274,14 @@ export function NovoAnexo({
   )
   return (
     <div className="flex flex-col gap-3">
-      <Botao variante="secundario" aria-expanded={aberto} onClick={() => setAberto(!aberto)} className="self-start">
-        {aberto ? 'Fechar' : 'Anexar arquivo'}
+      <Botao variante="discreto" tamanho="compacto" aria-expanded={aberto} onClick={() => setAberto(!aberto)} className="-ml-3.5 self-start">
+        {aberto ? 'Fechar' : '+ Anexar arquivo'}
       </Botao>
       {aberto && (
         <form
           onSubmit={enviar}
           aria-label="Novo anexo"
-          className="flex flex-col gap-3 rounded-[10px] border border-linha bg-sutil p-4"
+          className="flex flex-col gap-3 rounded-xl bg-sutil p-4"
         >
           <Campo
             rotulo="Arquivo"
@@ -328,7 +328,7 @@ export function ExcluirProcesso({
       onSubmit={enviar}
       className="flex flex-col gap-2"
     >
-      <Botao type="submit" variante="perigo" disabled={excluindo} className="self-start">
+      <Botao type="submit" variante="perigo" tamanho="compacto" disabled={excluindo} className="self-start">
         Excluir processo
       </Botao>
       {erro && (

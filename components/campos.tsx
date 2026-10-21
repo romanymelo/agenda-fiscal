@@ -20,7 +20,7 @@ type Comuns = {
 }
 
 const BASE =
-  'min-h-[44px] w-full rounded-[10px] border bg-white px-3 text-base text-tinta sm:text-sm placeholder:text-apagado ' +
+  'min-h-[44px] w-full rounded-xl border bg-papel px-3.5 text-base text-tinta sm:text-sm placeholder:text-apagado ' +
   'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-mar ' +
   'disabled:cursor-not-allowed disabled:bg-espuma disabled:text-apagado'
 
@@ -199,7 +199,7 @@ export function GrupoMarcacoes({
         {opcoes.map((o) => (
           <label
             key={o.valor}
-            className={`flex min-h-[44px] cursor-pointer items-center gap-2 rounded-[10px] border bg-white px-3 text-base text-tinta has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-1 has-[:focus-visible]:outline-mar has-[:disabled]:cursor-not-allowed has-[:disabled]:bg-espuma has-[:disabled]:text-apagado sm:text-sm ${bordaDe(erro)}`}
+            className={`flex min-h-[44px] cursor-pointer items-center gap-2 rounded-xl border bg-papel px-3 text-base text-tinta has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-1 has-[:focus-visible]:outline-mar has-[:disabled]:cursor-not-allowed has-[:disabled]:bg-espuma has-[:disabled]:text-apagado sm:text-sm ${bordaDe(erro)}`}
           >
             <input
               type="checkbox"
@@ -240,19 +240,27 @@ export function Condicional({ mostra, className, children }: { mostra: boolean; 
 
 const VARIANTES = {
   primario: 'border-transparent bg-mar text-white hover:bg-mar-escuro',
-  secundario: 'border-linha-forte bg-white text-tinta hover:bg-espuma',
-  perigo: 'border-perigo-borda bg-white text-perigo hover:bg-perigo-claro',
+  secundario: 'border-linha-forte bg-papel text-tinta hover:bg-sutil',
+  // Ação rara ou secundária dentro de um painel: sem contorno, só a cor da marca.
+  discreto: 'border-transparent bg-transparent text-mar-escuro hover:bg-mar-claro',
+  perigo: 'border-perigo-borda bg-papel text-perigo hover:bg-perigo-claro',
+} as const
+
+const TAMANHOS = {
+  normal: 'min-h-[44px] px-5 text-sm',
+  compacto: 'min-h-9 px-3.5 text-[13px]',
 } as const
 
 type PropsBotao = React.ComponentProps<'button'> & {
   variante?: keyof typeof VARIANTES
+  tamanho?: keyof typeof TAMANHOS
 }
 
 /**
  * Botão de formulário. Dentro de um `<form action={…}>` ele se desabilita sozinho enquanto o
  * envio está em andamento; fora de formulário, só obedece a `disabled`.
  */
-export function Botao({ variante = 'primario', type = 'button', disabled, className, ...resto }: PropsBotao) {
+export function Botao({ variante = 'primario', tamanho = 'normal', type = 'button', disabled, className, ...resto }: PropsBotao) {
   const { pending } = useFormStatus()
   return (
     <button
@@ -260,9 +268,9 @@ export function Botao({ variante = 'primario', type = 'button', disabled, classN
       type={type}
       disabled={disabled || pending}
       className={
-        `inline-flex min-h-[44px] cursor-pointer items-center justify-center gap-2 rounded-[10px] border px-[18px] text-sm font-semibold ` +
+        `inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border font-semibold ` +
         `transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mar ` +
-        `disabled:cursor-not-allowed disabled:opacity-60 ${VARIANTES[variante]} ${className ?? ''}`
+        `disabled:cursor-not-allowed disabled:opacity-60 ${TAMANHOS[tamanho]} ${VARIANTES[variante]} ${className ?? ''}`
       }
     />
   )

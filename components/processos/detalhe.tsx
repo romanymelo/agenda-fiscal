@@ -1,5 +1,7 @@
+import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { formatarBR, formatarDataHoraBR } from '@/lib/regras/data'
+import { situacaoDoPrazo, textoDoPrazo } from '@/lib/regras/prazo'
 import { COR_STATUS, ROTULO_STATUS, type Andamento, type Anexo, type Data, type Papel, type Processo, type Resultado } from '@/lib/tipos'
 import {
   EditarProcesso,
@@ -44,22 +46,30 @@ export function Detalhe({ processo, papel, hoje, clientes, acoes, historico }: P
   return (
     <aside
       aria-label="Detalhe do processo"
-      className="flex min-w-0 flex-col gap-4 rounded-[14px] border border-linha bg-white p-4 sm:p-5"
+      className="flex min-w-0 flex-col gap-5 rounded-2xl border border-linha bg-papel p-4 sm:p-6 lg:sticky lg:top-6"
     >
       <div className="flex flex-col gap-1.5">
         <span
-          className="self-start rounded-full px-2.5 py-1 text-xs font-bold tracking-[.03em] uppercase"
+          className="self-start rounded-full px-3 py-1 text-xs font-semibold"
           style={{ background: cor.fundo, color: cor.texto }}
         >
           {ROTULO_STATUS[processo.status]}
         </span>
-        <h2 className="mt-1 break-words text-xl leading-tight font-bold">{processo.tipo}</h2>
-        <span className="break-words text-sm text-corpo">{processo.clienteNome}</span>
+        <h2 className="mt-1 break-words font-display text-2xl leading-tight font-semibold">{processo.tipo}</h2>
+        <span className="flex flex-wrap items-baseline gap-x-3 text-sm text-corpo">
+          <span className="break-words">{processo.clienteNome}</span>
+          <Link
+            href={`/cadastros/clientes/${processo.clienteId}`}
+            className="font-semibold text-mar-escuro underline-offset-2 hover:underline"
+          >
+            Ver cliente
+          </Link>
+        </span>
       </div>
 
       <MudarStatus id={processo.id} status={processo.status} mudar={acoes.mudarStatus} />
 
-      <dl className="m-0 grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
+      <dl className="m-0 grid grid-cols-1 gap-x-4 gap-y-3 rounded-xl bg-sutil p-4 sm:grid-cols-2">
         {dados.map(([rotulo, valor]) => (
           <div key={rotulo} className="flex min-w-0 flex-col gap-0.5">
             <dt className="text-xs text-suave">{rotulo}</dt>
@@ -69,7 +79,11 @@ export function Detalhe({ processo, papel, hoje, clientes, acoes, historico }: P
       </dl>
 
       {prazoPendente && processo.prazo && (
-        <div className="flex items-center gap-3 rounded-[10px] bg-[#FEF3C7] px-3.5 py-3 text-[#78350F]">
+        <div
+          className={`flex items-center gap-3 rounded-xl border-l-4 px-4 py-3 text-tinta ${
+            situacaoDoPrazo(processo.prazo, hoje).tipo === 'vencido' ? 'border-perigo bg-perigo-claro' : 'border-sol bg-sol-claro'
+          }`}
+        >
           <svg
             width="22"
             height="22"
@@ -88,25 +102,26 @@ export function Detalhe({ processo, papel, hoje, clientes, acoes, historico }: P
           <div className="flex min-w-0 flex-col gap-px">
             <span className="break-words text-sm font-bold">
               {processo.prazoDescricao ?? 'Prazo'}: {formatarBR(processo.prazo)}
+              <span className="font-normal"> · {textoDoPrazo(situacaoDoPrazo(processo.prazo, hoje).dias)}</span>
             </span>
-            <span className="text-xs">Já aparece no calendário da equipe</span>
+            <span className="text-xs text-corpo">Já aparece no calendário da equipe</span>
           </div>
         </div>
       )}
 
       <section aria-label="Andamentos" className="flex flex-col gap-2.5">
-        <h3 className="text-sm font-bold">Andamentos</h3>
+        <h3 className="font-display text-base font-semibold">Andamentos</h3>
         {processo.andamentos.length === 0 ? (
           <p className="text-sm text-suave">Nenhum andamento registrado.</p>
         ) : (
           <ol className="m-0 flex list-none flex-col p-0">
             {processo.andamentos.map((a, i) => (
               <li key={a.id} className="flex gap-3">
-                <span className="flex w-3.5 flex-none flex-col items-center">
+                <span className="flex w-3.5 flex-none flex-col items-center text-suave">
                   <span
                     aria-hidden="true"
                     className={`mt-[3px] size-3 flex-none rounded-full border-2 ${
-                      i === ultimo ? 'border-mar bg-mar' : 'border-apagado bg-white'
+                      i === ultimo ? 'border-mar bg-mar' : 'border-apagado bg-papel'
                     }`}
                   />
                   <span
@@ -116,7 +131,7 @@ export function Detalhe({ processo, papel, hoje, clientes, acoes, historico }: P
                 </span>
                 <span className="flex min-w-0 flex-1 flex-col gap-0.5 pb-3.5">
                   <span className="text-xs font-semibold text-suave">
-                    {formatarBR(a.data)} · por {a.criadoPorNome}
+                    {formatarBR(a.data)}, por {a.criadoPorNome}
                   </span>
                   <span className="whitespace-pre-wrap break-words text-sm leading-snug">{a.descricao}</span>
                 </span>
@@ -128,7 +143,7 @@ export function Detalhe({ processo, papel, hoje, clientes, acoes, historico }: P
       </section>
 
       <section aria-label="Anexos" className="flex flex-col gap-2">
-        <h3 className="text-sm font-bold">Anexos</h3>
+        <h3 className="font-display text-base font-semibold">Anexos</h3>
         {processo.anexos.length === 0 ? (
           <p className="text-sm text-suave">Nenhum anexo.</p>
         ) : (
@@ -138,14 +153,14 @@ export function Detalhe({ processo, papel, hoje, clientes, acoes, historico }: P
                 {/* A rota recebe o id do anexo, nunca um caminho; baixa com o nome que a pessoa enviou. */}
                 <a
                   href={`/processos/anexo/${x.id}`}
-                  className="flex min-h-10 items-center gap-2.5 rounded-lg border border-linha px-2.5 py-1.5 text-[13px] text-tinta hover:bg-sutil focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mar"
+                  className="flex min-h-10 items-center gap-2.5 rounded-xl border border-linha px-3 py-1.5 text-[13px] text-tinta hover:bg-sutil focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mar"
                 >
                   <svg
                     width="16"
                     height="16"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="#4B5563"
+                    stroke="currentColor"
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
