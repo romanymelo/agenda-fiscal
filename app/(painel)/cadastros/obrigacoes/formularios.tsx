@@ -1,8 +1,8 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useActionState, useState, useTransition, type FormEvent, type ReactNode } from 'react'
-import { AreaTexto, Botao, Campo, GrupoMarcacoes, Selecao } from '@/components/campos'
+import { useActionState, useState, useTransition, type FormEvent } from 'react'
+import { AreaTexto, Botao, Campo, Condicional, GrupoMarcacoes, Selecao } from '@/components/campos'
 import {
   ROTULO_ESFERA,
   ROTULO_PERIODICIDADE,
@@ -24,19 +24,6 @@ const OPCOES_SITUACAO = [
   { valor: 'true', rotulo: 'Ativo' },
   { valor: 'false', rotulo: 'Inativo' },
 ]
-
-/**
- * Campo que só existe para certas escolhas. Escondido, continua montado (o que foi digitado ou marcado
- * volta se a pessoa mudar de ideia) mas desabilitado, então não vai no envio: quem decide o que gravar
- * a partir do que veio é a ação.
- */
-export function Condicional({ mostra, className, children }: { mostra: boolean; className: string; children: ReactNode }) {
-  return (
-    <fieldset hidden={!mostra} disabled={!mostra} className={`m-0 min-w-0 border-0 p-0 ${className}`}>
-      {children}
-    </fieldset>
-  )
-}
 
 /** Formulário de obrigação, para cadastrar (sem `obrigacao`) ou editar (com `obrigacao`). */
 function FormularioObrigacao({

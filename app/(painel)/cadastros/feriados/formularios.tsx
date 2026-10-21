@@ -1,8 +1,7 @@
 'use client'
 
 import { useActionState, useState, useTransition, type FormEvent } from 'react'
-import { Condicional } from '@/app/(painel)/cadastros/obrigacoes/formularios'
-import { Botao, Campo, Selecao } from '@/components/campos'
+import { Botao, Campo, Condicional, Selecao } from '@/components/campos'
 import { ROTULO_ABRANGENCIA, type FeriadoCadastro, type Praca } from '@/lib/tipos'
 import { alterarConfiguracao, alterarFeriado, criarFeriado, excluirFeriado, type Resultado } from './acoes'
 

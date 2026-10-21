@@ -93,3 +93,17 @@ test('membro nao altera a configuracao', async () => {
   expect(r.erro).toMatch(/administrador/i)
   expect(await obterConfiguracao(ctx.db)).toMatchObject({ uf: 'AL', municipio: 'Maceió' })
 })
+
+test('uf que nao existe e recusada no feriado e na praca, em vez de nunca casar com praca nenhuma', async () => {
+  const antes = await total()
+  const feriado = await criarFeriado(
+    formulario({ data: '2026-06-24', descricao: 'São João', abrangencia: 'estadual', uf: 'xy' }),
+  )
+  expect(feriado.erro).toBe('Informe uma UF válida, como AL.')
+  expect(await total()).toBe(antes)
+  expect((await alterarConfiguracao(formulario({ uf: 'XY', municipio: 'Maceió' }))).erro).toBe('Informe uma UF válida, como AL.')
+  expect(await obterConfiguracao(ctx.db)).toMatchObject({ uf: 'AL', municipio: 'Maceió' })
+  // As 27 existem: minúscula é aceita e gravada em maiúscula.
+  expect(await criarFeriado(formulario({ data: '2026-06-24', descricao: 'São João', abrangencia: 'estadual', uf: 'pe' }))).toEqual({ ok: true })
+  expect((await listarFeriados(ctx.db, 2026)).find((f) => f.descricao === 'São João')).toMatchObject({ uf: 'PE' })
+})

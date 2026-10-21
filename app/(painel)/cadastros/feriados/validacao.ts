@@ -1,6 +1,9 @@
 // Validação de feriado e da praça antes da escrita. O banco tem o mesmo `check` de abrangência
 // (feriados_abrangencia_ck), mas o erro dele é cru; esta função existe para a mensagem chegar em português.
 // Fica fora de `acoes.ts` porque arquivo 'use server' só exporta Server Actions.
+import { ufValida } from '@/lib/ufs'
+
+const UF_INVALIDA = 'Informe uma UF válida, como AL.'
 
 export type DadosFeriado = {
   data: string
@@ -11,9 +14,6 @@ export type DadosFeriado = {
   /** Só vale para municipal. */
   municipio: string
 }
-
-/** Duas letras, a mesma regra do cadastro de clientes. */
-export const UF_VALIDA = /^[A-Z]{2}$/
 
 /** 'AAAA-MM-DD' que existe no calendário (31/04 não existe). */
 export function dataValida(data: string): boolean {
@@ -31,7 +31,7 @@ export function validarFeriado(d: DadosFeriado): string | null {
     return 'Escolha a abrangência do feriado.'
   if (d.abrangencia !== 'nacional') {
     if (!d.uf) return `Informe a UF do feriado ${d.abrangencia}.`
-    if (!UF_VALIDA.test(d.uf)) return 'Informe a UF com duas letras.'
+    if (!ufValida(d.uf)) return UF_INVALIDA
   }
   if (d.abrangencia === 'municipal' && !d.municipio) return 'Informe o município do feriado municipal.'
   return null
@@ -39,7 +39,7 @@ export function validarFeriado(d: DadosFeriado): string | null {
 
 /** A praça do escritório: UF e município são obrigatórios. */
 export function validarPraca(d: { uf: string; municipio: string }): string | null {
-  if (!UF_VALIDA.test(d.uf)) return 'Informe a UF com duas letras.'
+  if (!ufValida(d.uf)) return UF_INVALIDA
   if (!d.municipio) return 'Informe o município do escritório.'
   return null
 }
