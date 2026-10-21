@@ -5,8 +5,10 @@ no mês, e acompanha os processos administrativos em andamento. Não é gestão 
 painel de consulta e registro, com autoria e histórico em toda escrita.
 
 Esta fase do projeto roda inteiramente na máquina local, sem Supabase: o banco é o
-[PGlite](https://pglite.dev) (Postgres em WASM), guardado num arquivo em `pgdata/`, e os anexos
-ficam na pasta local `arquivos/`. O destino final é Supabase + Vercel; as migrations em
+[PGlite](https://pglite.dev) (Postgres em WASM), e os anexos ficam na pasta local `arquivos/`.
+No Windows, os dados do banco ficam em `%LOCALAPPDATA%\agenda-fiscal\pgdata`, fora do projeto
+(a variável `AGENDA_FISCAL_DB` muda o local). Motivo: sincronizadores como o backup do Google
+Drive marcam as pastas do projeto como somente leitura, e o PGlite deixa de abrir o banco. O destino final é Supabase + Vercel; as migrations em
 `supabase/migrations/` já são as que serão aplicadas lá, sem reescrita.
 
 ## Como rodar
@@ -41,6 +43,6 @@ npm run lint
 
 ## Pastas que não vão para o Git
 
-- `pgdata/` — arquivo de dados do PGlite.
+- `pgdata/` — dados do PGlite, quando ficam no projeto (fora do Windows, ou via `AGENDA_FISCAL_DB`).
 - `arquivos/` — anexos enviados pelos processos.
 - `.env.local` — variáveis de ambiente locais.

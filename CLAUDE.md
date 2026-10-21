@@ -4,7 +4,9 @@ Web app de uso interno da equipe de um escritório de contabilidade. Painel visu
 quem abre vê o que vence hoje, na semana e no mês, e acompanha os processos administrativos em andamento.
 
 **Fase atual**: construção local, sem Supabase. O banco é o PGlite (Postgres em WASM) rodando no
-próprio processo Node, com os dados em `pgdata/`; os anexos ficam em `arquivos/`. Supabase, Vercel e
+próprio processo Node; no Windows os dados ficam em `%LOCALAPPDATA%\agenda-fiscal\pgdata`, fora do
+projeto, porque o backup do Google Drive sobre `C:\Projetos` marca as pastas como somente leitura e o
+PGlite (Emscripten) obedece esse atributo e falha ao abrir. Os anexos ficam em `arquivos/`. Supabase, Vercel e
 GitHub remoto entram numa fase seguinte, sem reescrever as migrations SQL já versionadas.
 
 **Não é gestão de tarefas**: não controla quem fez ou deixou de fazer o quê. É um painel de consulta e registro.

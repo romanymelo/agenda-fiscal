@@ -1,3 +1,4 @@
+import { mkdirSync } from 'node:fs'
 import path from 'node:path'
 import { PGlite } from '@electric-sql/pglite'
 import { migrar } from './migrar'
@@ -7,15 +8,22 @@ const globalComBanco = globalThis as typeof globalThis & {
   __agendaFiscalBancoFechamentoRegistrado?: boolean
 }
 
-// Pasta de dados do PGlite; AGENDA_FISCAL_DB sobrescreve o padrão. Ambos passam por path.resolve.
+// Pasta de dados do PGlite; AGENDA_FISCAL_DB sobrescreve o padrão.
+// No Windows o padrão fica fora do projeto, em %LOCALAPPDATA%: sincronizadores como o backup do
+// Google Drive marcam as pastas do projeto como somente leitura. O Windows ignora esse atributo,
+// mas o PGlite (Postgres via Emscripten) obedece e falha ao criar o arquivo de trava
+// ("PGlite failed to initialize properly"). Além disso, banco em uso não deve ser sincronizado.
 export function caminhoDoBanco(): string {
-  return path.resolve(process.cwd(), process.env.AGENDA_FISCAL_DB || 'pgdata')
+  if (process.env.AGENDA_FISCAL_DB) return path.resolve(process.cwd(), process.env.AGENDA_FISCAL_DB)
+  if (process.platform === 'win32' && process.env.LOCALAPPDATA) {
+    return path.join(process.env.LOCALAPPDATA, 'agenda-fiscal', 'pgdata')
+  }
+  return path.resolve(process.cwd(), 'pgdata')
 }
 
 // O PGlite grava um arquivo de trava (postmaster.pid) ao abrir e só o remove ao fechar de
-// forma limpa. Sem isso, o próximo processo a abrir a mesma pasta demora muito para abrir
-// (ou falha) por causa da trava órfã. Node não encerra sozinho ao receber Ctrl+C/SIGTERM
-// quando há um handler destes registrado — por isso fechamos o banco e só então saímos.
+// forma limpa; fechar ao receber Ctrl+C/SIGTERM evita deixar a trava órfã. Node não encerra
+// sozinho quando há um handler destes registrado — por isso fechamos o banco e só então saímos.
 // `once` por sinal e a flag em globalThis evitam registrar duas vezes no hot reload do dev.
 function registrarFechamentoLimpo(): void {
   if (globalComBanco.__agendaFiscalBancoFechamentoRegistrado) return
@@ -43,7 +51,9 @@ export function obterBanco(): Promise<PGlite> {
   registrarFechamentoLimpo()
   globalComBanco.__agendaFiscalBanco ??= (async () => {
     try {
-      const db = new PGlite(caminhoDoBanco())
+      const caminho = caminhoDoBanco()
+      mkdirSync(path.dirname(caminho), { recursive: true })
+      const db = new PGlite(caminho)
       await migrar(db)
       return db
     } catch (erro) {
