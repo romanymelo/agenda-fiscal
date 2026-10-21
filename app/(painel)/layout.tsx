@@ -12,11 +12,13 @@ import { exigirUsuario } from '@/lib/usuario-atual'
 export default function LayoutPainel({ children }: { children: React.ReactNode }) {
   // A identificação é dado de requisição (cookie): precisa ficar atrás de um limite de
   // Suspense, senão a rota não pode ser pré-renderizada (cacheComponents está ligado).
-  // O esqueleto tem a altura exata do header real (106px + borda empilhado, h-16 + borda em
-  // linha única), para não deslocar a página quando o conteúdo chega.
+  // O esqueleto tem a altura exata do header real, para não deslocar a página quando o conteúdo
+  // chega: 107px empilhado e 65px em linha única. Com o preflight do Tailwind o `box-sizing` é
+  // `border-box`, então a borda está dentro dessas alturas — não se soma a elas.
+  // Quem garante a igualdade é o script de verificação: ele mede o esqueleto e o header.
   return (
     <Suspense
-      fallback={<div className="h-[106px] border-b border-[#E5E7EB] bg-white lg:h-16" />}
+      fallback={<div className="h-[107px] border-b border-[#E5E7EB] bg-white lg:h-[65px]" />}
     >
       <Painel>{children}</Painel>
     </Suspense>
