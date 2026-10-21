@@ -48,10 +48,15 @@ const SELECAO = `select c.id, c.nome, c.codigo_dominio, c.cnpj, c.regime, c.uf, 
                  from clientes c left join usuarios u on u.id = c.atualizado_por`
 
 /**
- * Clientes não excluídos, em ordem de nome. `busca` procura em nome, código do Domínio e CNPJ,
+ * Clientes não excluídos, em ordem de nome. Só os ativos, salvo `incluirInativos` (inativo é cliente que
+ * saiu do escritório: some da lista do dia a dia, mas não perde o histórico). `busca` procura em nome, código do Domínio e CNPJ,
  * sem diferenciar caixa nem acento; o CNPJ é comparado só pelos dígitos, com ou sem máscara.
  */
-export async function listarClientes(db: PGlite, busca?: string): Promise<Cliente[]> {
+export async function listarClientes(
+  db: PGlite,
+  busca?: string,
+  { incluirInativos = false }: { incluirInativos?: boolean } = {},
+): Promise<Cliente[]> {
   const termo = normalizar(busca ?? '')
   // Só uma busca feita de dígitos e pontuação de máscara vale também como CNPJ: "Loja 2" não deve
   // trazer todo cliente cujo CNPJ tenha um 2.
@@ -59,12 +64,13 @@ export async function listarClientes(db: PGlite, busca?: string): Promise<Client
   const r = await db.query<Linha>(
     `${SELECAO}
      where c.excluido_em is null
+       and ($3::boolean or c.ativo)
        and ($1::text = ''
             or strpos(${normalizada('c.nome')}, $1::text) > 0
             or strpos(${normalizada('c.codigo_dominio')}, $1::text) > 0
             or ($2::text <> '' and strpos(regexp_replace(coalesce(c.cnpj, ''), '[^0-9]', '', 'g'), $2::text) > 0))
      order by ${normalizada('c.nome')}, c.id`,
-    [termo, digitos],
+    [termo, digitos, incluirInativos],
   )
   return r.rows.map(paraCliente)
 }
@@ -77,8 +83,11 @@ export async function buscarCliente(db: PGlite, id: string): Promise<Cliente | n
 }
 
 // As páginas não importam `obterBanco`: estas duas abrem o banco por elas.
-export async function clientesDaTela(busca?: string): Promise<Cliente[]> {
-  return listarClientes(await obterBanco(), busca)
+export async function clientesDaTela(
+  busca?: string,
+  opcoes?: { incluirInativos?: boolean },
+): Promise<Cliente[]> {
+  return listarClientes(await obterBanco(), busca, opcoes)
 }
 
 export async function clienteDaTela(id: string): Promise<Cliente | null> {

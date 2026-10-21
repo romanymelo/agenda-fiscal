@@ -7,6 +7,7 @@ import { clientesDaTela } from '@/lib/db/clientes'
 import { exigirUsuario } from '@/lib/usuario-atual'
 import { criarCliente } from './acoes'
 import { NovoCliente } from './formularios'
+import { SeloSituacao } from './selo-situacao'
 
 export const metadata = { title: 'Clientes — Agenda Fiscal' }
 
@@ -33,9 +34,15 @@ async function Conteudo({ searchParams }: { searchParams: Promise<{ [chave: stri
   await connection()
   // O layout não é barreira de acesso: a página confere por conta própria.
   await exigirUsuario()
-  const { busca: bruta } = await searchParams
+  const { busca: bruta, inativos: chaveInativos } = await searchParams
   const busca = (Array.isArray(bruta) ? bruta[0] : bruta)?.trim() ?? ''
-  const clientes = await clientesDaTela(busca)
+  const incluirInativos = (Array.isArray(chaveInativos) ? chaveInativos[0] : chaveInativos) === '1'
+  const clientes = await clientesDaTela(busca, { incluirInativos })
+  // O outro estado do filtro, mantendo a busca: ativos por padrão, inativos a um clique.
+  const alternar = new URLSearchParams()
+  if (busca) alternar.set('busca', busca)
+  if (!incluirInativos) alternar.set('inativos', '1')
+  const destinoAlternar = `/cadastros/clientes${alternar.size ? `?${alternar}` : ''}`
   return (
     <>
       <Form action="/cadastros/clientes" className="flex items-end gap-2">
@@ -49,14 +56,25 @@ async function Conteudo({ searchParams }: { searchParams: Promise<{ [chave: stri
           autoComplete="off"
           className="flex-1"
         />
+        {incluirInativos && <input type="hidden" name="inativos" value="1" />}
         <Botao type="submit" variante="secundario">
           Buscar
         </Botao>
       </Form>
+      <Link
+        href={destinoAlternar}
+        className="self-start text-sm font-semibold text-[#0F766E] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F766E]"
+      >
+        {incluirInativos ? 'Ocultar clientes inativos' : 'Mostrar clientes inativos'}
+      </Link>
       <NovoCliente criar={criarCliente} />
       {clientes.length === 0 ? (
         <p className="rounded-[14px] border border-[#E5E7EB] bg-white p-5 text-sm text-[#4B5563]">
-          {busca ? 'Nenhum cliente encontrado para essa busca.' : 'Nenhum cliente cadastrado ainda.'}
+          {busca
+            ? 'Nenhum cliente encontrado para essa busca.'
+            : incluirInativos
+              ? 'Nenhum cliente cadastrado ainda.'
+              : 'Nenhum cliente ativo. Use "Mostrar clientes inativos" para ver quem saiu do escritório.'}
         </p>
       ) : (
         <ul className="flex flex-col divide-y divide-[#E5E7EB] rounded-[14px] border border-[#E5E7EB] bg-white">
@@ -68,11 +86,7 @@ async function Conteudo({ searchParams }: { searchParams: Promise<{ [chave: stri
               >
                 <span className="flex min-w-0 items-center gap-2">
                   <span className="truncate font-semibold">{c.nome}</span>
-                  {!c.ativo && (
-                    <span className="rounded-full bg-[#E5E7EB] px-2.5 py-0.5 text-xs font-semibold text-[#4B5563]">
-                      Inativo
-                    </span>
-                  )}
+                  <SeloSituacao ativo={c.ativo} />
                 </span>
                 <span className="flex flex-wrap gap-x-4 gap-y-0.5 text-sm text-[#4B5563]">
                   <span>Domínio: {c.codigoDominio ?? '—'}</span>

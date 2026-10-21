@@ -6,6 +6,10 @@ import { AreaTexto, Botao, Campo, Selecao } from '@/components/campos'
 import { ROTULO_REGIME, type Cliente } from '@/lib/tipos'
 import { excluirCliente, type Resultado } from './acoes'
 
+const OPCOES_SITUACAO = [
+  { valor: 'true', rotulo: 'Ativo' },
+  { valor: 'false', rotulo: 'Inativo' },
+]
 const OPCOES_REGIME = Object.entries(ROTULO_REGIME).map(([valor, rotulo]) => ({ valor, rotulo }))
 
 // Guarda o resultado e o que foi digitado: o React limpa o formulário depois de toda ação, e em
@@ -87,6 +91,14 @@ function FormularioCliente({
           autoComplete="off"
           defaultValue={valor('municipio', cliente?.municipio)}
           className="sm:col-span-4"
+        />
+        <Selecao
+          rotulo="Situação"
+          nome="ativo"
+          opcoes={OPCOES_SITUACAO}
+          ajuda="Inativo é o cliente que saiu do escritório: some da lista do dia a dia, mas o cadastro e o histórico ficam."
+          defaultValue={valor('ativo', cliente && !cliente.ativo ? 'false' : 'true')}
+          className="sm:col-span-6"
         />
         <AreaTexto
           rotulo="Particularidades"

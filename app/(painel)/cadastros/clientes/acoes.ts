@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { alterar, criar, excluir, exigirPermissao, SemPermissao } from '@/lib/db/escrita'
 import { buscarCliente } from '@/lib/db/clientes'
-import { ErroDeFormulario, texto, textoOuNulo } from '@/lib/formulario'
+import { booleano, ErroDeFormulario, texto, textoOuNulo } from '@/lib/formulario'
 import { ROTULO_REGIME, type Regime } from '@/lib/tipos'
 import { contextoAtual } from '@/lib/usuario-atual'
 
@@ -30,6 +30,13 @@ function ler(form: FormData, criacao: boolean): { erro: string } | { dados: Reco
   // O navegador envia a quebra de linha como \r\n: grava-se sempre \n. `null` (limpar) passa direto.
   const bruto = textoOuNulo(form, 'particularidades')
   const particularidades = typeof bruto === 'string' ? bruto.replace(/\r\n?/g, '\n') : bruto
+  let ativo: boolean | undefined
+  try {
+    ativo = booleano(form, 'ativo')
+  } catch (e) {
+    if (e instanceof ErroDeFormulario) return { erro: e.message }
+    throw e
+  }
   const falta = (v: string | undefined) => (criacao ? !v : v === '')
   if (falta(nome)) return { erro: 'Informe o nome do cliente.' }
   if (falta(regime) || (regime !== undefined && !REGIMES.includes(regime)))
@@ -45,6 +52,7 @@ function ler(form: FormData, criacao: boolean): { erro: string } | { dados: Reco
       uf,
       municipio,
       particularidades,
+      ativo,
     },
   }
 }

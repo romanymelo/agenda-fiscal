@@ -11,7 +11,7 @@ let ctx: Contexto
 vi.mock('@/lib/usuario-atual', () => ({ contextoAtual: async () => ctx }))
 vi.mock('next/cache', () => ({ revalidatePath: () => {} }))
 
-import { criarCliente, excluirCliente } from '@/app/(painel)/cadastros/clientes/acoes'
+import { alterarCliente, criarCliente, excluirCliente } from '@/app/(painel)/cadastros/clientes/acoes'
 import { buscarCliente, listarClientes } from './clientes'
 
 function formulario(campos: Record<string, string>): FormData {
@@ -94,4 +94,29 @@ test('particularidades aceita varias linhas', async () => {
   )
   expect((await buscarCliente(ctx.db, cliente.id))?.particularidades).toBe(cliente.particularidades)
   expect(cliente.particularidades?.split('\n')).toHaveLength(3)
+})
+
+test('cliente inativo sai da lista do dia a dia, aparece quando pedido e a troca fica no historico', async () => {
+  await criarCliente(formulario(PADARIA))
+  await criarCliente(formulario({ ...PADARIA, nome: 'Oficina Rio Branco', codigo_dominio: '0100', ativo: 'false' }))
+  // Por padrão, só os ativos; com o pedido, todos (o inativo vem marcado como tal).
+  expect((await listarClientes(ctx.db)).map((c) => c.nome)).toEqual(['Padaria Trigo de Ouro'])
+  expect((await listarClientes(ctx.db, undefined, { incluirInativos: true })).map((c) => [c.nome, c.ativo])).toEqual([
+    ['Oficina Rio Branco', false],
+    ['Padaria Trigo de Ouro', true],
+  ])
+  // A busca também respeita o filtro.
+  expect(await listarClientes(ctx.db, 'oficina')).toHaveLength(0)
+  expect(await listarClientes(ctx.db, 'oficina', { incluirInativos: true })).toHaveLength(1)
+
+  // O inativo continua abrindo no detalhe e pode voltar: a troca é uma alteração com antes e depois.
+  const [inativo] = await listarClientes(ctx.db, 'oficina', { incluirInativos: true })
+  expect((await buscarCliente(ctx.db, inativo.id))?.ativo).toBe(false)
+  expect(await alterarCliente(inativo.id, formulario({ ativo: 'true' }))).toEqual({ ok: true })
+  expect(await listarClientes(ctx.db, 'oficina')).toHaveLength(1)
+  const [ultima] = await historicoDe(ctx.db, 'clientes', inativo.id)
+  expect(ultima.camposAlterados).toEqual({ ativo: { antes: false, depois: true } })
+  expect(await alterarCliente(inativo.id, formulario({ ativo: 'talvez' }))).toEqual({
+    erro: expect.stringMatching(/ativo/),
+  })
 })

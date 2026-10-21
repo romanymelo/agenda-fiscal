@@ -5,6 +5,9 @@ import { alterar, criar, excluir, SemPermissao, type Contexto } from './escrita'
 import { historicoDe } from './historico'
 import { migrar } from './migrar'
 
+// Regime, UF e município de cliente são obrigatórios no banco (migration 0003).
+const OBRIGATORIOS = { regime: 'simples', uf: 'AL', municipio: 'Maceió' }
+
 // Banco migrado em memória + contexto com o papel pedido.
 // O usuário do teste é criado pelo admin inicial da migration 0002.
 async function ctxCom(papel: Papel, nome: string): Promise<Contexto> {
@@ -22,6 +25,7 @@ async function ctxCom(papel: Papel, nome: string): Promise<Contexto> {
 test('criar grava auditoria e historico com o nome do usuario', async () => {
   const ctx = await ctxCom('membro', 'Ana')
   const c = await criar<{ id: string; criado_por: string }>(ctx, 'clientes', {
+    ...OBRIGATORIOS,
     nome: 'Padaria',
     codigo_dominio: '0042',
   })
@@ -35,6 +39,7 @@ test('criar grava auditoria e historico com o nome do usuario', async () => {
 test('alterar registra apenas os campos que mudaram, com antes e depois', async () => {
   const ctx = await ctxCom('membro', 'Ana')
   const c = await criar<{ id: string }>(ctx, 'clientes', {
+    ...OBRIGATORIOS,
     nome: 'Padaria',
     particularidades: 'NF pelo portal',
   })
@@ -48,14 +53,14 @@ test('alterar registra apenas os campos que mudaram, com antes e depois', async 
 
 test('alterar sem mudanca efetiva nao gera linha de historico', async () => {
   const ctx = await ctxCom('membro', 'Ana')
-  const c = await criar<{ id: string }>(ctx, 'clientes', { nome: 'Padaria' })
+  const c = await criar<{ id: string }>(ctx, 'clientes', { ...OBRIGATORIOS, nome: 'Padaria' })
   await alterar(ctx, 'clientes', c.id, { nome: 'Padaria' })
   expect(await historicoDe(ctx.db, 'clientes', c.id)).toHaveLength(1)
 })
 
 test('valor igual em tipo diferente nao conta como mudanca', async () => {
   const ctx = await ctxCom('membro', 'Ana')
-  const cliente = await criar<{ id: string }>(ctx, 'clientes', { nome: 'Padaria' })
+  const cliente = await criar<{ id: string }>(ctx, 'clientes', { ...OBRIGATORIOS, nome: 'Padaria' })
   const p = await criar<{ id: string }>(ctx, 'processos', {
     cliente_id: cliente.id,
     tipo: 'Parcelamento',
@@ -70,11 +75,11 @@ test('valor igual em tipo diferente nao conta como mudanca', async () => {
 test('coluna de auditoria enviada pelo chamador e rejeitada', async () => {
   const ctx = await ctxCom('membro', 'Ana')
   await expect(
-    criar(ctx, 'clientes', { nome: 'Padaria', criado_por: ctx.usuario.id }),
+    criar(ctx, 'clientes', { ...OBRIGATORIOS, nome: 'Padaria', criado_por: ctx.usuario.id }),
   ).rejects.toThrow(
     /As colunas geridas pelo helper de escrita \(id, criado_por, criado_em, atualizado_por, atualizado_em, excluido_por, excluido_em\) não podem vir do chamador: clientes\.criado_por\./,
   )
-  const c = await criar<{ id: string }>(ctx, 'clientes', { nome: 'Padaria' })
+  const c = await criar<{ id: string }>(ctx, 'clientes', { ...OBRIGATORIOS, nome: 'Padaria' })
   await expect(
     alterar(ctx, 'clientes', c.id, { nome: 'Mercearia', atualizado_em: new Date() }),
   ).rejects.toThrow(/geridas pelo helper de escrita.*clientes\.atualizado_em\./)
@@ -85,7 +90,7 @@ test('coluna de auditoria enviada pelo chamador e rejeitada', async () => {
 
 test('historico da criacao nao inclui colunas de auditoria', async () => {
   const ctx = await ctxCom('membro', 'Ana')
-  const c = await criar<{ id: string }>(ctx, 'clientes', { nome: 'Padaria', uf: 'AL' })
+  const c = await criar<{ id: string }>(ctx, 'clientes', { ...OBRIGATORIOS, nome: 'Padaria', uf: 'AL' })
   const h = await historicoDe(ctx.db, 'clientes', c.id)
   const chaves = Object.keys(h[0].camposAlterados ?? {})
   expect(h[0].camposAlterados).toMatchObject({
@@ -106,7 +111,7 @@ test('historico da criacao nao inclui colunas de auditoria', async () => {
 
 test('alterar sem nenhum campo nao escreve nem gera historico', async () => {
   const ctx = await ctxCom('membro', 'Ana')
-  const c = await criar<{ id: string }>(ctx, 'clientes', { nome: 'Padaria' })
+  const c = await criar<{ id: string }>(ctx, 'clientes', { ...OBRIGATORIOS, nome: 'Padaria' })
   const igual = await alterar<{ id: string; nome: string; atualizado_em: Date | null }>(
     ctx,
     'clientes',
@@ -120,12 +125,12 @@ test('alterar sem nenhum campo nao escreve nem gera historico', async () => {
 
 test('chamador nao troca o id do registro', async () => {
   const ctx = await ctxCom('membro', 'Ana')
-  const c = await criar<{ id: string }>(ctx, 'clientes', { nome: 'Padaria' })
+  const c = await criar<{ id: string }>(ctx, 'clientes', { ...OBRIGATORIOS, nome: 'Padaria' })
   const outroId = '00000000-0000-4000-8000-000000000001'
   await expect(alterar(ctx, 'clientes', c.id, { id: outroId })).rejects.toThrow(
     /não podem vir do chamador: clientes\.id\./,
   )
-  await expect(criar(ctx, 'clientes', { nome: 'Mercearia', id: outroId })).rejects.toThrow(
+  await expect(criar(ctx, 'clientes', { ...OBRIGATORIOS, nome: 'Mercearia', id: outroId })).rejects.toThrow(
     /não podem vir do chamador: clientes\.id\./,
   )
   // o registro continua no id original, com o histórico ainda pendurado nele
@@ -136,7 +141,7 @@ test('chamador nao troca o id do registro', async () => {
 
 test('o helper nunca escreve na tabela de historico', async () => {
   const ctx = await ctxCom('admin', 'Chefe')
-  const c = await criar<{ id: string }>(ctx, 'clientes', { nome: 'Padaria' })
+  const c = await criar<{ id: string }>(ctx, 'clientes', { ...OBRIGATORIOS, nome: 'Padaria' })
   const esperado = /O helper de escrita nunca escreve em historico/
   await expect(
     criar(ctx, 'historico', { tabela: 'clientes', registro_id: c.id, acao: 'criacao' }),
@@ -161,14 +166,14 @@ test('tabela e coluna inexistentes sao rejeitadas com erro claro', async () => {
   await expect(criar(ctx, 'fornecedores', { nome: 'Padaria' })).rejects.toThrow(
     /Tabela desconhecida: fornecedores/,
   )
-  await expect(criar(ctx, 'clientes', { nome: 'Padaria', telefone: '99999' })).rejects.toThrow(
+  await expect(criar(ctx, 'clientes', { ...OBRIGATORIOS, nome: 'Padaria', telefone: '99999' })).rejects.toThrow(
     /Coluna desconhecida em clientes: telefone/,
   )
 })
 
 test('excluir duas vezes nao sobrescreve quem excluiu', async () => {
   const ctx = await ctxCom('admin', 'Chefe')
-  const c = await criar<{ id: string }>(ctx, 'clientes', { nome: 'Padaria' })
+  const c = await criar<{ id: string }>(ctx, 'clientes', { ...OBRIGATORIOS, nome: 'Padaria' })
   await excluir(ctx, 'clientes', c.id)
   const admin = await ctx.db.query<Usuario>(
     "select id, nome, email, papel, ativo from usuarios where papel = 'admin' and nome <> 'Chefe'",
@@ -186,43 +191,44 @@ test('excluir duas vezes nao sobrescreve quem excluiu', async () => {
 
 test('chave com valor undefined e ignorada, null explicito limpa', async () => {
   const ctx = await ctxCom('membro', 'Ana')
-  const c = await criar<{ id: string; cnpj: string | null }>(ctx, 'clientes', {
+  const c = await criar<{ id: string; cnpj: string | null; particularidades: string | null }>(ctx, 'clientes', {
+    ...OBRIGATORIOS,
     nome: 'Padaria',
-    uf: 'AL',
-    cnpj: undefined,
+    cnpj: '12345678000199',
+    particularidades: undefined,
   })
-  expect(c.cnpj).toBeNull()
-  const igual = await alterar<{ uf: string | null; atualizado_em: Date | null }>(
+  expect(c.particularidades).toBeNull()
+  const igual = await alterar<{ cnpj: string | null; atualizado_em: Date | null }>(
     ctx,
     'clientes',
     c.id,
-    { uf: undefined },
+    { cnpj: undefined },
   )
-  expect(igual.uf).toBe('AL')
+  expect(igual.cnpj).toBe('12345678000199')
   expect(igual.atualizado_em).toBeNull()
   expect(await historicoDe(ctx.db, 'clientes', c.id)).toHaveLength(1)
-  const limpo = await alterar<{ uf: string | null }>(ctx, 'clientes', c.id, { uf: null })
-  expect(limpo.uf).toBeNull()
+  const limpo = await alterar<{ cnpj: string | null }>(ctx, 'clientes', c.id, { cnpj: null })
+  expect(limpo.cnpj).toBeNull()
 })
 
 test('usuario inativo nao escreve', async () => {
   const base = await ctxCom('admin', 'Chefe')
   const ctx: Contexto = { db: base.db, usuario: { ...base.usuario, ativo: false } }
-  await expect(criar(ctx, 'clientes', { nome: 'Padaria' })).rejects.toThrow(SemPermissao)
-  await expect(criar(ctx, 'clientes', { nome: 'Padaria' })).rejects.toThrow(/está inativo/)
+  await expect(criar(ctx, 'clientes', { ...OBRIGATORIOS, nome: 'Padaria' })).rejects.toThrow(SemPermissao)
+  await expect(criar(ctx, 'clientes', { ...OBRIGATORIOS, nome: 'Padaria' })).rejects.toThrow(/está inativo/)
   const r = await base.db.query('select count(*)::int as n from clientes')
   expect(r.rows[0]).toEqual({ n: 0 })
 })
 
 test('membro nao exclui', async () => {
   const ctx = await ctxCom('membro', 'Ana')
-  const c = await criar<{ id: string }>(ctx, 'clientes', { nome: 'Padaria' })
+  const c = await criar<{ id: string }>(ctx, 'clientes', { ...OBRIGATORIOS, nome: 'Padaria' })
   await expect(excluir(ctx, 'clientes', c.id)).rejects.toThrow(SemPermissao)
 })
 
 test('admin exclui logicamente e o registro sobrevive', async () => {
   const ctx = await ctxCom('admin', 'Chefe')
-  const c = await criar<{ id: string }>(ctx, 'clientes', { nome: 'Padaria' })
+  const c = await criar<{ id: string }>(ctx, 'clientes', { ...OBRIGATORIOS, nome: 'Padaria' })
   await excluir(ctx, 'clientes', c.id)
   const r = await ctx.db.query<{ excluido_por: string; excluido_em: Date }>(
     'select excluido_por, excluido_em from clientes where id = $1',
@@ -254,7 +260,7 @@ test('falha na gravacao do historico desfaz a escrita', async () => {
   // historico com coluna renomeada em runtime: a transacao inteira volta
   const ctx = await ctxCom('membro', 'Ana')
   await ctx.db.exec('alter table historico rename column acao to acao_x')
-  await expect(criar(ctx, 'clientes', { nome: 'Padaria' })).rejects.toThrow()
+  await expect(criar(ctx, 'clientes', { ...OBRIGATORIOS, nome: 'Padaria' })).rejects.toThrow()
   const r = await ctx.db.query('select count(*)::int as n from clientes')
   expect(r.rows[0]).toEqual({ n: 0 })
 })

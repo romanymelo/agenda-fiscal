@@ -9,6 +9,7 @@ import { ROTULO_REGIME } from '@/lib/tipos'
 import { exigirUsuario } from '@/lib/usuario-atual'
 import { alterarCliente } from '../acoes'
 import { EditarCliente, ExcluirCliente } from '../formularios'
+import { SeloSituacao } from '../selo-situacao'
 
 export const metadata = { title: 'Cliente — Agenda Fiscal' }
 
@@ -53,11 +54,7 @@ async function Conteudo({ params }: { params: Promise<{ id: string }> }) {
     <article className="flex flex-col gap-5 rounded-[14px] border border-[#E5E7EB] bg-white p-4 sm:p-6">
       <div className="flex flex-col gap-1">
         <h1 className="break-words text-[24px] font-bold tracking-tight">{cliente.nome}</h1>
-        {!cliente.ativo && (
-          <span className="self-start rounded-full bg-[#E5E7EB] px-2.5 py-0.5 text-xs font-semibold text-[#4B5563]">
-            Inativo
-          </span>
-        )}
+        <SeloSituacao ativo={cliente.ativo} className="self-start" />
       </div>
 
       <dl className="m-0 grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">

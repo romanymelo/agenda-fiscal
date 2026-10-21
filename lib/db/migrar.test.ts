@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { copyFileSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { PGlite } from '@electric-sql/pglite'
@@ -92,7 +92,8 @@ test('campos obrigatorios de processos e historico rejeitam nulo', async () => {
   const db = new PGlite()
   await migrar(db)
   const c = await db.query<{ id: string }>(
-    "insert into clientes (nome, criado_por) values ('C', $1) returning id", [ADMIN])
+    "insert into clientes (nome, regime, uf, municipio, criado_por) values ('C', 'mei', 'AL', 'Maceió', $1) returning id",
+    [ADMIN])
   const cid = c.rows[0].id
   const proc = (orgao: string | null, abertura: string | null) =>
     db.query(
@@ -104,4 +105,37 @@ test('campos obrigatorios de processos e historico rejeitam nulo', async () => {
   await expect(db.query(
     "insert into historico (tabela, registro_id, acao, usuario_nome) values ('x', gen_random_uuid(), 'criacao', 'N')",
   )).rejects.toThrow()
+})
+
+test('regime, uf e municipio de clientes sao obrigatorios, inclusive sobre um banco que ja tinha 0001 e 0002', async () => {
+  // Banco "antigo": só as duas primeiras migrations, como nos bancos já existentes.
+  const antiga = mkdtempSync(path.join(tmpdir(), 'migrar-'))
+  try {
+    for (const f of ['0001_estrutura.sql', '0002_dados_iniciais.sql'])
+      copyFileSync(path.join(process.cwd(), 'supabase', 'migrations', f), path.join(antiga, f))
+    const db = new PGlite()
+    await migrar(db, antiga)
+    await db.query(
+      "insert into clientes (nome, regime, uf, municipio, criado_por) values ('Antigo', 'mei', 'AL', 'Maceió', $1)",
+      [ADMIN])
+
+    await migrar(db) // pasta real: aplica só o que falta
+    const reg = await db.query<{ nome: string }>('select nome from migrations_aplicadas order by nome')
+    expect(reg.rows.map((r) => r.nome)).toEqual(
+      expect.arrayContaining(['0001_estrutura.sql', '0002_dados_iniciais.sql', '0003_clientes_obrigatorios.sql']))
+
+    const cols = await db.query<{ column_name: string; is_nullable: string }>(
+      `select column_name, is_nullable from information_schema.columns
+       where table_name = 'clientes' and column_name in ('regime', 'uf', 'municipio') order by column_name`)
+    expect(cols.rows).toEqual([
+      { column_name: 'municipio', is_nullable: 'NO' },
+      { column_name: 'regime', is_nullable: 'NO' },
+      { column_name: 'uf', is_nullable: 'NO' },
+    ])
+    const antigo = await db.query("select 1 from clientes where nome = 'Antigo'")
+    expect(antigo.rows).toHaveLength(1)
+    await expect(db.query("insert into clientes (nome, criado_por) values ('Sem dados', $1)", [ADMIN])).rejects.toThrow()
+  } finally {
+    rmSync(antiga, { recursive: true, force: true })
+  }
 })
