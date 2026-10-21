@@ -67,6 +67,56 @@ test('valor igual em tipo diferente nao conta como mudanca', async () => {
   expect(await historicoDe(ctx.db, 'processos', p.id)).toHaveLength(1)
 })
 
+test('coluna de auditoria enviada pelo chamador e rejeitada', async () => {
+  const ctx = await ctxCom('membro', 'Ana')
+  await expect(
+    criar(ctx, 'clientes', { nome: 'Padaria', criado_por: ctx.usuario.id }),
+  ).rejects.toThrow(
+    /As colunas de auditoria \(criado_por, criado_em, atualizado_por, atualizado_em, excluido_por, excluido_em\) são geridas pelo helper de escrita e não podem vir do chamador: clientes\.criado_por\./,
+  )
+  const c = await criar<{ id: string }>(ctx, 'clientes', { nome: 'Padaria' })
+  await expect(
+    alterar(ctx, 'clientes', c.id, { nome: 'Mercearia', atualizado_em: new Date() }),
+  ).rejects.toThrow(/geridas pelo helper de escrita.*clientes\.atualizado_em\./)
+  // a alteração rejeitada não gravou nada
+  const h = await historicoDe(ctx.db, 'clientes', c.id)
+  expect(h.map((l) => l.acao)).toEqual(['criacao'])
+})
+
+test('historico da criacao nao inclui colunas de auditoria', async () => {
+  const ctx = await ctxCom('membro', 'Ana')
+  const c = await criar<{ id: string }>(ctx, 'clientes', { nome: 'Padaria', uf: 'AL' })
+  const h = await historicoDe(ctx.db, 'clientes', c.id)
+  const chaves = Object.keys(h[0].camposAlterados ?? {})
+  expect(h[0].camposAlterados).toMatchObject({
+    nome: { antes: null, depois: 'Padaria' },
+    uf: { antes: null, depois: 'AL' },
+  })
+  for (const auditoria of [
+    'criado_por',
+    'criado_em',
+    'atualizado_por',
+    'atualizado_em',
+    'excluido_por',
+    'excluido_em',
+  ])
+    expect(chaves).not.toContain(auditoria)
+})
+
+test('alterar sem nenhum campo nao escreve nem gera historico', async () => {
+  const ctx = await ctxCom('membro', 'Ana')
+  const c = await criar<{ id: string }>(ctx, 'clientes', { nome: 'Padaria' })
+  const igual = await alterar<{ id: string; nome: string; atualizado_em: Date | null }>(
+    ctx,
+    'clientes',
+    c.id,
+    {},
+  )
+  expect(igual.nome).toBe('Padaria')
+  expect(igual.atualizado_em).toBeNull()
+  expect(await historicoDe(ctx.db, 'clientes', c.id)).toHaveLength(1)
+})
+
 test('membro nao exclui', async () => {
   const ctx = await ctxCom('membro', 'Ana')
   const c = await criar<{ id: string }>(ctx, 'clientes', { nome: 'Padaria' })
