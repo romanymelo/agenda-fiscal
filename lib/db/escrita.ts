@@ -22,8 +22,10 @@ export function exigirPermissao(usuario: Usuario, tabela: string, acao: Acao): v
   if (!usuario.ativo)
     throw new SemPermissao(`O usuário ${usuario.nome} está inativo e não pode escrever.`)
   if (usuario.papel === 'admin') return
-  if (EXIGEM_ADMIN.tabelas.has(tabela))
-    throw new SemPermissao(`Só o administrador pode escrever em ${tabela}.`)
+  if (EXIGEM_ADMIN.tabelas.has(tabela)) {
+    const NOME_TABELA: Record<string, string> = { usuarios: 'a equipe', configuracao: 'a praça do escritório' }
+    throw new SemPermissao(`Só o administrador pode escrever em ${NOME_TABELA[tabela] ?? tabela}.`)
+  }
   if (EXIGEM_ADMIN.acoes.has(acao))
     throw new SemPermissao('Só o administrador pode excluir registros.')
 }
