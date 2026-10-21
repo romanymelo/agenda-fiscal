@@ -5,11 +5,9 @@ import { obterConfiguracao } from '@/lib/db/configuracao'
 import { alterar, criar, excluir, exigirPermissao, SemPermissao } from '@/lib/db/escrita'
 import { buscarFeriado } from '@/lib/db/feriados'
 import { ErroDeFormulario, texto } from '@/lib/formulario'
+import type { Resultado } from '@/lib/tipos'
 import { contextoAtual } from '@/lib/usuario-atual'
 import { validarFeriado, validarPraca } from './validacao'
-
-/** Padrão das Server Actions do projeto: devolver `{ ok?, erro? }` em vez de lançar para erro esperado. */
-export type Resultado = { ok?: true; erro?: string }
 
 // Traduz o que o helper e os conversores podem lançar. O que não for conhecido sobe:
 // erro de programação não deve virar mensagem de formulário.

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { connection } from 'next/server'
 import { Suspense } from 'react'
-import { SeloSituacao } from '@/app/(painel)/cadastros/clientes/selo-situacao'
+import { SeloSituacao } from '@/components/selo-situacao'
 import { obrigacoesDaTela } from '@/lib/db/obrigacoes'
 import { ROTULO_ESFERA, ROTULO_PERIODICIDADE, type Esfera } from '@/lib/tipos'
 import { exigirUsuario } from '@/lib/usuario-atual'

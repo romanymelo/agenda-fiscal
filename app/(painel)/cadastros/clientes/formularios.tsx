@@ -3,8 +3,8 @@
 import { useRouter } from 'next/navigation'
 import { useActionState, useState, useTransition, type FormEvent } from 'react'
 import { AreaTexto, Botao, Campo, Selecao } from '@/components/campos'
-import { ROTULO_REGIME, type Cliente } from '@/lib/tipos'
-import { excluirCliente, type Resultado } from './acoes'
+import { ROTULO_REGIME, type Cliente, type Resultado } from '@/lib/tipos'
+import { excluirCliente } from './acoes'
 
 const OPCOES_SITUACAO = [
   { valor: 'true', rotulo: 'Ativo' },

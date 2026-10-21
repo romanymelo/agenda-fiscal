@@ -9,8 +9,9 @@ import {
   ROTULO_REGIME,
   ROTULO_REGRA,
   type ObrigacaoCadastro,
+  type Resultado,
 } from '@/lib/tipos'
-import { excluirObrigacao, type Resultado } from './acoes'
+import { excluirObrigacao } from './acoes'
 import { MESES } from './rotulos'
 
 const opcoesDe = (rotulos: Record<string, string>) =>

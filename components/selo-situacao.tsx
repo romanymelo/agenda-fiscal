@@ -1,4 +1,4 @@
-/** Selo Ativo/Inativo do cliente, o mesmo na lista e no detalhe. */
+/** Selo Ativo/Inativo, o mesmo em todos os cadastros (cliente, obrigação) na lista e no detalhe. */
 export function SeloSituacao({ ativo, className = '' }: { ativo: boolean; className?: string }) {
   return (
     <span

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { connection } from 'next/server'
 import { Suspense } from 'react'
 import { Historico } from '@/components/historico'
+import { SeloSituacao } from '@/components/selo-situacao'
 import { clienteDaTela } from '@/lib/db/clientes'
 import { formatarDataHoraBR } from '@/lib/regras/data'
 import { ROTULO_REGIME } from '@/lib/tipos'
@@ -10,7 +11,6 @@ import { exigirUsuario } from '@/lib/usuario-atual'
 import { alterarCliente } from '../acoes'
 import { EditarCliente, ExcluirCliente } from '../formularios'
 import { formatarCliente, ROTULOS_CLIENTE } from '../rotulos'
-import { SeloSituacao } from '../selo-situacao'
 
 export const metadata = { title: 'Cliente — Agenda Fiscal' }
 

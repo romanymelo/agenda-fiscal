@@ -159,3 +159,9 @@ test('membro nao exclui cliente, e a permissao vem antes de conferir se o id exi
   expect(await listarClientes(ctx.db)).toHaveLength(1)
   expect((await historicoDe(ctx.db, 'clientes', cliente.id)).map((l) => l.acao)).toEqual(['criacao'])
 })
+
+test('UF que nao e sigla valida e recusada, mesmo com duas letras', async () => {
+  const r = await criarCliente(formulario({ ...PADARIA, uf: 'XY' }))
+  expect(r.erro).toBe('Informe uma UF válida, como AL.')
+  expect(await listarClientes(ctx.db)).toHaveLength(0)
+})

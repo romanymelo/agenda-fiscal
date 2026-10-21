@@ -3,11 +3,11 @@ import Link from 'next/link'
 import { connection } from 'next/server'
 import { Suspense } from 'react'
 import { Botao, Campo } from '@/components/campos'
+import { SeloSituacao } from '@/components/selo-situacao'
 import { clientesDaTela } from '@/lib/db/clientes'
 import { exigirUsuario } from '@/lib/usuario-atual'
 import { criarCliente } from './acoes'
 import { NovoCliente } from './formularios'
-import { SeloSituacao } from './selo-situacao'
 
 export const metadata = { title: 'Clientes — Agenda Fiscal' }
 

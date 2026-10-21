@@ -4,14 +4,8 @@ import { revalidatePath } from 'next/cache'
 import { alterar, criar, exigirPermissao, SemPermissao, type Contexto } from '@/lib/db/escrita'
 import { usuarioExiste } from '@/lib/db/usuarios'
 import { booleano, ErroDeFormulario, texto } from '@/lib/formulario'
-import type { Papel } from '@/lib/tipos'
+import type { Papel, Resultado } from '@/lib/tipos'
 import { contextoAtual } from '@/lib/usuario-atual'
-
-/**
- * Padrão das Server Actions do projeto: devolver `{ ok?, erro? }` em vez de lançar para erro
- * esperado (permissão, duplicado, valor inválido). Só erro inesperado sobe.
- */
-export type Resultado = { ok?: true; erro?: string }
 
 // Quem tira o próprio acesso de administrador pode deixar o painel sem ninguém que cadastre a equipe.
 const CONTRA_SI_MESMO = 'Você não pode desativar nem rebaixar a si mesmo.'

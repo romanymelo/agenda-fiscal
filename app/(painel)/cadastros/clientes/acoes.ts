@@ -4,11 +4,9 @@ import { revalidatePath } from 'next/cache'
 import { alterar, criar, excluir, exigirPermissao, SemPermissao } from '@/lib/db/escrita'
 import { buscarCliente } from '@/lib/db/clientes'
 import { booleano, ErroDeFormulario, texto, textoOuNulo } from '@/lib/formulario'
-import { ROTULO_REGIME, type Regime } from '@/lib/tipos'
+import { ROTULO_REGIME, type Regime, type Resultado } from '@/lib/tipos'
 import { contextoAtual } from '@/lib/usuario-atual'
-
-/** Padrão das Server Actions do projeto: devolver `{ ok?, erro? }` em vez de lançar para erro esperado. */
-export type Resultado = { ok?: true; erro?: string }
+import { ufValida } from '@/lib/ufs'
 
 const REGIMES = Object.keys(ROTULO_REGIME)
 
@@ -41,7 +39,7 @@ function ler(form: FormData, criacao: boolean): { erro: string } | { dados: Reco
   if (falta(nome)) return { erro: 'Informe o nome do cliente.' }
   if (falta(regime) || (regime !== undefined && !REGIMES.includes(regime)))
     return { erro: 'Escolha o regime tributário.' }
-  if (falta(uf) || (uf !== undefined && !/^[A-Z]{2}$/.test(uf))) return { erro: 'Informe a UF com duas letras.' }
+  if (falta(uf) || (uf !== undefined && !ufValida(uf))) return { erro: 'Informe uma UF válida, como AL.' }
   if (falta(municipio)) return { erro: 'Informe o município.' }
   return {
     dados: {
