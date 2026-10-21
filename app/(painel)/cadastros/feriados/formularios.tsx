@@ -19,7 +19,7 @@ function Mensagens({ resultado, sucesso }: { resultado: Resultado | null; sucess
         </p>
       )}
       {resultado?.ok && (
-        <p role="status" className="text-sm font-medium text-[#166534]">
+        <p role="status" className="text-sm font-medium text-sucesso">
           {sucesso}
         </p>
       )}
@@ -147,7 +147,7 @@ export function NovoFeriado({ ano, praca }: { ano: number; praca: Praca }) {
       </Botao>
       <section
         aria-label={`Feriados móveis de ${ano}`}
-        className="flex flex-col gap-2 rounded-[14px] border border-linha bg-white p-4 sm:p-5"
+        className="flex flex-col gap-2 rounded-2xl border border-linha bg-papel p-4 sm:p-5"
       >
         <h2 className="text-base font-bold">Feriados móveis de {ano}</h2>
         <p className="text-sm text-suave">
@@ -171,7 +171,7 @@ export function NovoFeriado({ ano, praca }: { ano: number; praca: Praca }) {
       {aberto && (
         <section
           aria-label="Novo feriado"
-          className="flex flex-col gap-4 rounded-[14px] border border-linha bg-white p-4 sm:p-5"
+          className="flex flex-col gap-4 rounded-2xl border border-linha bg-papel p-4 sm:p-5"
         >
           <h2 className="text-base font-bold">Novo feriado</h2>
           <FormularioFeriado
@@ -214,7 +214,7 @@ export function AcoesFeriado({
       {aberto && (
         <section
           aria-label="Editar feriado"
-          className="flex flex-col gap-4 rounded-[10px] border border-linha bg-sutil p-4"
+          className="flex flex-col gap-4 rounded-xl bg-sutil p-4"
         >
           <FormularioFeriado
             feriado={feriado}

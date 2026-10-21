@@ -20,9 +20,9 @@ export default function Obrigacoes({
   searchParams: Promise<{ [chave: string]: string | string[] | undefined }>
 }) {
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6">
+    <main className="mr-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-8 lg:py-8">
       <div className="flex flex-col gap-1">
-        <h1 className="text-[28px] font-bold tracking-tight">Obrigações</h1>
+        <h1 className="font-display text-[32px] leading-none font-semibold tracking-tight">Obrigações</h1>
         <p className="text-sm text-suave">As regras que o calendário usa para calcular cada vencimento</p>
       </div>
       {/* Lê o banco, o cookie e o filtro da URL: só com a requisição em mãos, atrás de um Suspense. */}
@@ -50,7 +50,7 @@ async function Conteudo({ searchParams }: { searchParams: Promise<{ [chave: stri
       </Link>
       <NovaObrigacao criar={criarObrigacao} />
       {obrigacoes.length === 0 ? (
-        <p className="rounded-[14px] border border-linha bg-white p-5 text-sm text-suave">
+        <p className="rounded-2xl border border-linha bg-papel p-5 text-sm text-suave">
           {incluirInativos
             ? 'Nenhuma obrigação cadastrada ainda.'
             : 'Nenhuma obrigação ativa. Use "Mostrar obrigações inativas" para ver as que deixaram de existir.'}
@@ -64,7 +64,7 @@ async function Conteudo({ searchParams }: { searchParams: Promise<{ [chave: stri
               <h2 className="m-0">
                 <SeloEsfera esfera={esfera} className="text-sm" />
               </h2>
-              <ul className="flex flex-col divide-y divide-linha rounded-[14px] border border-linha bg-white">
+              <ul className="flex flex-col divide-y divide-linha rounded-2xl border border-linha bg-papel">
                 {daEsfera.map((o) => (
                   <li key={o.id}>
                     <Link

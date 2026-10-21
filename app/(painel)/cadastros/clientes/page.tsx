@@ -17,9 +17,9 @@ export default function Clientes({
   searchParams: Promise<{ [chave: string]: string | string[] | undefined }>
 }) {
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6">
+    <main className="mr-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-8 lg:py-8">
       <div className="flex flex-col gap-1">
-        <h1 className="text-[28px] font-bold tracking-tight">Clientes</h1>
+        <h1 className="font-display text-[32px] leading-none font-semibold tracking-tight">Clientes</h1>
         <p className="text-sm text-suave">Quem o escritório atende e as particularidades de cada um</p>
       </div>
       {/* Lê o banco, o cookie e a busca da URL: só com a requisição em mãos, atrás de um Suspense. */}
@@ -69,7 +69,7 @@ async function Conteudo({ searchParams }: { searchParams: Promise<{ [chave: stri
       </Link>
       <NovoCliente criar={criarCliente} />
       {clientes.length === 0 ? (
-        <p className="rounded-[14px] border border-linha bg-white p-5 text-sm text-suave">
+        <p className="rounded-2xl border border-linha bg-papel p-5 text-sm text-suave">
           {busca
             ? 'Nenhum cliente encontrado para essa busca.'
             : incluirInativos
@@ -77,7 +77,7 @@ async function Conteudo({ searchParams }: { searchParams: Promise<{ [chave: stri
               : 'Nenhum cliente ativo. Use "Mostrar clientes inativos" para ver quem saiu do escritório.'}
         </p>
       ) : (
-        <ul className="flex flex-col divide-y divide-linha rounded-[14px] border border-linha bg-white">
+        <ul className="flex flex-col divide-y divide-linha rounded-2xl border border-linha bg-papel">
           {clientes.map((c) => (
             <li key={c.id}>
               <Link

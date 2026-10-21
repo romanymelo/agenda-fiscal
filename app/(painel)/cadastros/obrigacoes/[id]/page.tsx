@@ -17,7 +17,7 @@ export const metadata = { title: 'Obrigação — Agenda Fiscal' }
 
 export default function DetalheDaObrigacao({ params }: { params: Promise<{ id: string }> }) {
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-6 sm:px-6">
+    <main className="mr-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-6 sm:px-8 lg:py-8">
       <Link
         href="/cadastros/obrigacoes"
         className="self-start text-sm font-semibold text-mar hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mar"
@@ -51,9 +51,9 @@ async function Conteudo({ params }: { params: Promise<{ id: string }> }) {
     ],
   ]
   return (
-    <article className="flex flex-col gap-5 rounded-[14px] border border-linha bg-white p-4 sm:p-6">
+    <article className="flex flex-col gap-5 rounded-2xl border border-linha bg-papel p-4 sm:p-6">
       <div className="flex flex-col gap-2">
-        <h1 className="break-words text-[24px] font-bold tracking-tight">{o.nome}</h1>
+        <h1 className="break-words font-display text-[28px] leading-tight font-semibold tracking-tight">{o.nome}</h1>
         <div className="flex flex-wrap gap-2">
           <SeloEsfera esfera={o.esfera} />
           <SeloSituacao ativo={o.ativo} />
@@ -90,9 +90,11 @@ async function Conteudo({ params }: { params: Promise<{ id: string }> }) {
         )}
       </section>
 
-      <EditarObrigacao obrigacao={o} alterar={alterarObrigacao} />
-      {/* Só o administrador exclui: para o membro o botão nem existe. */}
-      {voce.papel === 'admin' && <ExcluirObrigacao id={o.id} nome={o.nome} />}
+      <div className="flex flex-wrap items-start gap-3">
+        <EditarObrigacao obrigacao={o} alterar={alterarObrigacao} />
+        {/* Só o administrador exclui: para o membro o botão nem existe. */}
+        {voce.papel === 'admin' && <ExcluirObrigacao id={o.id} nome={o.nome} />}
+      </div>
 
       <hr className="border-linha" />
       <Historico tabela="obrigacoes" registroId={o.id} rotulos={ROTULOS_OBRIGACAO} formatar={formatarObrigacao} />

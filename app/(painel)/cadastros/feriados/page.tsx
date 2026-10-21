@@ -24,9 +24,9 @@ export default function Feriados({
   searchParams: Promise<{ [chave: string]: string | string[] | undefined }>
 }) {
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6">
+    <main className="mr-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-8 lg:py-8">
       <div className="flex flex-col gap-1">
-        <h1 className="text-[28px] font-bold tracking-tight">Feriados</h1>
+        <h1 className="font-display text-[32px] leading-none font-semibold tracking-tight">Feriados</h1>
         <p className="text-sm text-suave">Os dias que deslocam vencimentos, e a praça do escritório que os escolhe</p>
       </div>
       {/* Lê o banco, o cookie, o relógio e o ano da URL: só com a requisição em mãos, atrás de um Suspense. */}
@@ -59,7 +59,7 @@ async function Conteudo({ searchParams }: { searchParams: Promise<{ [chave: stri
     <>
       <section
         aria-label="Praça do escritório"
-        className="flex flex-col gap-3 rounded-[14px] border border-linha bg-white p-4 sm:p-5"
+        className="flex flex-col gap-3 rounded-2xl border border-linha bg-papel p-4 sm:p-5"
       >
         <h2 className="text-base font-bold">Praça do escritório</h2>
         <dl className="flex flex-wrap gap-x-8 gap-y-2 text-sm">
@@ -88,7 +88,7 @@ async function Conteudo({ searchParams }: { searchParams: Promise<{ [chave: stri
       <nav aria-label="Ano" className="flex items-center gap-2">
         <Link
           href={`/cadastros/feriados?ano=${ano - 1}`}
-          className={`flex min-h-[44px] items-center rounded-[10px] border border-linha-forte bg-white px-4 text-sm font-semibold text-tinta hover:bg-espuma ${LINK}`}
+          className={`flex min-h-[44px] items-center rounded-full border border-linha-forte bg-papel px-4 text-sm font-semibold text-tinta hover:bg-espuma ${LINK}`}
         >
           <span aria-hidden="true">←&nbsp;</span>
           {ano - 1}
@@ -98,7 +98,7 @@ async function Conteudo({ searchParams }: { searchParams: Promise<{ [chave: stri
         </span>
         <Link
           href={`/cadastros/feriados?ano=${ano + 1}`}
-          className={`flex min-h-[44px] items-center rounded-[10px] border border-linha-forte bg-white px-4 text-sm font-semibold text-tinta hover:bg-espuma ${LINK}`}
+          className={`flex min-h-[44px] items-center rounded-full border border-linha-forte bg-papel px-4 text-sm font-semibold text-tinta hover:bg-espuma ${LINK}`}
         >
           {ano + 1}
           <span aria-hidden="true">&nbsp;→</span>
@@ -108,12 +108,12 @@ async function Conteudo({ searchParams }: { searchParams: Promise<{ [chave: stri
       <NovoFeriado ano={ano} praca={praca} />
 
       {feriados.length === 0 ? (
-        <p className="rounded-[14px] border border-linha bg-white p-5 text-sm text-suave">
+        <p className="rounded-2xl border border-linha bg-papel p-5 text-sm text-suave">
           Nenhum feriado cadastrado em {ano}.
         </p>
       ) : (
         <section aria-label={`Feriados de ${ano}`} className="flex flex-col gap-2">
-          <ul className="flex flex-col divide-y divide-linha rounded-[14px] border border-linha bg-white">
+          <ul className="flex flex-col divide-y divide-linha rounded-2xl border border-linha bg-papel">
             {feriados.map((f) => {
               // A mesma função que o calendário usa decide se este feriado vale para a praça.
               const vale = feriadosDaPraca([f], praca).size > 0

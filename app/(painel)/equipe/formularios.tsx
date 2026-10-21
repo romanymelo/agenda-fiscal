@@ -36,7 +36,7 @@ function useEnvio(acao: (f: FormData) => Promise<Resultado>, aoTerminar?: (r: Re
 export function NovoUsuario() {
   const { estado, enviando, enviar } = useEnvio(criarUsuario, (r, form) => r.ok && form.reset())
   return (
-    <form onSubmit={enviar} className="flex flex-col gap-4 rounded-[14px] border border-linha bg-white p-4 sm:p-5">
+    <form onSubmit={enviar} className="flex flex-col gap-4 rounded-2xl border border-linha bg-papel p-4 sm:p-5">
       <h2 className="text-base font-bold">Novo usuário</h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Campo rotulo="Nome" nome="nome" obrigatorio autoComplete="off" />
@@ -55,7 +55,7 @@ export function NovoUsuario() {
         </p>
       )}
       {estado?.resultado.ok && (
-        <p role="status" className="text-sm font-medium text-[#166534]">
+        <p role="status" className="text-sm font-medium text-sucesso">
           Usuário cadastrado.
         </p>
       )}
@@ -77,7 +77,8 @@ export function EditarDadosUsuario({ id, nome, email }: { id: string; nome: stri
   return (
     <div className="flex flex-col gap-2">
       <Botao
-        variante="secundario"
+        variante="discreto"
+        tamanho="compacto"
         aria-expanded={aberto}
         onClick={() => setAberto(!aberto)}
         className="self-start"
@@ -87,7 +88,7 @@ export function EditarDadosUsuario({ id, nome, email }: { id: string; nome: stri
       {aberto && (
         <form
           onSubmit={enviar}
-          className="flex flex-col gap-3 rounded-[10px] border border-linha bg-sutil p-3 sm:flex-row sm:items-end"
+          className="flex flex-col gap-3 rounded-xl bg-sutil p-3 sm:flex-row sm:items-end"
         >
           <Campo rotulo="Nome" nome="nome" obrigatorio autoComplete="off" defaultValue={nome} className="flex-1" />
           <Campo
@@ -110,7 +111,7 @@ export function EditarDadosUsuario({ id, nome, email }: { id: string; nome: stri
         </p>
       )}
       {estado?.resultado.ok && (
-        <p role="status" className="text-xs font-medium text-[#166534]">
+        <p role="status" className="text-xs font-medium text-sucesso">
           Dados salvos.
         </p>
       )}
@@ -125,10 +126,10 @@ export function HistoricoDoUsuario({ historico }: { historico: ReactNode }) {
   const [aberto, setAberto] = useState(false)
   return (
     <div className="flex flex-col gap-2">
-      <Botao variante="secundario" aria-expanded={aberto} onClick={() => setAberto(!aberto)} className="self-start">
-        {aberto ? 'Fechar histórico' : 'Histórico'}
+      <Botao variante="discreto" tamanho="compacto" aria-expanded={aberto} onClick={() => setAberto(!aberto)} className="self-start">
+        {aberto ? 'Fechar histórico' : 'Ver histórico'}
       </Botao>
-      {aberto && <div className="rounded-[10px] border border-linha bg-sutil p-3">{historico}</div>}
+      {aberto && <div className="rounded-xl bg-sutil p-3">{historico}</div>}
     </div>
   )
 }
@@ -189,7 +190,7 @@ export function AcoesDoUsuario({
         </p>
       )}
       {estado?.resultado.ok && estado.origem === 'papel' && (
-        <p role="status" className="text-xs font-medium text-[#166534]">
+        <p role="status" className="text-xs font-medium text-sucesso">
           Papel salvo.
         </p>
       )}

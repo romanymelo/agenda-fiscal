@@ -16,7 +16,7 @@ export const metadata = { title: 'Cliente — Agenda Fiscal' }
 
 export default function DetalheDoCliente({ params }: { params: Promise<{ id: string }> }) {
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-6 sm:px-6">
+    <main className="mr-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-6 sm:px-8 lg:py-8">
       <Link
         href="/cadastros/clientes"
         className="self-start text-sm font-semibold text-mar hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mar"
@@ -52,9 +52,9 @@ async function Conteudo({ params }: { params: Promise<{ id: string }> }) {
     ],
   ]
   return (
-    <article className="flex flex-col gap-5 rounded-[14px] border border-linha bg-white p-4 sm:p-6">
+    <article className="flex flex-col gap-5 rounded-2xl border border-linha bg-papel p-4 sm:p-6">
       <div className="flex flex-col gap-1">
-        <h1 className="break-words text-[24px] font-bold tracking-tight">{cliente.nome}</h1>
+        <h1 className="break-words font-display text-[28px] leading-tight font-semibold tracking-tight">{cliente.nome}</h1>
         <SeloSituacao ativo={cliente.ativo} className="self-start" />
       </div>
 
@@ -70,9 +70,9 @@ async function Conteudo({ params }: { params: Promise<{ id: string }> }) {
       {/* O motivo desta tela existir: texto da equipe, com as quebras de linha como foram digitadas. */}
       <section
         aria-label="Particularidades"
-        className="flex flex-col gap-2 rounded-[10px] border border-mar/40 border-l-4 border-l-mar bg-mar-claro p-4"
+        className="flex flex-col gap-2 rounded-xl border-l-4 border-mar bg-mar-claro p-4"
       >
-        <h2 className="text-sm font-bold text-mar-escuro">Particularidades</h2>
+        <h2 className="font-display text-base font-semibold text-mar-escuro">Particularidades</h2>
         {cliente.particularidades ? (
           <p className="m-0 whitespace-pre-wrap break-words text-[15px] leading-relaxed">
             {cliente.particularidades}
@@ -85,9 +85,11 @@ async function Conteudo({ params }: { params: Promise<{ id: string }> }) {
         )}
       </section>
 
-      <EditarCliente cliente={cliente} alterar={alterarCliente} />
-      {/* Só o administrador exclui: para o membro o botão nem existe. */}
-      {voce.papel === 'admin' && <ExcluirCliente id={cliente.id} nome={cliente.nome} />}
+      <div className="flex flex-wrap items-start gap-3">
+        <EditarCliente cliente={cliente} alterar={alterarCliente} />
+        {/* Só o administrador exclui: para o membro o botão nem existe. */}
+        {voce.papel === 'admin' && <ExcluirCliente id={cliente.id} nome={cliente.nome} />}
+      </div>
 
       <hr className="border-linha" />
       <Historico

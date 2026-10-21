@@ -187,7 +187,7 @@ function FormularioObrigacao({
         </p>
       )}
       {resultado?.ok && (
-        <p role="status" className="text-sm font-medium text-[#166534]">
+        <p role="status" className="text-sm font-medium text-sucesso">
           {sucesso}
         </p>
       )}
@@ -214,7 +214,7 @@ export function NovaObrigacao({ criar }: { criar: (f: FormData) => Promise<Resul
       {aberto && (
         <section
           aria-label="Nova obrigação"
-          className="flex flex-col gap-4 rounded-[14px] border border-linha bg-white p-4 sm:p-5"
+          className="flex flex-col gap-4 rounded-2xl border border-linha bg-papel p-4 sm:p-5"
         >
           <h2 className="text-base font-bold">Nova obrigação</h2>
           <FormularioObrigacao acao={criar} envio="Cadastrar obrigação" sucesso="Obrigação cadastrada." />
@@ -241,7 +241,7 @@ export function EditarObrigacao({
       {aberto && (
         <section
           aria-label="Editar obrigação"
-          className="flex flex-col gap-4 rounded-[10px] border border-linha bg-sutil p-4"
+          className="flex flex-col gap-4 rounded-xl bg-sutil p-4"
         >
           <FormularioObrigacao
             obrigacao={obrigacao}
@@ -275,7 +275,7 @@ export function ExcluirObrigacao({ id, nome }: { id: string; nome: string }) {
       }}
       className="flex flex-col gap-2"
     >
-      <Botao type="submit" variante="perigo" className="self-start">
+      <Botao type="submit" variante="perigo" tamanho="compacto" className="self-start">
         Excluir obrigação
       </Botao>
       {erro && (
