@@ -72,7 +72,7 @@ test('coluna de auditoria enviada pelo chamador e rejeitada', async () => {
   await expect(
     criar(ctx, 'clientes', { nome: 'Padaria', criado_por: ctx.usuario.id }),
   ).rejects.toThrow(
-    /As colunas de auditoria \(criado_por, criado_em, atualizado_por, atualizado_em, excluido_por, excluido_em\) são geridas pelo helper de escrita e não podem vir do chamador: clientes\.criado_por\./,
+    /As colunas geridas pelo helper de escrita \(id, criado_por, criado_em, atualizado_por, atualizado_em, excluido_por, excluido_em\) não podem vir do chamador: clientes\.criado_por\./,
   )
   const c = await criar<{ id: string }>(ctx, 'clientes', { nome: 'Padaria' })
   await expect(
@@ -93,6 +93,7 @@ test('historico da criacao nao inclui colunas de auditoria', async () => {
     uf: { antes: null, depois: 'AL' },
   })
   for (const auditoria of [
+    'id',
     'criado_por',
     'criado_em',
     'atualizado_por',
@@ -115,6 +116,102 @@ test('alterar sem nenhum campo nao escreve nem gera historico', async () => {
   expect(igual.nome).toBe('Padaria')
   expect(igual.atualizado_em).toBeNull()
   expect(await historicoDe(ctx.db, 'clientes', c.id)).toHaveLength(1)
+})
+
+test('chamador nao troca o id do registro', async () => {
+  const ctx = await ctxCom('membro', 'Ana')
+  const c = await criar<{ id: string }>(ctx, 'clientes', { nome: 'Padaria' })
+  const outroId = '00000000-0000-4000-8000-000000000001'
+  await expect(alterar(ctx, 'clientes', c.id, { id: outroId })).rejects.toThrow(
+    /não podem vir do chamador: clientes\.id\./,
+  )
+  await expect(criar(ctx, 'clientes', { nome: 'Mercearia', id: outroId })).rejects.toThrow(
+    /não podem vir do chamador: clientes\.id\./,
+  )
+  // o registro continua no id original, com o histórico ainda pendurado nele
+  const r = await ctx.db.query('select id from clientes where id = $1', [c.id])
+  expect(r.rows).toHaveLength(1)
+  expect(await historicoDe(ctx.db, 'clientes', c.id)).toHaveLength(1)
+})
+
+test('o helper nunca escreve na tabela de historico', async () => {
+  const ctx = await ctxCom('admin', 'Chefe')
+  const c = await criar<{ id: string }>(ctx, 'clientes', { nome: 'Padaria' })
+  const esperado = /O helper de escrita nunca escreve em historico/
+  await expect(
+    criar(ctx, 'historico', { tabela: 'clientes', registro_id: c.id, acao: 'criacao' }),
+  ).rejects.toThrow(esperado)
+  const h = await ctx.db.query<{ id: string }>('select id from historico limit 1')
+  await expect(alterar(ctx, 'historico', h.rows[0].id, { acao: 'exclusao' })).rejects.toThrow(
+    esperado,
+  )
+  await expect(excluir(ctx, 'historico', h.rows[0].id)).rejects.toThrow(esperado)
+})
+
+test('tabela sem colunas de auditoria e recusada', async () => {
+  const ctx = await ctxCom('admin', 'Chefe')
+  await ctx.db.exec('create table avulsa (id uuid primary key default gen_random_uuid(), nome text)')
+  await expect(criar(ctx, 'avulsa', { nome: 'Padaria' })).rejects.toThrow(
+    /A tabela avulsa não tem a coluna de auditoria criado_por/,
+  )
+})
+
+test('tabela e coluna inexistentes sao rejeitadas com erro claro', async () => {
+  const ctx = await ctxCom('membro', 'Ana')
+  await expect(criar(ctx, 'fornecedores', { nome: 'Padaria' })).rejects.toThrow(
+    /Tabela desconhecida: fornecedores/,
+  )
+  await expect(criar(ctx, 'clientes', { nome: 'Padaria', telefone: '99999' })).rejects.toThrow(
+    /Coluna desconhecida em clientes: telefone/,
+  )
+})
+
+test('excluir duas vezes nao sobrescreve quem excluiu', async () => {
+  const ctx = await ctxCom('admin', 'Chefe')
+  const c = await criar<{ id: string }>(ctx, 'clientes', { nome: 'Padaria' })
+  await excluir(ctx, 'clientes', c.id)
+  const admin = await ctx.db.query<Usuario>(
+    "select id, nome, email, papel, ativo from usuarios where papel = 'admin' and nome <> 'Chefe'",
+  )
+  const outro: Contexto = { db: ctx.db, usuario: admin.rows[0] }
+  await expect(excluir(outro, 'clientes', c.id)).rejects.toThrow(/Registro inexistente/)
+  const r = await ctx.db.query<{ excluido_por: string }>(
+    'select excluido_por from clientes where id = $1',
+    [c.id],
+  )
+  expect(r.rows[0].excluido_por).toBe(ctx.usuario.id)
+  const h = await historicoDe(ctx.db, 'clientes', c.id)
+  expect(h.filter((l) => l.acao === 'exclusao')).toHaveLength(1)
+})
+
+test('chave com valor undefined e ignorada, null explicito limpa', async () => {
+  const ctx = await ctxCom('membro', 'Ana')
+  const c = await criar<{ id: string; cnpj: string | null }>(ctx, 'clientes', {
+    nome: 'Padaria',
+    uf: 'AL',
+    cnpj: undefined,
+  })
+  expect(c.cnpj).toBeNull()
+  const igual = await alterar<{ uf: string | null; atualizado_em: Date | null }>(
+    ctx,
+    'clientes',
+    c.id,
+    { uf: undefined },
+  )
+  expect(igual.uf).toBe('AL')
+  expect(igual.atualizado_em).toBeNull()
+  expect(await historicoDe(ctx.db, 'clientes', c.id)).toHaveLength(1)
+  const limpo = await alterar<{ uf: string | null }>(ctx, 'clientes', c.id, { uf: null })
+  expect(limpo.uf).toBeNull()
+})
+
+test('usuario inativo nao escreve', async () => {
+  const base = await ctxCom('admin', 'Chefe')
+  const ctx: Contexto = { db: base.db, usuario: { ...base.usuario, ativo: false } }
+  await expect(criar(ctx, 'clientes', { nome: 'Padaria' })).rejects.toThrow(SemPermissao)
+  await expect(criar(ctx, 'clientes', { nome: 'Padaria' })).rejects.toThrow(/está inativo/)
+  const r = await base.db.query('select count(*)::int as n from clientes')
+  expect(r.rows[0]).toEqual({ n: 0 })
 })
 
 test('membro nao exclui', async () => {
