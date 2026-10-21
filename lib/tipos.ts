@@ -42,3 +42,27 @@ export type Obrigacao = {
   diaUtilN: number | null
   competenciaDefasagem: number
 }
+
+export type Regime = 'simples' | 'presumido' | 'real' | 'mei'
+
+/** Como a equipe chama cada regime. A ordem é a das listas de escolha. */
+export const ROTULO_REGIME: Record<Regime, string> = {
+  simples: 'Simples Nacional',
+  presumido: 'Lucro Presumido',
+  real: 'Lucro Real',
+  mei: 'MEI',
+}
+
+export type Cliente = {
+  id: string
+  nome: string
+  codigoDominio: string | null
+  cnpj: string | null
+  regime: Regime
+  uf: string
+  municipio: string
+  particularidades: string | null
+  ativo: boolean
+  atualizadoEm: string | null
+  atualizadoPorNome: string | null
+}

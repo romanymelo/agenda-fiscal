@@ -6,7 +6,7 @@ const CAMPOS = 'id, nome, email, papel, ativo'
 
 // O id pode vir do cookie, ou seja, do navegador: o que não tem forma de uuid nem chega ao banco
 // (`where id = $1` com texto qualquer estouraria num erro de conversão).
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 /** Equipe, em ordem de nome. Nunca traz quem foi excluído logicamente (spec 6). */
 export async function listarUsuarios(

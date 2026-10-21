@@ -1,5 +1,6 @@
 import type { PGlite } from '@electric-sql/pglite'
 import type { Acao } from '../tipos'
+import { obterBanco } from './conexao'
 
 export type LinhaHistorico = {
   acao: Acao
@@ -31,4 +32,12 @@ export async function historicoDe(
     em: l.em.toISOString(),
     camposAlterados: l.campos_alterados,
   }))
+}
+
+/** Como `historicoDe`, abrindo o banco: para componentes e páginas, que não importam `obterBanco`. */
+export async function historicoDoRegistro(
+  tabela: string,
+  registroId: string,
+): Promise<LinhaHistorico[]> {
+  return historicoDe(await obterBanco(), tabela, registroId)
 }

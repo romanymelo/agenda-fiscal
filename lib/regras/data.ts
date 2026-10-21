@@ -57,3 +57,21 @@ export function formatarBR(d: Data): string {
   const [ano, mes, dia] = d.split('-')
   return `${dia}/${mes}/${ano}`
 }
+
+/** Formata um instante ISO como 'dd/mm/aaaa hh:mm' no fuso do escritório (America/Maceio). */
+export function formatarDataHoraBR(iso: string): string {
+  const p = Object.fromEntries(
+    new Intl.DateTimeFormat('pt-BR', {
+      timeZone: 'America/Maceio',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    })
+      .formatToParts(new Date(iso))
+      .map((x) => [x.type, x.value]),
+  )
+  return `${p.day}/${p.month}/${p.year} ${p.hour}:${p.minute}`
+}
