@@ -15,13 +15,15 @@ export const metadata = { title: 'Agenda Fiscal — painel' }
 type Parametros = Promise<{ [chave: string]: string | string[] | undefined }>
 
 const primeiro = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v)
+// Feriado aparece no calendário, mas não é vencimento: não entra nos contadores do topo.
+const contaComoVencimento = (i: ItemCalendario) => i.categoria !== 'feriado'
 const VISOES = ['hoje', 'semana', 'mes'] as const
 const ESFERAS = ['todas', 'federal', 'estadual', 'municipal', 'trabalhista', 'processo'] as const
 const FORMATO_DATA = /^\d{4}-\d{2}-\d{2}$/
 
 export default function Pagina({ searchParams }: { searchParams: Parametros }) {
   return (
-    <main className="mx-auto flex w-full max-w-[1360px] flex-col gap-[18px] px-4 py-6 sm:px-6">
+    <main className="mx-auto flex w-full max-w-[1360px] flex-col gap-6 px-4 py-6 sm:px-8 lg:py-8">
       {/* Lê o banco, o cookie e a data de hoje: só com a requisição em mãos, atrás de um Suspense. */}
       <Suspense fallback={<p className="text-sm text-suave">Carregando o calendário…</p>}>
         <Conteudo searchParams={searchParams} />
@@ -77,20 +79,21 @@ async function Conteudo({ searchParams }: { searchParams: Parametros }) {
         dia={dia}
         hoje={hoje}
         esfera={esfera}
-        hojeCount={hojeItens.length}
-        proximosCount={proximos.length}
+        hojeCount={hojeItens.filter(contaComoVencimento).length}
+        proximosCount={proximos.filter(contaComoVencimento).length}
       />
-      <div className="flex flex-wrap items-start gap-5">
+      {/* A semana já mostra cada dia em coluna e precisa de largura: nela a lateral vai para baixo. */}
+      <div className={`grid items-start gap-5 ${visao === 'semana' ? '' : 'xl:grid-cols-[minmax(0,1fr)_320px]'}`}>
         <section
           aria-label="Calendário"
-          className="min-w-0 flex-[999_1_620px] rounded-[14px] border border-linha bg-white p-4"
+          className="min-w-0 rounded-2xl border border-linha bg-papel p-3 sm:p-4"
         >
           {visao === 'mes' && <Mes dia={dia} hoje={hoje} itens={doPeriodo} esfera={esfera} />}
           {visao === 'semana' && <Semana de={de} dia={dia} hoje={hoje} itens={doPeriodo} esfera={esfera} />}
           {visao === 'hoje' && <Hoje itens={doDia} />}
         </section>
-        <aside className="min-w-0 flex-[1_1_320px]">
-          <Lateral dia={dia} hoje={hoje} itens={doDia} proximos={proximos} />
+        <aside className="min-w-0">
+          <Lateral dia={dia} hoje={hoje} itens={doDia} proximos={proximos} abaixo={visao === 'semana'} mostrarDia={visao !== 'hoje'} />
         </aside>
       </div>
     </>

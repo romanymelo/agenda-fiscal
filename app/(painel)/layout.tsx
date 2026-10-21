@@ -1,25 +1,21 @@
 import { connection } from 'next/server'
 import { Suspense } from 'react'
 import { sairDaIdentificacao } from '@/app/identificar/acoes'
-import { Header } from '@/components/header'
+import { Navegacao } from '@/components/navegacao'
 import { exigirUsuario } from '@/lib/usuario-atual'
 
 /**
- * Grupo de rotas `(painel)`: tudo que vive sob o header. `/identificar` fica fora dele,
- * e é assim que a tela de identificação não ganha header — sem `if` de caminho.
+ * Grupo de rotas `(painel)`: tudo que vive sob a navegação (trilho no desktop, abas no celular).
+ * `/identificar` fica fora dele, e é assim que a tela de identificação não ganha navegação —
+ * sem `if` de caminho.
  * O parêntese não entra na URL, então a página do grupo continua respondendo em `/`.
  */
 export default function LayoutPainel({ children }: { children: React.ReactNode }) {
   // A identificação é dado de requisição (cookie): precisa ficar atrás de um limite de
   // Suspense, senão a rota não pode ser pré-renderizada (cacheComponents está ligado).
-  // O esqueleto tem a altura exata do header real, para não deslocar a página quando o conteúdo
-  // chega: 107px empilhado e 65px em linha única. Com o preflight do Tailwind o `box-sizing` é
-  // `border-box`, então a borda está dentro dessas alturas — não se soma a elas.
-  // Quem garante a igualdade é o script de verificação: ele mede o esqueleto e o header.
+  // O esqueleto reserva o trilho lateral (desktop), para a página não se deslocar quando ele chega.
   return (
-    <Suspense
-      fallback={<div className="h-[107px] border-b border-linha bg-white lg:h-[65px]" />}
-    >
+    <Suspense fallback={<div aria-hidden="true" className="fixed inset-y-0 left-0 hidden w-60 bg-tinta lg:block" />}>
       <Painel>{children}</Painel>
     </Suspense>
   )
@@ -32,8 +28,9 @@ async function Painel({ children }: { children: React.ReactNode }) {
   const usuario = await exigirUsuario()
   return (
     <>
-      <Header nome={usuario.nome} hoje={dataDeHoje()} trocar={sairDaIdentificacao} />
-      {children}
+      <Navegacao nome={usuario.nome} hoje={dataDeHoje()} trocar={sairDaIdentificacao} />
+      {/* O trilho é fixo (lg+): o conteúdo sobra à direita dele. No celular, sobra espaço para a barra de abas. */}
+      <div className="flex-1 pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0 lg:pl-60">{children}</div>
     </>
   )
 }

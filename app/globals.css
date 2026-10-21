@@ -59,7 +59,26 @@ body {
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+    animation-delay: 0s !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/*
+ * A assinatura do painel: o dia de hoje marcado a marca-texto. A faixa amarela "corre" da esquerda
+ * para a direita uma única vez, quando a página abre. Com movimento reduzido ela já nasce pronta.
+ */
+.marca-texto {
+  background-image: linear-gradient(var(--color-sol), var(--color-sol));
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: 0% 100%;
+  animation: marcar 0.55s 0.25s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+
+@keyframes marcar {
+  to {
+    background-size: 100% 100%;
   }
 }
