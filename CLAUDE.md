@@ -22,11 +22,18 @@ GitHub remoto entram numa fase seguinte, sem reescrever as migrations SQL já ve
 
 A pasta `referencia/` tem os mockups aprovados (`mockup-calendario.html` e `mockup-processos.html`).
 Eles foram feitos num formato de protótipo próprio (não rodam sozinhos): use como referência de layout,
-cores, textos e comportamento, e reconstrua as telas como componentes React.
+textos e comportamento. O visual foi redesenhado depois (identidade "Maré"), então onde o mockup e o
+código divergirem em cor de fundo, navegação e títulos, vale o código.
 
-- Fonte IBM Plex Sans; cor principal #0F766E; fundo #F3F4F6; cartões brancos com borda #E5E7EB.
-- Cores por esfera: Federal azul, Estadual laranja, Municipal roxo, Trabalhista verde, Processo grafite, Feriado cinza.
-- Deve funcionar bem no celular (layout empilha em telas pequenas).
+- Cor principal #0F766E (mantida); fundo espuma #EAF1F0; tinta #0E2A31 (texto e trilho de navegação);
+  cartões brancos com borda #D7E3E2; amarelo-sol #FFD23F só para "hoje" e urgência.
+- Tipografia: IBM Plex Sans no corpo; Bricolage Grotesque (`font-display`) em títulos e números grandes.
+- Cores só pelos tokens de `app/globals.css` (`bg-espuma`, `text-suave`, `bg-mar`...), nunca hex solto.
+- Cores por esfera e por situação são fixas, em `lib/tipos.ts`: Federal azul, Estadual laranja, Municipal roxo,
+  Trabalhista verde, Processo grafite, Feriado cinza.
+- Navegação: trilho lateral escuro no computador; barra de abas fixa embaixo no celular.
+- Ações raras (editar, excluir, histórico) ficam discretas e só abrem o painel quando pedidas.
+- Deve funcionar bem no celular (layout empilha em telas pequenas; o quadro de processos vira carrossel).
 
 ## Telas
 
