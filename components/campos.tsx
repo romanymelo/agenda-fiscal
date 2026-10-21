@@ -183,7 +183,6 @@ export function GrupoMarcacoes({
   return (
     <fieldset
       disabled={disabled}
-      aria-invalid={erro ? true : undefined}
       aria-describedby={erro || ajuda ? idMsg : undefined}
       className={`flex min-w-0 flex-col gap-1.5 ${className ?? ''}`}
     >

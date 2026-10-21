@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   description: "Painel interno de vencimentos e processos do escritório",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" className={`${plexSans.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-[#F3F4F6] text-[#111827]">

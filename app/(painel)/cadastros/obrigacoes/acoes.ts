@@ -12,12 +12,9 @@ import {
   texto,
   textoOuNulo,
 } from '@/lib/formulario'
-import { ROTULO_ESFERA, ROTULO_PERIODICIDADE, ROTULO_REGIME, ROTULO_REGRA } from '@/lib/tipos'
+import { ROTULO_ESFERA, ROTULO_PERIODICIDADE, ROTULO_REGIME, ROTULO_REGRA, type Resultado } from '@/lib/tipos'
 import { contextoAtual } from '@/lib/usuario-atual'
 import { validarObrigacao } from './validacao'
-
-/** Padrão das Server Actions do projeto: devolver `{ ok?, erro? }` em vez de lançar para erro esperado. */
-export type Resultado = { ok?: true; erro?: string }
 
 // Traduz o que o helper e os conversores podem lançar. O que não for conhecido sobe:
 // erro de programação não deve virar mensagem de formulário.
@@ -45,7 +42,7 @@ function ler(form: FormData, criacao: boolean): { erro: string } | { dados: Reco
     if (falta(periodicidade) || (periodicidade !== undefined && !escolha(periodicidade, ROTULO_PERIODICIDADE)))
       return { erro: 'Escolha a periodicidade.' }
     if (falta(regra) || (regra !== undefined && !escolha(regra, ROTULO_REGRA)))
-      return { erro: 'Escolha o que acontece quando o dia cai em dia não útil.' }
+      return { erro: 'Escolha a regra de vencimento.' }
 
     // Os campos dependem da periodicidade e da regra, e o banco exige `dia_util_n` na regra `dia_util_n` e
     // `dia_vencimento` nas outras. Por isso, ao receber a periodicidade ou a regra, o campo que deixou de

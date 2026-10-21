@@ -6,7 +6,7 @@ const globalComBanco = globalThis as typeof globalThis & { __agendaFiscalBanco?:
 
 // Pasta de dados do PGlite; AGENDA_FISCAL_DB sobrescreve o padrão. Ambos passam por path.resolve.
 export function caminhoDoBanco(): string {
-  return path.resolve(process.cwd(), process.env.AGENDA_FISCAL_DB ?? 'pgdata')
+  return path.resolve(process.cwd(), process.env.AGENDA_FISCAL_DB || 'pgdata')
 }
 
 // Singleton em globalThis (sobrevive ao hot reload); migra na primeira chamada.

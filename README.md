@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Agenda Fiscal
 
-## Getting Started
+Painel interno da equipe de um escritório de contabilidade: mostra o que vence hoje, na semana e
+no mês, e acompanha os processos administrativos em andamento. Não é gestão de tarefas — é um
+painel de consulta e registro, com autoria e histórico em toda escrita.
 
-First, run the development server:
+Esta fase do projeto roda inteiramente na máquina local, sem Supabase: o banco é o
+[PGlite](https://pglite.dev) (Postgres em WASM), guardado num arquivo em `pgdata/`, e os anexos
+ficam na pasta local `arquivos/`. O destino final é Supabase + Vercel; as migrations em
+`supabase/migrations/` já são as que serão aplicadas lá, sem reescrita.
+
+## Como rodar
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra http://localhost:3000. Na primeira visita a aplicação pede para escolher quem está usando
+("Quem é você?"); a equipe inicial tem um usuário administrador:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Nome:** Administrador
+- **E-mail:** admin@escritorio.local
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Não há senha nesta fase (ver a spec, seção 5): quem acessa o painel escolhe seu próprio nome na
+lista da equipe, e a escolha fica num cookie.
 
-## Learn More
+## Testes
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm test
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Roda a suíte do Vitest (regras de negócio, camada de banco e Server Actions). Para checar tipos e
+lint:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npx tsc --noEmit
+npm run lint
+```
 
-## Deploy on Vercel
+## Pastas que não vão para o Git
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `pgdata/` — arquivo de dados do PGlite.
+- `arquivos/` — anexos enviados pelos processos.
+- `.env.local` — variáveis de ambiente locais.
