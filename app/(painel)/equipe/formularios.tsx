@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useTransition, type FormEvent } from 'react'
+import { useState, useTransition, type FormEvent, type ReactNode } from 'react'
 import { Botao, Campo, Selecao } from '@/components/campos'
-import type { Papel } from '@/lib/tipos'
-import { alterarUsuario, criarUsuario, desativarUsuario, type Resultado } from './acoes'
+import type { Papel, Resultado } from '@/lib/tipos'
+import { alterarUsuario, criarUsuario, desativarUsuario } from './acoes'
 
 export const OPCOES_PAPEL: { valor: Papel; rotulo: string }[] = [
   { valor: 'membro', rotulo: 'Membro' },
@@ -63,6 +63,73 @@ export function NovoUsuario() {
         Cadastrar usuário
       </Botao>
     </form>
+  )
+}
+
+/** Corrige nome e e-mail de um usuário: erro de digitação não tem outro jeito de conserto, já que
+ * o usuário nunca é excluído e o e-mail é único. Começa fechado; só o admin recebe. */
+export function EditarDadosUsuario({ id, nome, email }: { id: string; nome: string; email: string }) {
+  const [aberto, setAberto] = useState(false)
+  const { estado, enviando, enviar } = useEnvio(
+    (form) => alterarUsuario(id, form),
+    (r) => r.ok && setAberto(false),
+  )
+  return (
+    <div className="flex flex-col gap-2">
+      <Botao
+        variante="secundario"
+        aria-expanded={aberto}
+        onClick={() => setAberto(!aberto)}
+        className="self-start"
+      >
+        {aberto ? 'Fechar edição' : 'Corrigir nome/e-mail'}
+      </Botao>
+      {aberto && (
+        <form
+          onSubmit={enviar}
+          className="flex flex-col gap-3 rounded-[10px] border border-[#E5E7EB] bg-[#F9FAFB] p-3 sm:flex-row sm:items-end"
+        >
+          <Campo rotulo="Nome" nome="nome" obrigatorio autoComplete="off" defaultValue={nome} className="flex-1" />
+          <Campo
+            rotulo="E-mail"
+            nome="email"
+            type="email"
+            obrigatorio
+            autoComplete="off"
+            defaultValue={email}
+            className="flex-1"
+          />
+          <Botao type="submit" variante="secundario" disabled={enviando}>
+            Salvar dados
+          </Botao>
+        </form>
+      )}
+      {estado?.resultado.erro && (
+        <p role="alert" className="text-xs font-medium text-[#B91C1C]">
+          {estado.resultado.erro}
+        </p>
+      )}
+      {estado?.resultado.ok && (
+        <p role="status" className="text-xs font-medium text-[#166534]">
+          Dados salvos.
+        </p>
+      )}
+    </div>
+  )
+}
+
+/** Histórico de um usuário, escondido atrás de um botão: começa fechado para não poluir a lista.
+ * `historico` chega pronto da página (Server Component): este arquivo é `'use client'` e não pode
+ * importar `<Historico>` diretamente. */
+export function HistoricoDoUsuario({ historico }: { historico: ReactNode }) {
+  const [aberto, setAberto] = useState(false)
+  return (
+    <div className="flex flex-col gap-2">
+      <Botao variante="secundario" aria-expanded={aberto} onClick={() => setAberto(!aberto)} className="self-start">
+        {aberto ? 'Fechar histórico' : 'Histórico'}
+      </Botao>
+      {aberto && <div className="rounded-[10px] border border-[#E5E7EB] bg-[#F9FAFB] p-3">{historico}</div>}
+    </div>
   )
 }
 

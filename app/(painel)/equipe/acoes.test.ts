@@ -138,6 +138,22 @@ test('membro e recusado ao alterar e ao desativar, mesmo com id inexistente', as
   expect(l.rows[0]).toEqual({ papel: 'admin', ativo: true })
 })
 
+test('admin corrige nome e e-mail de um usuario; membro e recusado', async () => {
+  const ana = await criar<Usuario>(ctx, 'usuarios', { nome: 'Ana', email: 'ana@escritorio.local', papel: 'membro' })
+  const r = await alterarUsuario(ana.id, formulario({ nome: 'Ana Paula', email: 'anapaula@escritorio.local' }))
+  expect(r).toEqual({ ok: true })
+  const l = await ctx.db.query<{ nome: string; email: string }>('select nome, email from usuarios where id = $1', [
+    ana.id,
+  ])
+  expect(l.rows[0]).toEqual({ nome: 'Ana Paula', email: 'anapaula@escritorio.local' })
+
+  await virarMembro()
+  const negado = await alterarUsuario(ana.id, formulario({ nome: 'Outro Nome' }))
+  expect(negado.erro).toMatch(/administrador/i)
+  const inalterado = await ctx.db.query<{ nome: string }>('select nome from usuarios where id = $1', [ana.id])
+  expect(inalterado.rows[0].nome).toBe('Ana Paula')
+})
+
 test('e-mail sem arroba e recusado', async () => {
   const novo = await criarUsuario(formulario({ nome: 'Ana', email: 'ana.escritorio', papel: 'membro' }))
   expect(novo.erro).toBe('Informe um e-mail válido.')

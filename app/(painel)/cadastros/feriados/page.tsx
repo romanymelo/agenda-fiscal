@@ -1,12 +1,14 @@
 import Link from 'next/link'
 import { connection } from 'next/server'
 import { Suspense } from 'react'
+import { Historico } from '@/components/historico'
 import { configuracaoDaTela } from '@/lib/db/configuracao'
 import { feriadosDaTela } from '@/lib/db/feriados'
 import { diaDaSemana, formatarBR } from '@/lib/regras/data'
 import { feriadosDaPraca } from '@/lib/regras/feriados-aplicaveis'
 import { exigirUsuario } from '@/lib/usuario-atual'
 import { AcoesFeriado, EditarPraca, NovoFeriado } from './formularios'
+import { formatarFeriado, ROTULOS_CONFIGURACAO, ROTULOS_FERIADO } from './rotulos'
 import { SeloAbrangencia } from './selo-abrangencia'
 
 export const metadata = { title: 'Feriados — Agenda Fiscal' }
@@ -79,6 +81,8 @@ async function Conteudo({ searchParams }: { searchParams: Promise<{ [chave: stri
         ) : (
           <p className="text-sm text-[#4B5563]">Só o administrador altera a praça do escritório.</p>
         )}
+        <hr className="border-[#E5E7EB]" />
+        <Historico tabela="configuracao" registroId={praca.id} rotulos={ROTULOS_CONFIGURACAO} />
       </section>
 
       <nav aria-label="Ano" className="flex items-center gap-2">
@@ -131,7 +135,19 @@ async function Conteudo({ searchParams }: { searchParams: Promise<{ [chave: stri
                       <span className="text-sm text-[#92400E]">Fora da praça do escritório: não desloca vencimentos.</span>
                     )}
                   </div>
-                  <AcoesFeriado feriado={f} praca={praca} admin={admin} />
+                  <AcoesFeriado
+                    feriado={f}
+                    praca={praca}
+                    admin={admin}
+                    historico={
+                      <Historico
+                        tabela="feriados"
+                        registroId={f.id}
+                        rotulos={ROTULOS_FERIADO}
+                        formatar={formatarFeriado}
+                      />
+                    }
+                  />
                 </li>
               )
             })}

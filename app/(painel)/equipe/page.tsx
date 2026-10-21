@@ -1,9 +1,11 @@
 import { connection } from 'next/server'
 import { Suspense } from 'react'
+import { Historico } from '@/components/historico'
 import { listarEquipe } from '@/lib/db/usuarios'
 import type { Papel } from '@/lib/tipos'
 import { exigirUsuario } from '@/lib/usuario-atual'
-import { AcoesDoUsuario, NovoUsuario } from './formularios'
+import { AcoesDoUsuario, EditarDadosUsuario, HistoricoDoUsuario, NovoUsuario } from './formularios'
+import { formatarUsuario, ROTULOS_USUARIO } from './rotulos'
 
 export const metadata = { title: 'Equipe — Agenda Fiscal' }
 
@@ -58,15 +60,25 @@ async function Conteudo() {
                 </span>
               </span>
             </div>
-            {admin && (
-              <AcoesDoUsuario
-                id={u.id}
-                nome={u.nome}
-                papel={u.papel}
-                ativo={u.ativo}
-                ehVoce={u.id === voce.id}
+            <div className="flex flex-col gap-2 sm:items-end">
+              {admin && (
+                <>
+                  <EditarDadosUsuario id={u.id} nome={u.nome} email={u.email} />
+                  <AcoesDoUsuario
+                    id={u.id}
+                    nome={u.nome}
+                    papel={u.papel}
+                    ativo={u.ativo}
+                    ehVoce={u.id === voce.id}
+                  />
+                </>
+              )}
+              <HistoricoDoUsuario
+                historico={
+                  <Historico tabela="usuarios" registroId={u.id} rotulos={ROTULOS_USUARIO} formatar={formatarUsuario} />
+                }
               />
-            )}
+            </div>
           </li>
         ))}
       </ul>

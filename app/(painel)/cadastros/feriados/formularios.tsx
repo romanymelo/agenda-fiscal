@@ -1,9 +1,9 @@
 'use client'
 
-import { useActionState, useState, useTransition, type FormEvent } from 'react'
+import { useActionState, useState, useTransition, type FormEvent, type ReactNode } from 'react'
 import { Botao, Campo, Condicional, Selecao } from '@/components/campos'
-import { ROTULO_ABRANGENCIA, type FeriadoCadastro, type Praca } from '@/lib/tipos'
-import { alterarConfiguracao, alterarFeriado, criarFeriado, excluirFeriado, type Resultado } from './acoes'
+import { ROTULO_ABRANGENCIA, type FeriadoCadastro, type Praca, type Resultado } from '@/lib/tipos'
+import { alterarConfiguracao, alterarFeriado, criarFeriado, excluirFeriado } from './acoes'
 
 const OPCOES_ABRANGENCIA = Object.entries(ROTULO_ABRANGENCIA).map(([valor, rotulo]) => ({ valor, rotulo }))
 
@@ -188,14 +188,26 @@ export function NovoFeriado({ ano, praca }: { ano: number; praca: Praca }) {
   )
 }
 
-/** Editar e (só para o administrador) excluir um feriado da lista. Quem decide o `admin` é a página. */
-export function AcoesFeriado({ feriado, praca, admin }: { feriado: FeriadoCadastro; praca: Praca; admin: boolean }) {
+/** Editar e (só para o administrador) excluir um feriado da lista. Quem decide o `admin` é a página.
+ * `historico` chega pronto da página (Server Component): este arquivo é `'use client'` e não pode
+ * importar `<Historico>` diretamente. */
+export function AcoesFeriado({
+  feriado,
+  praca,
+  admin,
+  historico,
+}: {
+  feriado: FeriadoCadastro
+  praca: Praca
+  admin: boolean
+  historico: ReactNode
+}) {
   const [aberto, setAberto] = useState(false)
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-start gap-2">
         <Botao variante="secundario" aria-expanded={aberto} onClick={() => setAberto(!aberto)}>
-          {aberto ? 'Fechar edição' : 'Editar'}
+          {aberto ? 'Fechar' : 'Editar / histórico'}
         </Botao>
         {admin && <ExcluirFeriado feriado={feriado} />}
       </div>
@@ -211,6 +223,8 @@ export function AcoesFeriado({ feriado, praca, admin }: { feriado: FeriadoCadast
             envio="Salvar alterações"
             sucesso="Alterações salvas."
           />
+          <hr className="border-[#E5E7EB]" />
+          {historico}
         </section>
       )}
     </div>

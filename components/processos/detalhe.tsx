@@ -115,7 +115,9 @@ export function Detalhe({ processo, papel, hoje, clientes, acoes, historico }: P
                   />
                 </span>
                 <span className="flex min-w-0 flex-1 flex-col gap-0.5 pb-3.5">
-                  <span className="text-xs font-semibold text-[#4B5563]">{formatarBR(a.data)}</span>
+                  <span className="text-xs font-semibold text-[#4B5563]">
+                    {formatarBR(a.data)} · por {a.criadoPorNome}
+                  </span>
                   <span className="whitespace-pre-wrap break-words text-sm leading-snug">{a.descricao}</span>
                 </span>
               </li>
@@ -132,7 +134,7 @@ export function Detalhe({ processo, papel, hoje, clientes, acoes, historico }: P
         ) : (
           <ul className="m-0 flex list-none flex-col gap-2 p-0">
             {processo.anexos.map((x) => (
-              <li key={x.id}>
+              <li key={x.id} className="flex flex-col gap-1">
                 {/* A rota recebe o id do anexo, nunca um caminho; baixa com o nome que a pessoa enviou. */}
                 <a
                   href={`/processos/anexo/${x.id}`}
@@ -155,6 +157,7 @@ export function Detalhe({ processo, papel, hoje, clientes, acoes, historico }: P
                   </svg>
                   <span className="min-w-0 break-all">{x.nomeArquivo}</span>
                 </a>
+                <span className="pl-1 text-xs text-[#4B5563]">Enviado por {x.criadoPorNome}</span>
               </li>
             ))}
           </ul>
