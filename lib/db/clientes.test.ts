@@ -120,3 +120,42 @@ test('cliente inativo sai da lista do dia a dia, aparece quando pedido e a troca
     erro: expect.stringMatching(/ativo/),
   })
 })
+
+test('alterar particularidades com varias linhas grava antes e depois com as quebras de linha preservadas', async () => {
+  await criarCliente(formulario({ ...PADARIA, particularidades: 'Linha A\nLinha B\nLinha C' }))
+  const [cliente] = await listarClientes(ctx.db)
+  // De novo com \r\n, como o navegador envia: o histórico guarda \n.
+  expect(await alterarCliente(cliente.id, formulario({ particularidades: 'Portal novo\r\nSenha trocada\r\nAvisar o cliente' }))).toEqual({ ok: true })
+  const [ultima] = await historicoDe(ctx.db, 'clientes', cliente.id)
+  expect(ultima.acao).toBe('alteracao')
+  expect(ultima.camposAlterados).toEqual({
+    particularidades: { antes: 'Linha A\nLinha B\nLinha C', depois: 'Portal novo\nSenha trocada\nAvisar o cliente' },
+  })
+})
+
+test('limpar particularidades e cnpj grava null, nao texto vazio', async () => {
+  await criarCliente(formulario({ ...PADARIA, particularidades: 'NFS-e pelo portal' }))
+  const [cliente] = await listarClientes(ctx.db)
+  expect(await alterarCliente(cliente.id, formulario({ particularidades: '   ', cnpj: '' }))).toEqual({ ok: true })
+  const depois = await buscarCliente(ctx.db, cliente.id)
+  expect(depois?.particularidades).toBeNull()
+  expect(depois?.cnpj).toBeNull()
+  const [ultima] = await historicoDe(ctx.db, 'clientes', cliente.id)
+  expect(ultima.camposAlterados).toEqual({
+    particularidades: { antes: 'NFS-e pelo portal', depois: null },
+    cnpj: { antes: '12345678000199', depois: null },
+  })
+})
+
+test('membro nao exclui cliente, e a permissao vem antes de conferir se o id existe', async () => {
+  await criarCliente(formulario(PADARIA))
+  const [cliente] = await listarClientes(ctx.db)
+  const membro = await criar<Usuario>(ctx, 'usuarios', { nome: 'Bia', email: 'bia@escritorio.local', papel: 'membro' })
+  ctx = { db: ctx.db, usuario: membro }
+  const permissao = { erro: expect.stringMatching(/administrador/i) }
+  expect(await excluirCliente(cliente.id)).toEqual(permissao)
+  // Id que não existe: a resposta é a mesma, "sem permissão", e não "não encontrado".
+  expect(await excluirCliente('00000000-0000-4000-8000-000000000001')).toEqual(permissao)
+  expect(await listarClientes(ctx.db)).toHaveLength(1)
+  expect((await historicoDe(ctx.db, 'clientes', cliente.id)).map((l) => l.acao)).toEqual(['criacao'])
+})

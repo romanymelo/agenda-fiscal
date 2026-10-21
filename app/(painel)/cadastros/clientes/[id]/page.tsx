@@ -9,6 +9,7 @@ import { ROTULO_REGIME } from '@/lib/tipos'
 import { exigirUsuario } from '@/lib/usuario-atual'
 import { alterarCliente } from '../acoes'
 import { EditarCliente, ExcluirCliente } from '../formularios'
+import { formatarCliente, ROTULOS_CLIENTE } from '../rotulos'
 import { SeloSituacao } from '../selo-situacao'
 
 export const metadata = { title: 'Cliente — Agenda Fiscal' }
@@ -89,7 +90,12 @@ async function Conteudo({ params }: { params: Promise<{ id: string }> }) {
       {voce.papel === 'admin' && <ExcluirCliente id={cliente.id} nome={cliente.nome} />}
 
       <hr className="border-[#E5E7EB]" />
-      <Historico tabela="clientes" registroId={cliente.id} />
+      <Historico
+        tabela="clientes"
+        registroId={cliente.id}
+        rotulos={ROTULOS_CLIENTE}
+        formatar={formatarCliente}
+      />
     </article>
   )
 }

@@ -2,29 +2,50 @@ import { connection } from 'next/server'
 import { Suspense } from 'react'
 import { historicoDoRegistro, type LinhaHistorico } from '@/lib/db/historico'
 import { formatarBR, formatarDataHoraBR } from '@/lib/regras/data'
-import { ROTULO_REGIME, type Acao } from '@/lib/tipos'
+import type { Acao } from '@/lib/tipos'
 
-// Histórico de um registro, para qualquer tela. É Server Component e lê sozinho: quem usa só
-// passa a tabela e o id. Nada de cliente aqui dentro.
+// Histórico de um registro, para qualquer tela. É Server Component e lê sozinho: quem usa passa a
+// tabela e o id, e, para a equipe ler "Código do Domínio" em vez de `codigo_dominio`, os rótulos.
+// Nada de cliente (`'use client'`) aqui dentro, e nada de tela específica: os rótulos de cada tabela
+// moram na tela que monta o histórico.
 //
-// Os nomes de campo que chegam do banco (`codigo_dominio`) viram rótulos que a equipe lê.
-// Uma tela nova acrescenta aqui os seus campos; o que não estiver na lista aparece com o nome da
-// coluna sem os sublinhados, para nunca mostrar um identificador cru.
-export const ROTULOS_DE_CAMPO: Record<string, string> = {
-  nome: 'Nome',
-  codigo_dominio: 'Código do Domínio',
-  cnpj: 'CNPJ',
-  regime: 'Regime',
-  uf: 'UF',
-  municipio: 'Município',
-  particularidades: 'Particularidades',
-  ativo: 'Situação',
-}
+// ATENÇÃO, acesso: este componente NÃO se protege sozinho. Ele mostra os valores antigos e novos de
+// qualquer tabela que lhe pedirem. A barreira de acesso é a página que o monta (`exigirUsuario()`),
+// e quem o usar numa tela nova tem de garantir que quem vê a tela pode ver aquele registro.
+//
+// Uso:
+//   <Historico
+//     tabela="processos"
+//     registroId={processo.id}
+//     rotulos={{ orgao: 'Órgão', prazo: 'Prazo', cliente_id: 'Cliente' }}
+//     formatar={async (campo, valor) => (campo === 'cliente_id' ? await nomeDoCliente(valor) : undefined)}
+//   />
 
-// Valores que o banco guarda por código e a equipe lê por nome, por campo.
-export const ROTULOS_DE_VALOR: Record<string, Record<string, string>> = {
-  regime: ROTULO_REGIME,
-  ativo: { true: 'Ativo', false: 'Inativo' },
+/** Nome de coluna do banco (`codigo_dominio`) para o rótulo que a equipe lê ("Código do Domínio"). */
+export type Rotulos = Record<string, string>
+
+/**
+ * Texto de um valor de um campo, a critério da tela. Devolva:
+ * - uma `string` para mostrar exatamente aquele texto (ex.: o nome do cliente para um `cliente_id`,
+ *   "Em andamento" para `em_andamento`);
+ * - `null` para mostrar "(vazio)";
+ * - `undefined` para deixar o componente formatar do jeito padrão.
+ * Pode ser assíncrona (para buscar o nome de um registro relacionado). É chamada uma vez por valor
+ * antes e depois de cada alteração; `valor` é o que o histórico guardou (jsonb: texto, número,
+ * booleano, `null`...).
+ */
+export type FormatarValor = (
+  campo: string,
+  valor: unknown,
+) => string | null | undefined | Promise<string | null | undefined>
+
+type Props = {
+  tabela: string
+  registroId: string
+  /** Rótulos por nome de coluna. O que não estiver aqui aparece como o nome da coluna sem os sublinhados. */
+  rotulos?: Rotulos
+  /** Formatação de valores por campo; sem ela (ou devolvendo `undefined`), vale o padrão abaixo. */
+  formatar?: FormatarValor
 }
 
 const VERBO: Record<Acao, string> = {
@@ -33,42 +54,70 @@ const VERBO: Record<Acao, string> = {
   exclusao: 'excluiu',
 }
 
-function rotuloDoCampo(campo: string): string {
-  const r = ROTULOS_DE_CAMPO[campo]
+// Sem rótulo passado: o nome da coluna legível, nunca `cliente_id` cru.
+function rotuloDoCampo(campo: string, rotulos: Rotulos | undefined): string {
+  const r = rotulos?.[campo]
   if (r) return r
   const solto = campo.replace(/_/g, ' ')
   return solto.charAt(0).toUpperCase() + solto.slice(1)
 }
 
-// Texto do valor, ou `null` para vazio (a tela escreve "(vazio)").
-function textoDoValor(campo: string, v: unknown): string | null {
+// Formatação padrão: vazio, sim/não, data 'AAAA-MM-DD' como dd/mm/aaaa, o resto como texto.
+function textoPadrao(v: unknown): string | null {
   if (v === null || v === undefined || v === '') return null
+  if (typeof v === 'boolean') return v ? 'Sim' : 'Não'
+  if (typeof v === 'object') return JSON.stringify(v)
   const s = String(v)
-  const rotulado = ROTULOS_DE_VALOR[campo]?.[s]
-  if (rotulado) return rotulado
   return /^\d{4}-\d{2}-\d{2}$/.test(s) ? formatarBR(s) : s
 }
 
-export function Historico({ tabela, registroId }: { tabela: string; registroId: string }) {
+async function textoDoValor(campo: string, v: unknown, formatar?: FormatarValor): Promise<string | null> {
+  const dela = formatar ? await formatar(campo, v) : undefined
+  return dela === undefined ? textoPadrao(v) : dela
+}
+
+type Mudanca = { campo: string; rotulo: string; antes: string | null; depois: string | null }
+
+// Só a alteração detalha campos (a criação guarda os valores iniciais, que a tela já mostra).
+async function mudancasDe(linha: LinhaHistorico, rotulos?: Rotulos, formatar?: FormatarValor): Promise<Mudanca[]> {
+  if (linha.acao !== 'alteracao') return []
+  return Promise.all(
+    Object.entries(linha.camposAlterados ?? {}).map(async ([campo, { antes, depois }]) => ({
+      campo,
+      rotulo: rotuloDoCampo(campo, rotulos),
+      antes: await textoDoValor(campo, antes, formatar),
+      depois: await textoDoValor(campo, depois, formatar),
+    })),
+  )
+}
+
+export function Historico({ tabela, registroId, rotulos, formatar }: Props) {
   return (
     <section aria-label="Histórico" className="flex flex-col gap-3">
       <h3 className="text-sm font-bold">Histórico</h3>
       {/* Lê o banco: só com a requisição em mãos, atrás de um limite de Suspense. */}
       <Suspense fallback={<p className="text-sm text-[#4B5563]">Carregando o histórico…</p>}>
-        <Linhas tabela={tabela} registroId={registroId} />
+        <Linhas tabela={tabela} registroId={registroId} rotulos={rotulos} formatar={formatar} />
       </Suspense>
     </section>
   )
 }
 
-async function Linhas({ tabela, registroId }: { tabela: string; registroId: string }) {
+async function Linhas({ tabela, registroId, rotulos, formatar }: Props) {
   await connection()
   const linhas = await historicoDoRegistro(tabela, registroId)
   if (linhas.length === 0) return <p className="text-sm text-[#4B5563]">Nenhum registro ainda.</p>
+  const mudancas = await Promise.all(linhas.map((l) => mudancasDe(l, rotulos, formatar)))
   return (
     <ol className="m-0 flex list-none flex-col p-0">
       {linhas.map((l, i) => (
-        <Linha key={`${l.em}-${i}`} linha={l} maisRecente={i === 0} ultima={i === linhas.length - 1} />
+        <Linha
+          key={`${l.em}-${i}`}
+          linha={l}
+          mudancas={mudancas[i]}
+          maisRecente={i === 0}
+          ultima={i === linhas.length - 1}
+        />
       ))}
     </ol>
   )
@@ -76,15 +125,15 @@ async function Linhas({ tabela, registroId }: { tabela: string; registroId: stri
 
 function Linha({
   linha,
+  mudancas,
   maisRecente,
   ultima,
 }: {
   linha: LinhaHistorico
+  mudancas: Mudanca[]
   maisRecente: boolean
   ultima: boolean
 }) {
-  // Na criação o histórico guarda os valores iniciais, que a tela já mostra: só a alteração detalha.
-  const mudancas = linha.acao === 'alteracao' ? Object.entries(linha.camposAlterados ?? {}) : []
   return (
     <li className="flex gap-3">
       <span className="flex w-3.5 flex-none flex-col items-center">
@@ -104,12 +153,12 @@ function Linha({
         </span>
         {mudancas.length > 0 && (
           <dl className="m-0 mt-1 flex flex-col gap-2.5">
-            {mudancas.map(([campo, { antes, depois }]) => (
-              <div key={campo} className="flex min-w-0 flex-col gap-1">
-                <dt className="text-xs font-semibold text-[#374151]">{rotuloDoCampo(campo)}</dt>
+            {mudancas.map((m) => (
+              <div key={m.campo} className="flex min-w-0 flex-col gap-1">
+                <dt className="text-xs font-semibold text-[#374151]">{m.rotulo}</dt>
                 <dd className="m-0 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  <Valor rotulo="Antes" campo={campo} valor={antes} />
-                  <Valor rotulo="Depois" campo={campo} valor={depois} />
+                  <Valor rotulo="Antes" texto={m.antes} />
+                  <Valor rotulo="Depois" texto={m.depois} />
                 </dd>
               </div>
             ))}
@@ -120,8 +169,7 @@ function Linha({
   )
 }
 
-function Valor({ rotulo, campo, valor }: { rotulo: string; campo: string; valor: unknown }) {
-  const texto = textoDoValor(campo, valor)
+function Valor({ rotulo, texto }: { rotulo: string; texto: string | null }) {
   return (
     <div className="min-w-0 rounded-lg bg-[#F3F4F6] px-3 py-2">
       <div className="text-[11px] font-semibold uppercase tracking-wide text-[#4B5563]">{rotulo}</div>
