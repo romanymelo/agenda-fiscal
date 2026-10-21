@@ -1,3 +1,5 @@
+import { mkdir, mkdtemp, symlink, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
 import { rm } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
@@ -85,5 +87,38 @@ test('caminho_storage adulterado para fora de arquivos/ e recusado mesmo que o a
     const corpo = await r.text()
     expect(corpo, adulterado).toBe('Anexo não encontrado.')
     expect(corpo).not.toContain('agenda-fiscal')
+  }
+})
+
+test('ligacao dentro de arquivos/ apontando para fora e recusada (realpath)', async () => {
+  const { id } = await novoAnexo('a.pdf', 'x')
+  const fora = await mkdtemp(path.join(tmpdir(), 'fora-'))
+  const ligacao = path.resolve('arquivos', 'ligacao-teste')
+  try {
+    await writeFile(path.join(fora, 'segredo.txt'), 'segredo-de-fora')
+    // 'junction' vale no Windows sem privilégio; em POSIX vira ligação simbólica de pasta.
+    await symlink(fora, ligacao, 'junction')
+    await ctx.db.query('update anexos set caminho_storage = $1 where id = $2', ['ligacao-teste/segredo.txt', id])
+    const r = await respostaDoAnexo(ctx.db, id)
+    expect(r.status).toBe(404)
+    expect(await r.text()).toBe('Anexo não encontrado.')
+  } finally {
+    await rm(ligacao, { force: true, recursive: true })
+    await rm(fora, { force: true, recursive: true })
+  }
+})
+
+test('pasta irma com o mesmo prefixo (arquivos-outro/) e recusada', async () => {
+  const { id } = await novoAnexo('a.pdf', 'x')
+  const irma = path.resolve('arquivos-outro')
+  try {
+    await mkdir(irma, { recursive: true })
+    await writeFile(path.join(irma, 'segredo.pdf'), 'segredo-da-irma')
+    await ctx.db.query('update anexos set caminho_storage = $1 where id = $2', ['../arquivos-outro/segredo.pdf', id])
+    const r = await respostaDoAnexo(ctx.db, id)
+    expect(r.status).toBe(404)
+    expect(await r.text()).toBe('Anexo não encontrado.')
+  } finally {
+    await rm(irma, { force: true, recursive: true })
   }
 })

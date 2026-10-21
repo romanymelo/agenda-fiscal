@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { formatarBR, formatarDataHoraBR } from '@/lib/regras/data'
-import { COR_STATUS, ROTULO_STATUS, type Andamento, type Anexo, type Data, type Papel, type Processo } from '@/lib/tipos'
+import { COR_STATUS, ROTULO_STATUS, type Andamento, type Anexo, type Data, type Papel, type Processo, type Resultado } from '@/lib/tipos'
 import {
   EditarProcesso,
   ExcluirProcesso,
@@ -12,8 +12,6 @@ import {
 // Detalhe lateral de um processo, como no mockup. Server Component: mostra os dados e entrega os
 // formulários (Client) com as Server Actions recebidas por prop, porque um componente de `components/`
 // nunca importa de `app/`. O histórico chega pronto (`historico`), com os rótulos que só a tela conhece.
-
-type Resultado = { ok?: true; erro?: string }
 
 export type AcoesDoProcesso = {
   alterar: (id: string, f: FormData) => Promise<Resultado>

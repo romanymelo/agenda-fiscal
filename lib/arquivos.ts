@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import { mkdir, readFile, realpath, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, realpath, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { ErroDeFormulario } from './formulario'
 
@@ -65,4 +65,9 @@ export async function lerAnexo(caminho: string): Promise<{ conteudo: Buffer } | 
   } catch {
     return { erro: 'ausente' }
   }
+}
+
+/** Apaga o arquivo de um anexo gravado por `salvarAnexo` (o caminho relativo que ela devolveu). Dono único da pasta. */
+export async function removerAnexo(caminho: string): Promise<void> {
+  await rm(path.resolve(PASTA, caminho), { force: true })
 }

@@ -1,18 +1,13 @@
 'use server'
 
-import { rm } from 'node:fs/promises'
-import path from 'node:path'
 import { revalidatePath } from 'next/cache'
-import { nomeSeguro, salvarAnexo } from '@/lib/arquivos'
+import { nomeSeguro, removerAnexo, salvarAnexo } from '@/lib/arquivos'
 import { buscarCliente } from '@/lib/db/clientes'
 import { alterar, criar, excluir, exigirPermissao, SemPermissao } from '@/lib/db/escrita'
 import { buscarProcesso } from '@/lib/db/processos'
 import { ErroDeFormulario, texto, textoOuNulo } from '@/lib/formulario'
-import { ROTULO_STATUS, type StatusProcesso } from '@/lib/tipos'
+import { ROTULO_STATUS, type Resultado, type StatusProcesso } from '@/lib/tipos'
 import { contextoAtual } from '@/lib/usuario-atual'
-
-/** Padrão das Server Actions do projeto: devolver `{ ok?, erro? }` em vez de lançar para erro esperado. */
-export type Resultado = { ok?: true; erro?: string }
 
 const STATUS = Object.keys(ROTULO_STATUS)
 
@@ -160,7 +155,7 @@ export async function enviarAnexo(processoId: string, form: FormData): Promise<R
     await criar(ctx, 'anexos', { processo_id: processoId, nome_arquivo: nome, caminho_storage: caminho })
   } catch (e) {
     // Sem a linha no banco o arquivo ficaria órfão.
-    await rm(path.resolve('arquivos', caminho), { force: true })
+    await removerAnexo(caminho)
     return traduzir(e)
   }
   atualizarQuadro()

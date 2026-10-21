@@ -145,3 +145,6 @@ export type Processo = {
 export type Andamento = { id: string; data: Data; descricao: string; criadoPorNome: string }
 
 export type Anexo = { id: string; nomeArquivo: string; caminhoStorage: string; criadoPorNome: string }
+
+/** Padrão das Server Actions do projeto: devolver `{ ok?, erro? }` em vez de lançar para erro esperado. */
+export type Resultado = { ok?: true; erro?: string }

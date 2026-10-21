@@ -1,15 +1,14 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useActionState, useState, useTransition, type FormEvent } from 'react'
+import { useState, useTransition, type FormEvent } from 'react'
 import { AreaTexto, Botao, Campo, Selecao } from '@/components/campos'
-import { ROTULO_STATUS, type Data, type Processo } from '@/lib/tipos'
+import { ROTULO_STATUS, type Data, type Processo, type Resultado } from '@/lib/tipos'
 
 // Formulários da tela de Processos. As Server Actions chegam por prop (um componente de `components/`
 // nunca importa de `app/`). Todo envio é por `onSubmit` + `useTransition`, o padrão do projeto: com
 // `<form action>` o React 19 reinicia o formulário e uma lista de escolha perde o valor depois de um erro.
 
-type Resultado = { ok?: true; erro?: string }
 type Opcao = { valor: string; rotulo: string }
 
 const OPCOES_STATUS: Opcao[] = Object.entries(ROTULO_STATUS).map(([valor, rotulo]) => ({ valor, rotulo }))
@@ -312,23 +311,24 @@ export function ExcluirProcesso({
   excluir: (id: string) => Promise<Resultado>
 }) {
   const router = useRouter()
-  const [erro, acao] = useActionState(async (): Promise<string | null> => {
-    const r = await excluir(id)
-    if (r.ok) {
-      router.replace('/processos')
-      return null
-    }
-    return r.erro ?? 'Não foi possível excluir.'
-  }, null)
+  const [erro, setErro] = useState<string | null>(null)
+  const [excluindo, iniciar] = useTransition()
+  // Mesmo padrão dos outros formulários: `onSubmit` + `useTransition`, nunca `<form action>`.
+  function enviar(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    if (!window.confirm(`Excluir o processo ${descricao}? Ele sai do quadro; o histórico fica guardado.`)) return
+    iniciar(async () => {
+      const r = await excluir(id)
+      if (r.ok) router.replace('/processos')
+      else setErro(r.erro ?? 'Não foi possível excluir.')
+    })
+  }
   return (
     <form
-      action={acao}
-      onSubmit={(e) => {
-        if (!window.confirm(`Excluir o processo ${descricao}? Ele sai do quadro; o histórico fica guardado.`)) e.preventDefault()
-      }}
+      onSubmit={enviar}
       className="flex flex-col gap-2"
     >
-      <Botao type="submit" variante="perigo" className="self-start">
+      <Botao type="submit" variante="perigo" disabled={excluindo} className="self-start">
         Excluir processo
       </Botao>
       {erro && (

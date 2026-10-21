@@ -16,7 +16,7 @@ async function salvar(original: string, conteudo: string): Promise<string> {
 
 test('nomeSeguro nao deixa o caminho escapar da pasta', () => {
   for (const n of ['../../etc/passwd', 'a/b.pdf', 'C:\\x.pdf', '..', '.', ''])
-    expect(nomeSeguro(n)).not.toMatch(/[\/]|^\.\.?$/)
+    expect(nomeSeguro(n)).not.toMatch(/[\\/]|^\.\.?$/)
 })
 
 test('nomeSeguro preserva a extensao', () => {
