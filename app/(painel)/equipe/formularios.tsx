@@ -36,7 +36,7 @@ function useEnvio(acao: (f: FormData) => Promise<Resultado>, aoTerminar?: (r: Re
 export function NovoUsuario() {
   const { estado, enviando, enviar } = useEnvio(criarUsuario, (r, form) => r.ok && form.reset())
   return (
-    <form onSubmit={enviar} className="flex flex-col gap-4 rounded-[14px] border border-[#E5E7EB] bg-white p-4 sm:p-5">
+    <form onSubmit={enviar} className="flex flex-col gap-4 rounded-[14px] border border-linha bg-white p-4 sm:p-5">
       <h2 className="text-base font-bold">Novo usuário</h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Campo rotulo="Nome" nome="nome" obrigatorio autoComplete="off" />
@@ -50,7 +50,7 @@ export function NovoUsuario() {
         <Selecao rotulo="Papel" nome="papel" opcoes={OPCOES_PAPEL} defaultValue="membro" />
       </div>
       {estado?.resultado.erro && (
-        <p role="alert" className="text-sm font-medium text-[#B91C1C]">
+        <p role="alert" className="text-sm font-medium text-perigo">
           {estado.resultado.erro}
         </p>
       )}
@@ -87,7 +87,7 @@ export function EditarDadosUsuario({ id, nome, email }: { id: string; nome: stri
       {aberto && (
         <form
           onSubmit={enviar}
-          className="flex flex-col gap-3 rounded-[10px] border border-[#E5E7EB] bg-[#F9FAFB] p-3 sm:flex-row sm:items-end"
+          className="flex flex-col gap-3 rounded-[10px] border border-linha bg-sutil p-3 sm:flex-row sm:items-end"
         >
           <Campo rotulo="Nome" nome="nome" obrigatorio autoComplete="off" defaultValue={nome} className="flex-1" />
           <Campo
@@ -105,7 +105,7 @@ export function EditarDadosUsuario({ id, nome, email }: { id: string; nome: stri
         </form>
       )}
       {estado?.resultado.erro && (
-        <p role="alert" className="text-xs font-medium text-[#B91C1C]">
+        <p role="alert" className="text-xs font-medium text-perigo">
           {estado.resultado.erro}
         </p>
       )}
@@ -128,7 +128,7 @@ export function HistoricoDoUsuario({ historico }: { historico: ReactNode }) {
       <Botao variante="secundario" aria-expanded={aberto} onClick={() => setAberto(!aberto)} className="self-start">
         {aberto ? 'Fechar histórico' : 'Histórico'}
       </Botao>
-      {aberto && <div className="rounded-[10px] border border-[#E5E7EB] bg-[#F9FAFB] p-3">{historico}</div>}
+      {aberto && <div className="rounded-[10px] border border-linha bg-sutil p-3">{historico}</div>}
     </div>
   )
 }
@@ -184,7 +184,7 @@ export function AcoesDoUsuario({
         )}
       </div>
       {estado?.resultado.erro && (
-        <p role="alert" className="text-xs font-medium text-[#B91C1C]">
+        <p role="alert" className="text-xs font-medium text-perigo">
           {estado.resultado.erro}
         </p>
       )}

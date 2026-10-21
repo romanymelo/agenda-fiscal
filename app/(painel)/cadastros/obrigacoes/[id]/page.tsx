@@ -20,12 +20,12 @@ export default function DetalheDaObrigacao({ params }: { params: Promise<{ id: s
     <main className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-6 sm:px-6">
       <Link
         href="/cadastros/obrigacoes"
-        className="self-start text-sm font-semibold text-[#0F766E] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F766E]"
+        className="self-start text-sm font-semibold text-mar hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mar"
       >
         ← Obrigações
       </Link>
       {/* Lê o banco e o cookie: só com a requisição em mãos, atrás de um limite de Suspense. */}
-      <Suspense fallback={<p className="text-sm text-[#4B5563]">Carregando a obrigação…</p>}>
+      <Suspense fallback={<p className="text-sm text-suave">Carregando a obrigação…</p>}>
         <Conteudo params={params} />
       </Suspense>
     </main>
@@ -51,7 +51,7 @@ async function Conteudo({ params }: { params: Promise<{ id: string }> }) {
     ],
   ]
   return (
-    <article className="flex flex-col gap-5 rounded-[14px] border border-[#E5E7EB] bg-white p-4 sm:p-6">
+    <article className="flex flex-col gap-5 rounded-[14px] border border-linha bg-white p-4 sm:p-6">
       <div className="flex flex-col gap-2">
         <h1 className="break-words text-[24px] font-bold tracking-tight">{o.nome}</h1>
         <div className="flex flex-wrap gap-2">
@@ -63,7 +63,7 @@ async function Conteudo({ params }: { params: Promise<{ id: string }> }) {
       <dl className="m-0 grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
         {dados.map(([rotulo, valor]) => (
           <div key={rotulo} className="flex min-w-0 flex-col gap-0.5">
-            <dt className="text-xs text-[#4B5563]">{rotulo}</dt>
+            <dt className="text-xs text-suave">{rotulo}</dt>
             <dd className="m-0 break-words text-sm font-semibold">{valor}</dd>
           </div>
         ))}
@@ -76,7 +76,7 @@ async function Conteudo({ params }: { params: Promise<{ id: string }> }) {
             ? o.regimesAplicaveis.map((r) => ROTULO_REGIME[r]).join(', ')
             : 'Não informado'}
         </p>
-        <p className="m-0 text-xs text-[#4B5563]">
+        <p className="m-0 text-xs text-suave">
           Só informativo: as obrigações não são ligadas a clientes aqui, então nada no calendário é filtrado por regime.
         </p>
       </section>
@@ -86,7 +86,7 @@ async function Conteudo({ params }: { params: Promise<{ id: string }> }) {
         {o.observacao ? (
           <p className="m-0 whitespace-pre-wrap break-words text-[15px] leading-relaxed">{o.observacao}</p>
         ) : (
-          <p className="m-0 text-sm text-[#4B5563]">Nada registrado.</p>
+          <p className="m-0 text-sm text-suave">Nada registrado.</p>
         )}
       </section>
 
@@ -94,7 +94,7 @@ async function Conteudo({ params }: { params: Promise<{ id: string }> }) {
       {/* Só o administrador exclui: para o membro o botão nem existe. */}
       {voce.papel === 'admin' && <ExcluirObrigacao id={o.id} nome={o.nome} />}
 
-      <hr className="border-[#E5E7EB]" />
+      <hr className="border-linha" />
       <Historico tabela="obrigacoes" registroId={o.id} rotulos={ROTULOS_OBRIGACAO} formatar={formatarObrigacao} />
     </article>
   )

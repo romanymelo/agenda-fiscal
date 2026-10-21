@@ -5,9 +5,9 @@ export function SeloAbrangencia({ abrangencia, className = '' }: { abrangencia: 
   return (
     <span
       data-abrangencia={abrangencia}
-      className={`inline-flex items-center gap-1.5 rounded-full bg-[#E5E7EB] px-2.5 py-0.5 text-xs font-semibold text-[#374151] ${className}`}
+      className={`inline-flex items-center gap-1.5 rounded-full bg-linha px-2.5 py-0.5 text-xs font-semibold text-corpo ${className}`}
     >
-      <span aria-hidden="true" className="size-2 rounded-full bg-[#9CA3AF]" />
+      <span aria-hidden="true" className="size-2 rounded-full bg-apagado" />
       {ROTULO_ABRANGENCIA[abrangencia]}
     </span>
   )

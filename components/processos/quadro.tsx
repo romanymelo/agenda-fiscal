@@ -19,7 +19,7 @@ export function enderecoDoQuadro(busca: string, processo?: string): string {
 // O chip do cartão (decisão da Tarefa 12): escuro quando o prazo vence em até 7 dias (ou já passou), âmbar
 // quando há prazo mais adiante, cinza quando não há prazo pendente. Concluído nunca tem prazo pendente.
 function chip(p: Processo, hoje: Data): { texto: string; classe: string } {
-  const cinza = 'bg-[#F3F4F6] text-[#4B5563]'
+  const cinza = 'bg-espuma text-suave'
   if (p.status === 'concluido')
     return {
       texto: p.atualizadoEm ? `Concluído em ${formatarDataHoraBR(p.atualizadoEm).slice(0, 5)}` : 'Concluído',
@@ -29,7 +29,7 @@ function chip(p: Processo, hoje: Data): { texto: string; classe: string } {
   const urgente = p.prazo <= somarDias(hoje, 7)
   return {
     texto: `Prazo ${formatarBR(p.prazo).slice(0, 5)}`,
-    classe: urgente ? 'bg-[#1F2937] text-white' : 'bg-[#FEF3C7] text-[#78350F]',
+    classe: urgente ? 'bg-tinta text-white' : 'bg-[#FEF3C7] text-[#78350F]',
   }
 }
 
@@ -54,10 +54,10 @@ export function Quadro({
               <section
                 key={status}
                 aria-label={ROTULO_STATUS[status]}
-                className="flex min-w-0 flex-col gap-2.5 rounded-xl bg-[#E9EBEE] p-2.5"
+                className="flex min-w-0 flex-col gap-2.5 rounded-xl bg-sutil p-2.5"
               >
                 <div className="flex items-center justify-between px-1 pt-1 pb-0.5">
-                  <h2 className="flex items-center gap-2 text-[13px] font-bold text-[#1F2937]">
+                  <h2 className="flex items-center gap-2 text-[13px] font-bold text-tinta">
                     <span
                       aria-hidden="true"
                       className="size-[9px] rounded-full"
@@ -65,7 +65,7 @@ export function Quadro({
                     />
                     {ROTULO_STATUS[status]}
                   </h2>
-                  <span className="rounded-full bg-white px-[9px] py-0.5 text-xs font-semibold text-[#374151]">
+                  <span className="rounded-full bg-white px-[9px] py-0.5 text-xs font-semibold text-corpo">
                     {cartoes.length}
                   </span>
                 </div>
@@ -79,15 +79,15 @@ export function Quadro({
                           href={enderecoDoQuadro(busca, p.id)}
                           scroll={false}
                           aria-current={escolhido ? 'true' : undefined}
-                          className={`flex w-full flex-col items-start gap-1 rounded-[10px] bg-white text-left text-[#111827] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F766E] ${
+                          className={`flex w-full flex-col items-start gap-1 rounded-[10px] bg-white text-left text-tinta focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mar ${
                             escolhido
-                              ? 'border-2 border-[#0F766E] p-[11px] shadow-[0_2px_6px_rgba(0,0,0,.08)]'
-                              : 'border border-[#DDE0E4] p-3 hover:border-[#9CA3AF]'
+                              ? 'border-2 border-mar p-[11px] shadow-[0_2px_6px_rgba(0,0,0,.08)]'
+                              : 'border border-linha p-3 hover:border-apagado'
                           }`}
                         >
-                          <span className="text-xs font-semibold text-[#4B5563]">{p.orgao}</span>
+                          <span className="text-xs font-semibold text-suave">{p.orgao}</span>
                           <span className="break-words text-sm leading-tight font-bold">{p.tipo}</span>
-                          <span className="break-words text-[13px] text-[#374151]">{p.clienteNome}</span>
+                          <span className="break-words text-[13px] text-corpo">{p.clienteNome}</span>
                           <span
                             className={`mt-1 rounded-md px-2 py-[3px] text-xs font-semibold ${c.classe}`}
                           >

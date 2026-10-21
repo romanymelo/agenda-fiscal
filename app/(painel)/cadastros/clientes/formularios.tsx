@@ -109,7 +109,7 @@ function FormularioCliente({
         />
       </div>
       {resultado?.erro && (
-        <p role="alert" className="text-sm font-medium text-[#B91C1C]">
+        <p role="alert" className="text-sm font-medium text-perigo">
           {resultado.erro}
         </p>
       )}
@@ -141,7 +141,7 @@ export function NovoCliente({ criar }: { criar: (f: FormData) => Promise<Resulta
       {aberto && (
         <section
           aria-label="Novo cliente"
-          className="flex flex-col gap-4 rounded-[14px] border border-[#E5E7EB] bg-white p-4 sm:p-5"
+          className="flex flex-col gap-4 rounded-[14px] border border-linha bg-white p-4 sm:p-5"
         >
           <h2 className="text-base font-bold">Novo cliente</h2>
           <FormularioCliente acao={criar} envio="Cadastrar cliente" sucesso="Cliente cadastrado." />
@@ -168,7 +168,7 @@ export function EditarCliente({
       {aberto && (
         <section
           aria-label="Editar cliente"
-          className="flex flex-col gap-4 rounded-[10px] border border-[#E5E7EB] bg-[#F9FAFB] p-4"
+          className="flex flex-col gap-4 rounded-[10px] border border-linha bg-sutil p-4"
         >
           <FormularioCliente
             cliente={cliente}
@@ -205,7 +205,7 @@ export function ExcluirCliente({ id, nome }: { id: string; nome: string }) {
         Excluir cliente
       </Botao>
       {erro && (
-        <p role="alert" className="text-sm font-medium text-[#B91C1C]">
+        <p role="alert" className="text-sm font-medium text-perigo">
           {erro}
         </p>
       )}

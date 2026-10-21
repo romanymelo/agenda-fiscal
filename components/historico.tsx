@@ -101,7 +101,7 @@ export function Historico({ tabela, registroId, rotulos, formatar }: Props) {
     <section aria-label="Histórico" className="flex flex-col gap-3">
       <h3 className="text-sm font-bold">Histórico</h3>
       {/* Lê o banco: só com a requisição em mãos, atrás de um limite de Suspense. */}
-      <Suspense fallback={<p className="text-sm text-[#4B5563]">Carregando o histórico…</p>}>
+      <Suspense fallback={<p className="text-sm text-suave">Carregando o histórico…</p>}>
         <Linhas tabela={tabela} registroId={registroId} rotulos={rotulos} formatar={formatar} />
       </Suspense>
     </section>
@@ -111,7 +111,7 @@ export function Historico({ tabela, registroId, rotulos, formatar }: Props) {
 async function Linhas({ tabela, registroId, rotulos, formatar }: Props) {
   await connection()
   const linhas = await historicoDoRegistro(tabela, registroId)
-  if (linhas.length === 0) return <p className="text-sm text-[#4B5563]">Nenhum registro ainda.</p>
+  if (linhas.length === 0) return <p className="text-sm text-suave">Nenhum registro ainda.</p>
   const mudancas = await Promise.all(linhas.map((l) => mudancasDe(l, rotulos, formatar)))
   return (
     <ol className="m-0 flex list-none flex-col p-0">
@@ -145,13 +145,13 @@ function Linha({
         <span
           aria-hidden="true"
           className={`mt-[3px] size-3 flex-none rounded-full border-2 ${
-            maisRecente ? 'border-[#0F766E] bg-[#0F766E]' : 'border-[#9CA3AF] bg-white'
+            maisRecente ? 'border-mar bg-mar' : 'border-apagado bg-white'
           }`}
         />
-        <span aria-hidden="true" className={`mt-0.5 w-0.5 flex-1 ${ultima ? 'bg-transparent' : 'bg-[#E5E7EB]'}`} />
+        <span aria-hidden="true" className={`mt-0.5 w-0.5 flex-1 ${ultima ? 'bg-transparent' : 'bg-linha'}`} />
       </span>
       <div className="flex min-w-0 flex-1 flex-col gap-1 pb-3.5">
-        <span className="text-xs font-semibold text-[#4B5563]">{formatarDataHoraBR(linha.em)}</span>
+        <span className="text-xs font-semibold text-suave">{formatarDataHoraBR(linha.em)}</span>
         <span className="text-sm leading-snug">
           <strong className="font-semibold">{linha.usuarioNome}</strong> {VERBO[linha.acao]}
           {linha.acao === 'alteracao' ? ' o cadastro' : ' o registro'}
@@ -160,7 +160,7 @@ function Linha({
           <dl className="m-0 mt-1 flex flex-col gap-2.5">
             {mudancas.map((m) => (
               <div key={m.campo} className="flex min-w-0 flex-col gap-1">
-                <dt className="text-xs font-semibold text-[#374151]">{m.rotulo}</dt>
+                <dt className="text-xs font-semibold text-corpo">{m.rotulo}</dt>
                 <dd className="m-0 grid grid-cols-1 gap-2 sm:grid-cols-2">
                   <Valor rotulo="Antes" texto={m.antes} />
                   <Valor rotulo="Depois" texto={m.depois} />
@@ -176,10 +176,10 @@ function Linha({
 
 function Valor({ rotulo, texto }: { rotulo: string; texto: string | null }) {
   return (
-    <div className="min-w-0 rounded-lg bg-[#F3F4F6] px-3 py-2">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-[#4B5563]">{rotulo}</div>
+    <div className="min-w-0 rounded-lg bg-espuma px-3 py-2">
+      <div className="text-[11px] font-semibold uppercase tracking-wide text-suave">{rotulo}</div>
       {texto === null ? (
-        <div className="text-sm italic text-[#6B7280]">(vazio)</div>
+        <div className="text-sm italic text-apagado">(vazio)</div>
       ) : (
         <div className="whitespace-pre-wrap break-words text-sm">{texto}</div>
       )}

@@ -36,7 +36,7 @@ function useEnvio(
 function Mensagem({ resultado, sucesso }: { resultado: Resultado | null; sucesso: string }) {
   if (resultado?.erro)
     return (
-      <p role="alert" className="text-sm font-medium text-[#B91C1C]">
+      <p role="alert" className="text-sm font-medium text-perigo">
         {resultado.erro}
       </p>
     )
@@ -133,7 +133,7 @@ export function NovoProcesso({
       {aberto && (
         <section
           aria-label="Novo processo"
-          className="flex basis-full flex-col gap-4 rounded-[14px] border border-[#E5E7EB] bg-white p-4 sm:p-5"
+          className="flex basis-full flex-col gap-4 rounded-[14px] border border-linha bg-white p-4 sm:p-5"
         >
           <h2 className="text-base font-bold">Novo processo</h2>
           <FormularioProcesso
@@ -170,7 +170,7 @@ export function EditarProcesso({
       {aberto && (
         <section
           aria-label="Editar processo"
-          className="flex flex-col gap-4 rounded-[10px] border border-[#E5E7EB] bg-[#F9FAFB] p-4"
+          className="flex flex-col gap-4 rounded-[10px] border border-linha bg-sutil p-4"
         >
           <FormularioProcesso
             processo={processo}
@@ -245,7 +245,7 @@ export function NovoAndamento({
         <form
           onSubmit={enviar}
           aria-label="Novo andamento"
-          className="flex flex-col gap-3 rounded-[10px] border border-[#E5E7EB] bg-[#F9FAFB] p-4"
+          className="flex flex-col gap-3 rounded-[10px] border border-linha bg-sutil p-4"
         >
           <Campo rotulo="Data do andamento" nome="data" type="date" obrigatorio defaultValue={hoje} />
           <AreaTexto rotulo="O que aconteceu" nome="descricao" obrigatorio rows={3} />
@@ -281,7 +281,7 @@ export function NovoAnexo({
         <form
           onSubmit={enviar}
           aria-label="Novo anexo"
-          className="flex flex-col gap-3 rounded-[10px] border border-[#E5E7EB] bg-[#F9FAFB] p-4"
+          className="flex flex-col gap-3 rounded-[10px] border border-linha bg-sutil p-4"
         >
           <Campo
             rotulo="Arquivo"
@@ -332,7 +332,7 @@ export function ExcluirProcesso({
         Excluir processo
       </Botao>
       {erro && (
-        <p role="alert" className="text-sm font-medium text-[#B91C1C]">
+        <p role="alert" className="text-sm font-medium text-perigo">
           {erro}
         </p>
       )}

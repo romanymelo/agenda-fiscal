@@ -20,10 +20,10 @@ export default function Clientes({
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6">
       <div className="flex flex-col gap-1">
         <h1 className="text-[28px] font-bold tracking-tight">Clientes</h1>
-        <p className="text-sm text-[#4B5563]">Quem o escritório atende e as particularidades de cada um</p>
+        <p className="text-sm text-suave">Quem o escritório atende e as particularidades de cada um</p>
       </div>
       {/* Lê o banco, o cookie e a busca da URL: só com a requisição em mãos, atrás de um Suspense. */}
-      <Suspense fallback={<p className="text-sm text-[#4B5563]">Carregando os clientes…</p>}>
+      <Suspense fallback={<p className="text-sm text-suave">Carregando os clientes…</p>}>
         <Conteudo searchParams={searchParams} />
       </Suspense>
     </main>
@@ -63,13 +63,13 @@ async function Conteudo({ searchParams }: { searchParams: Promise<{ [chave: stri
       </Form>
       <Link
         href={destinoAlternar}
-        className="self-start text-sm font-semibold text-[#0F766E] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F766E]"
+        className="self-start text-sm font-semibold text-mar hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mar"
       >
         {incluirInativos ? 'Ocultar clientes inativos' : 'Mostrar clientes inativos'}
       </Link>
       <NovoCliente criar={criarCliente} />
       {clientes.length === 0 ? (
-        <p className="rounded-[14px] border border-[#E5E7EB] bg-white p-5 text-sm text-[#4B5563]">
+        <p className="rounded-[14px] border border-linha bg-white p-5 text-sm text-suave">
           {busca
             ? 'Nenhum cliente encontrado para essa busca.'
             : incluirInativos
@@ -77,18 +77,18 @@ async function Conteudo({ searchParams }: { searchParams: Promise<{ [chave: stri
               : 'Nenhum cliente ativo. Use "Mostrar clientes inativos" para ver quem saiu do escritório.'}
         </p>
       ) : (
-        <ul className="flex flex-col divide-y divide-[#E5E7EB] rounded-[14px] border border-[#E5E7EB] bg-white">
+        <ul className="flex flex-col divide-y divide-linha rounded-[14px] border border-linha bg-white">
           {clientes.map((c) => (
             <li key={c.id}>
               <Link
                 href={`/cadastros/clientes/${c.id}`}
-                className="flex flex-col gap-1 p-4 hover:bg-[#F9FAFB] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#0F766E] sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-5"
+                className="flex flex-col gap-1 p-4 hover:bg-sutil focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-mar sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-5"
               >
                 <span className="flex min-w-0 items-center gap-2">
                   <span className="truncate font-semibold">{c.nome}</span>
                   <SeloSituacao ativo={c.ativo} />
                 </span>
-                <span className="flex flex-wrap gap-x-4 gap-y-0.5 text-sm text-[#4B5563]">
+                <span className="flex flex-wrap gap-x-4 gap-y-0.5 text-sm text-suave">
                   <span>Domínio: {c.codigoDominio ?? '—'}</span>
                   <span>CNPJ: {c.cnpj ?? '—'}</span>
                 </span>

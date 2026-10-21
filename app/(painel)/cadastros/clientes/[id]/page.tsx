@@ -19,12 +19,12 @@ export default function DetalheDoCliente({ params }: { params: Promise<{ id: str
     <main className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-6 sm:px-6">
       <Link
         href="/cadastros/clientes"
-        className="self-start text-sm font-semibold text-[#0F766E] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F766E]"
+        className="self-start text-sm font-semibold text-mar hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mar"
       >
         ← Clientes
       </Link>
       {/* Lê o banco e o cookie: só com a requisição em mãos, atrás de um limite de Suspense. */}
-      <Suspense fallback={<p className="text-sm text-[#4B5563]">Carregando o cliente…</p>}>
+      <Suspense fallback={<p className="text-sm text-suave">Carregando o cliente…</p>}>
         <Conteudo params={params} />
       </Suspense>
     </main>
@@ -52,7 +52,7 @@ async function Conteudo({ params }: { params: Promise<{ id: string }> }) {
     ],
   ]
   return (
-    <article className="flex flex-col gap-5 rounded-[14px] border border-[#E5E7EB] bg-white p-4 sm:p-6">
+    <article className="flex flex-col gap-5 rounded-[14px] border border-linha bg-white p-4 sm:p-6">
       <div className="flex flex-col gap-1">
         <h1 className="break-words text-[24px] font-bold tracking-tight">{cliente.nome}</h1>
         <SeloSituacao ativo={cliente.ativo} className="self-start" />
@@ -61,7 +61,7 @@ async function Conteudo({ params }: { params: Promise<{ id: string }> }) {
       <dl className="m-0 grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
         {dados.map(([rotulo, valor]) => (
           <div key={rotulo} className="flex min-w-0 flex-col gap-0.5">
-            <dt className="text-xs text-[#4B5563]">{rotulo}</dt>
+            <dt className="text-xs text-suave">{rotulo}</dt>
             <dd className="m-0 break-words text-sm font-semibold">{valor}</dd>
           </div>
         ))}
@@ -70,15 +70,15 @@ async function Conteudo({ params }: { params: Promise<{ id: string }> }) {
       {/* O motivo desta tela existir: texto da equipe, com as quebras de linha como foram digitadas. */}
       <section
         aria-label="Particularidades"
-        className="flex flex-col gap-2 rounded-[10px] border border-[#99CFC8] border-l-4 border-l-[#0F766E] bg-[#F0F9F7] p-4"
+        className="flex flex-col gap-2 rounded-[10px] border border-mar/40 border-l-4 border-l-mar bg-mar-claro p-4"
       >
-        <h2 className="text-sm font-bold text-[#0F5E57]">Particularidades</h2>
+        <h2 className="text-sm font-bold text-mar-escuro">Particularidades</h2>
         {cliente.particularidades ? (
           <p className="m-0 whitespace-pre-wrap break-words text-[15px] leading-relaxed">
             {cliente.particularidades}
           </p>
         ) : (
-          <p className="m-0 text-sm text-[#4B5563]">
+          <p className="m-0 text-sm text-suave">
             Nada registrado ainda. Use Editar para anotar como a nota fiscal deste cliente é emitida, o portal e o
             que for próprio dele.
           </p>
@@ -89,7 +89,7 @@ async function Conteudo({ params }: { params: Promise<{ id: string }> }) {
       {/* Só o administrador exclui: para o membro o botão nem existe. */}
       {voce.papel === 'admin' && <ExcluirCliente id={cliente.id} nome={cliente.nome} />}
 
-      <hr className="border-[#E5E7EB]" />
+      <hr className="border-linha" />
       <Historico
         tabela="clientes"
         registroId={cliente.id}

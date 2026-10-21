@@ -10,8 +10,8 @@ import { formatarUsuario, ROTULOS_USUARIO } from './rotulos'
 export const metadata = { title: 'Equipe — Agenda Fiscal' }
 
 const PAPEL: Record<Papel, { rotulo: string; estilo: string }> = {
-  admin: { rotulo: 'Administrador', estilo: 'bg-[#E6F2F0] text-[#0F5E57]' },
-  membro: { rotulo: 'Membro', estilo: 'bg-[#F3F4F6] text-[#374151]' },
+  admin: { rotulo: 'Administrador', estilo: 'bg-mar-claro text-mar-escuro' },
+  membro: { rotulo: 'Membro', estilo: 'bg-espuma text-corpo' },
 }
 
 export default function Equipe() {
@@ -19,10 +19,10 @@ export default function Equipe() {
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6">
       <div className="flex flex-col gap-1">
         <h1 className="text-[28px] font-bold tracking-tight">Equipe</h1>
-        <p className="text-sm text-[#4B5563]">Quem usa o painel e com qual papel</p>
+        <p className="text-sm text-suave">Quem usa o painel e com qual papel</p>
       </div>
       {/* Lê o banco e o cookie: só com a requisição em mãos, atrás de um limite de Suspense. */}
-      <Suspense fallback={<p className="text-sm text-[#4B5563]">Carregando a equipe…</p>}>
+      <Suspense fallback={<p className="text-sm text-suave">Carregando a equipe…</p>}>
         <Conteudo />
       </Suspense>
     </main>
@@ -38,7 +38,7 @@ async function Conteudo() {
   return (
     <>
       {admin && <NovoUsuario />}
-      <ul className="flex flex-col divide-y divide-[#E5E7EB] rounded-[14px] border border-[#E5E7EB] bg-white">
+      <ul className="flex flex-col divide-y divide-linha rounded-[14px] border border-linha bg-white">
         {equipe.map((u) => (
           <li
             key={u.id}
@@ -46,14 +46,14 @@ async function Conteudo() {
           >
             <div className="flex min-w-0 flex-col gap-1">
               <span className="truncate font-semibold">{u.nome}</span>
-              <span className="truncate text-sm text-[#4B5563]">{u.email}</span>
+              <span className="truncate text-sm text-suave">{u.email}</span>
               <span className="flex flex-wrap gap-2 pt-1">
                 <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${PAPEL[u.papel].estilo}`}>
                   {PAPEL[u.papel].rotulo}
                 </span>
                 <span
                   className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                    u.ativo ? 'bg-[#DCFCE7] text-[#166534]' : 'bg-[#E5E7EB] text-[#4B5563]'
+                    u.ativo ? 'bg-[#DCFCE7] text-[#166534]' : 'bg-linha text-suave'
                   }`}
                 >
                   {u.ativo ? 'Ativo' : 'Inativo'}

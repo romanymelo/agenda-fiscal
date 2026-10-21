@@ -16,7 +16,7 @@ export const metadata = { title: 'Feriados — Agenda Fiscal' }
 const DIAS = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado']
 
 const LINK =
-  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F766E]'
+  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mar'
 
 export default function Feriados({
   searchParams,
@@ -27,10 +27,10 @@ export default function Feriados({
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6">
       <div className="flex flex-col gap-1">
         <h1 className="text-[28px] font-bold tracking-tight">Feriados</h1>
-        <p className="text-sm text-[#4B5563]">Os dias que deslocam vencimentos, e a praça do escritório que os escolhe</p>
+        <p className="text-sm text-suave">Os dias que deslocam vencimentos, e a praça do escritório que os escolhe</p>
       </div>
       {/* Lê o banco, o cookie, o relógio e o ano da URL: só com a requisição em mãos, atrás de um Suspense. */}
-      <Suspense fallback={<p className="text-sm text-[#4B5563]">Carregando os feriados…</p>}>
+      <Suspense fallback={<p className="text-sm text-suave">Carregando os feriados…</p>}>
         <Conteudo searchParams={searchParams} />
       </Suspense>
     </main>
@@ -59,36 +59,36 @@ async function Conteudo({ searchParams }: { searchParams: Promise<{ [chave: stri
     <>
       <section
         aria-label="Praça do escritório"
-        className="flex flex-col gap-3 rounded-[14px] border border-[#E5E7EB] bg-white p-4 sm:p-5"
+        className="flex flex-col gap-3 rounded-[14px] border border-linha bg-white p-4 sm:p-5"
       >
         <h2 className="text-base font-bold">Praça do escritório</h2>
         <dl className="flex flex-wrap gap-x-8 gap-y-2 text-sm">
           <div>
-            <dt className="text-xs font-semibold text-[#4B5563]">UF</dt>
+            <dt className="text-xs font-semibold text-suave">UF</dt>
             <dd className="text-base font-semibold">{praca.uf}</dd>
           </div>
           <div>
-            <dt className="text-xs font-semibold text-[#4B5563]">Município</dt>
+            <dt className="text-xs font-semibold text-suave">Município</dt>
             <dd className="text-base font-semibold">{praca.municipio}</dd>
           </div>
         </dl>
-        <p className="text-sm text-[#4B5563]">
+        <p className="text-sm text-suave">
           Só os feriados dessa praça deslocam vencimentos: os nacionais valem sempre, os estaduais só na UF acima e os
           municipais só no município acima. Os de outras praças ficam cadastrados, mas não mudam nenhuma data.
         </p>
         {admin ? (
           <EditarPraca praca={praca} />
         ) : (
-          <p className="text-sm text-[#4B5563]">Só o administrador altera a praça do escritório.</p>
+          <p className="text-sm text-suave">Só o administrador altera a praça do escritório.</p>
         )}
-        <hr className="border-[#E5E7EB]" />
+        <hr className="border-linha" />
         <Historico tabela="configuracao" registroId={praca.id} rotulos={ROTULOS_CONFIGURACAO} />
       </section>
 
       <nav aria-label="Ano" className="flex items-center gap-2">
         <Link
           href={`/cadastros/feriados?ano=${ano - 1}`}
-          className={`flex min-h-[44px] items-center rounded-[10px] border border-[#D1D5DB] bg-white px-4 text-sm font-semibold text-[#1F2937] hover:bg-[#F3F4F6] ${LINK}`}
+          className={`flex min-h-[44px] items-center rounded-[10px] border border-linha-forte bg-white px-4 text-sm font-semibold text-tinta hover:bg-espuma ${LINK}`}
         >
           <span aria-hidden="true">←&nbsp;</span>
           {ano - 1}
@@ -98,7 +98,7 @@ async function Conteudo({ searchParams }: { searchParams: Promise<{ [chave: stri
         </span>
         <Link
           href={`/cadastros/feriados?ano=${ano + 1}`}
-          className={`flex min-h-[44px] items-center rounded-[10px] border border-[#D1D5DB] bg-white px-4 text-sm font-semibold text-[#1F2937] hover:bg-[#F3F4F6] ${LINK}`}
+          className={`flex min-h-[44px] items-center rounded-[10px] border border-linha-forte bg-white px-4 text-sm font-semibold text-tinta hover:bg-espuma ${LINK}`}
         >
           {ano + 1}
           <span aria-hidden="true">&nbsp;→</span>
@@ -108,12 +108,12 @@ async function Conteudo({ searchParams }: { searchParams: Promise<{ [chave: stri
       <NovoFeriado ano={ano} praca={praca} />
 
       {feriados.length === 0 ? (
-        <p className="rounded-[14px] border border-[#E5E7EB] bg-white p-5 text-sm text-[#4B5563]">
+        <p className="rounded-[14px] border border-linha bg-white p-5 text-sm text-suave">
           Nenhum feriado cadastrado em {ano}.
         </p>
       ) : (
         <section aria-label={`Feriados de ${ano}`} className="flex flex-col gap-2">
-          <ul className="flex flex-col divide-y divide-[#E5E7EB] rounded-[14px] border border-[#E5E7EB] bg-white">
+          <ul className="flex flex-col divide-y divide-linha rounded-[14px] border border-linha bg-white">
             {feriados.map((f) => {
               // A mesma função que o calendário usa decide se este feriado vale para a praça.
               const vale = feriadosDaPraca([f], praca).size > 0
@@ -122,10 +122,10 @@ async function Conteudo({ searchParams }: { searchParams: Promise<{ [chave: stri
                   <div className="flex flex-col gap-1">
                     <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
                       <span className="font-semibold tabular-nums">{formatarBR(f.data)}</span>
-                      <span className="text-sm text-[#4B5563]">{DIAS[diaDaSemana(f.data)]}</span>
+                      <span className="text-sm text-suave">{DIAS[diaDaSemana(f.data)]}</span>
                       <SeloAbrangencia abrangencia={f.abrangencia} />
                       {f.uf && (
-                        <span className="text-sm text-[#4B5563]">
+                        <span className="text-sm text-suave">
                           {f.municipio ? `${f.municipio}/${f.uf}` : f.uf}
                         </span>
                       )}

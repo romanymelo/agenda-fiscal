@@ -20,11 +20,11 @@ type Comuns = {
 }
 
 const BASE =
-  'min-h-[44px] w-full rounded-[10px] border bg-white px-3 text-base text-[#111827] sm:text-sm placeholder:text-[#9CA3AF] ' +
-  'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#0F766E] ' +
-  'disabled:cursor-not-allowed disabled:bg-[#F3F4F6] disabled:text-[#6B7280]'
+  'min-h-[44px] w-full rounded-[10px] border bg-white px-3 text-base text-tinta sm:text-sm placeholder:text-apagado ' +
+  'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-mar ' +
+  'disabled:cursor-not-allowed disabled:bg-espuma disabled:text-apagado'
 
-const bordaDe = (erro?: string) => (erro ? 'border-[#B91C1C]' : 'border-[#D1D5DB]')
+const bordaDe = (erro?: string) => (erro ? 'border-perigo' : 'border-linha-forte')
 
 // Rótulo + controle + ajuda + erro, com os ids ligados entre si.
 function Envoltorio({
@@ -40,10 +40,10 @@ function Envoltorio({
   const idMsg = `${id}-msg`
   return (
     <div className={`flex min-w-0 flex-col gap-1.5 ${className ?? ''}`}>
-      <label htmlFor={id} className={ocultarRotulo ? 'sr-only' : 'text-[13px] font-semibold text-[#1F2937]'}>
+      <label htmlFor={id} className={ocultarRotulo ? 'sr-only' : 'text-[13px] font-semibold text-tinta'}>
         {rotulo}
         {obrigatorio && (
-          <span aria-hidden="true" className="text-[#B91C1C]">
+          <span aria-hidden="true" className="text-perigo">
             {' '}
             *
           </span>
@@ -55,11 +55,11 @@ function Envoltorio({
         'aria-describedby': erro || ajuda ? idMsg : undefined,
       })}
       {erro ? (
-        <p id={idMsg} role="alert" className="text-xs font-medium text-[#B91C1C]">
+        <p id={idMsg} role="alert" className="text-xs font-medium text-perigo">
           {erro}
         </p>
       ) : ajuda ? (
-        <p id={idMsg} className="text-xs text-[#4B5563]">
+        <p id={idMsg} className="text-xs text-suave">
           {ajuda}
         </p>
       ) : null}
@@ -186,10 +186,10 @@ export function GrupoMarcacoes({
       aria-describedby={erro || ajuda ? idMsg : undefined}
       className={`flex min-w-0 flex-col gap-1.5 ${className ?? ''}`}
     >
-      <legend className="mb-1.5 text-[13px] font-semibold text-[#1F2937]">
+      <legend className="mb-1.5 text-[13px] font-semibold text-tinta">
         {rotulo}
         {obrigatorio && (
-          <span aria-hidden="true" className="text-[#B91C1C]">
+          <span aria-hidden="true" className="text-perigo">
             {' '}
             *
           </span>
@@ -199,25 +199,25 @@ export function GrupoMarcacoes({
         {opcoes.map((o) => (
           <label
             key={o.valor}
-            className={`flex min-h-[44px] cursor-pointer items-center gap-2 rounded-[10px] border bg-white px-3 text-base text-[#111827] has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-1 has-[:focus-visible]:outline-[#0F766E] has-[:disabled]:cursor-not-allowed has-[:disabled]:bg-[#F3F4F6] has-[:disabled]:text-[#6B7280] sm:text-sm ${bordaDe(erro)}`}
+            className={`flex min-h-[44px] cursor-pointer items-center gap-2 rounded-[10px] border bg-white px-3 text-base text-tinta has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-1 has-[:focus-visible]:outline-mar has-[:disabled]:cursor-not-allowed has-[:disabled]:bg-espuma has-[:disabled]:text-apagado sm:text-sm ${bordaDe(erro)}`}
           >
             <input
               type="checkbox"
               name={nome}
               value={o.valor}
               defaultChecked={defaultValue.includes(o.valor)}
-              className="size-4 shrink-0 accent-[#0F766E]"
+              className="size-4 shrink-0 accent-mar"
             />
             {o.rotulo}
           </label>
         ))}
       </div>
       {erro ? (
-        <p id={idMsg} role="alert" className="text-xs font-medium text-[#B91C1C]">
+        <p id={idMsg} role="alert" className="text-xs font-medium text-perigo">
           {erro}
         </p>
       ) : ajuda ? (
-        <p id={idMsg} className="text-xs text-[#4B5563]">
+        <p id={idMsg} className="text-xs text-suave">
           {ajuda}
         </p>
       ) : null}
@@ -239,9 +239,9 @@ export function Condicional({ mostra, className, children }: { mostra: boolean; 
 }
 
 const VARIANTES = {
-  primario: 'border-transparent bg-[#0F766E] text-white hover:bg-[#0F5E57]',
-  secundario: 'border-[#D1D5DB] bg-white text-[#1F2937] hover:bg-[#F3F4F6]',
-  perigo: 'border-[#FCA5A5] bg-white text-[#B91C1C] hover:bg-[#FEF2F2]',
+  primario: 'border-transparent bg-mar text-white hover:bg-mar-escuro',
+  secundario: 'border-linha-forte bg-white text-tinta hover:bg-espuma',
+  perigo: 'border-perigo-borda bg-white text-perigo hover:bg-perigo-claro',
 } as const
 
 type PropsBotao = React.ComponentProps<'button'> & {
@@ -261,7 +261,7 @@ export function Botao({ variante = 'primario', type = 'button', disabled, classN
       disabled={disabled || pending}
       className={
         `inline-flex min-h-[44px] cursor-pointer items-center justify-center gap-2 rounded-[10px] border px-[18px] text-sm font-semibold ` +
-        `transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F766E] ` +
+        `transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mar ` +
         `disabled:cursor-not-allowed disabled:opacity-60 ${VARIANTES[variante]} ${className ?? ''}`
       }
     />

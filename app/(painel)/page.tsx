@@ -23,7 +23,7 @@ export default function Pagina({ searchParams }: { searchParams: Parametros }) {
   return (
     <main className="mx-auto flex w-full max-w-[1360px] flex-col gap-[18px] px-4 py-6 sm:px-6">
       {/* Lê o banco, o cookie e a data de hoje: só com a requisição em mãos, atrás de um Suspense. */}
-      <Suspense fallback={<p className="text-sm text-[#4B5563]">Carregando o calendário…</p>}>
+      <Suspense fallback={<p className="text-sm text-suave">Carregando o calendário…</p>}>
         <Conteudo searchParams={searchParams} />
       </Suspense>
     </main>
@@ -83,7 +83,7 @@ async function Conteudo({ searchParams }: { searchParams: Parametros }) {
       <div className="flex flex-wrap items-start gap-5">
         <section
           aria-label="Calendário"
-          className="min-w-0 flex-[999_1_620px] rounded-[14px] border border-[#E5E7EB] bg-white p-4"
+          className="min-w-0 flex-[999_1_620px] rounded-[14px] border border-linha bg-white p-4"
         >
           {visao === 'mes' && <Mes dia={dia} hoje={hoje} itens={doPeriodo} esfera={esfera} />}
           {visao === 'semana' && <Semana de={de} dia={dia} hoje={hoje} itens={doPeriodo} esfera={esfera} />}

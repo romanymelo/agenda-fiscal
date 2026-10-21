@@ -14,7 +14,7 @@ function Mensagens({ resultado, sucesso }: { resultado: Resultado | null; sucess
   return (
     <>
       {resultado?.erro && (
-        <p role="alert" className="text-sm font-medium text-[#B91C1C]">
+        <p role="alert" className="text-sm font-medium text-perigo">
           {resultado.erro}
         </p>
       )}
@@ -147,10 +147,10 @@ export function NovoFeriado({ ano, praca }: { ano: number; praca: Praca }) {
       </Botao>
       <section
         aria-label={`Feriados móveis de ${ano}`}
-        className="flex flex-col gap-2 rounded-[14px] border border-[#E5E7EB] bg-white p-4 sm:p-5"
+        className="flex flex-col gap-2 rounded-[14px] border border-linha bg-white p-4 sm:p-5"
       >
         <h2 className="text-base font-bold">Feriados móveis de {ano}</h2>
-        <p className="text-sm text-[#4B5563]">
+        <p className="text-sm text-suave">
           Os feriados fixos já vêm cadastrados. Os móveis mudam de data todo ano: confira a data e cadastre à mão.
         </p>
         <div className="flex flex-wrap gap-2">
@@ -171,7 +171,7 @@ export function NovoFeriado({ ano, praca }: { ano: number; praca: Praca }) {
       {aberto && (
         <section
           aria-label="Novo feriado"
-          className="flex flex-col gap-4 rounded-[14px] border border-[#E5E7EB] bg-white p-4 sm:p-5"
+          className="flex flex-col gap-4 rounded-[14px] border border-linha bg-white p-4 sm:p-5"
         >
           <h2 className="text-base font-bold">Novo feriado</h2>
           <FormularioFeriado
@@ -214,7 +214,7 @@ export function AcoesFeriado({
       {aberto && (
         <section
           aria-label="Editar feriado"
-          className="flex flex-col gap-4 rounded-[10px] border border-[#E5E7EB] bg-[#F9FAFB] p-4"
+          className="flex flex-col gap-4 rounded-[10px] border border-linha bg-sutil p-4"
         >
           <FormularioFeriado
             feriado={feriado}
@@ -223,7 +223,7 @@ export function AcoesFeriado({
             envio="Salvar alterações"
             sucesso="Alterações salvas."
           />
-          <hr className="border-[#E5E7EB]" />
+          <hr className="border-linha" />
           {historico}
         </section>
       )}
@@ -250,7 +250,7 @@ function ExcluirFeriado({ feriado }: { feriado: FeriadoCadastro }) {
         Excluir
       </Botao>
       {erro && (
-        <p role="alert" className="text-sm font-medium text-[#B91C1C]">
+        <p role="alert" className="text-sm font-medium text-perigo">
           {erro}
         </p>
       )}

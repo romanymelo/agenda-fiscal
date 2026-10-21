@@ -44,7 +44,7 @@ export function Detalhe({ processo, papel, hoje, clientes, acoes, historico }: P
   return (
     <aside
       aria-label="Detalhe do processo"
-      className="flex min-w-0 flex-col gap-4 rounded-[14px] border border-[#E5E7EB] bg-white p-4 sm:p-5"
+      className="flex min-w-0 flex-col gap-4 rounded-[14px] border border-linha bg-white p-4 sm:p-5"
     >
       <div className="flex flex-col gap-1.5">
         <span
@@ -54,7 +54,7 @@ export function Detalhe({ processo, papel, hoje, clientes, acoes, historico }: P
           {ROTULO_STATUS[processo.status]}
         </span>
         <h2 className="mt-1 break-words text-xl leading-tight font-bold">{processo.tipo}</h2>
-        <span className="break-words text-sm text-[#374151]">{processo.clienteNome}</span>
+        <span className="break-words text-sm text-corpo">{processo.clienteNome}</span>
       </div>
 
       <MudarStatus id={processo.id} status={processo.status} mudar={acoes.mudarStatus} />
@@ -62,7 +62,7 @@ export function Detalhe({ processo, papel, hoje, clientes, acoes, historico }: P
       <dl className="m-0 grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
         {dados.map(([rotulo, valor]) => (
           <div key={rotulo} className="flex min-w-0 flex-col gap-0.5">
-            <dt className="text-xs text-[#4B5563]">{rotulo}</dt>
+            <dt className="text-xs text-suave">{rotulo}</dt>
             <dd className="m-0 break-words text-sm font-semibold">{valor}</dd>
           </div>
         ))}
@@ -97,7 +97,7 @@ export function Detalhe({ processo, papel, hoje, clientes, acoes, historico }: P
       <section aria-label="Andamentos" className="flex flex-col gap-2.5">
         <h3 className="text-sm font-bold">Andamentos</h3>
         {processo.andamentos.length === 0 ? (
-          <p className="text-sm text-[#4B5563]">Nenhum andamento registrado.</p>
+          <p className="text-sm text-suave">Nenhum andamento registrado.</p>
         ) : (
           <ol className="m-0 flex list-none flex-col p-0">
             {processo.andamentos.map((a, i) => (
@@ -106,16 +106,16 @@ export function Detalhe({ processo, papel, hoje, clientes, acoes, historico }: P
                   <span
                     aria-hidden="true"
                     className={`mt-[3px] size-3 flex-none rounded-full border-2 ${
-                      i === ultimo ? 'border-[#0F766E] bg-[#0F766E]' : 'border-[#9CA3AF] bg-white'
+                      i === ultimo ? 'border-mar bg-mar' : 'border-apagado bg-white'
                     }`}
                   />
                   <span
                     aria-hidden="true"
-                    className={`mt-0.5 w-0.5 flex-1 ${i === ultimo ? 'bg-transparent' : 'bg-[#E5E7EB]'}`}
+                    className={`mt-0.5 w-0.5 flex-1 ${i === ultimo ? 'bg-transparent' : 'bg-linha'}`}
                   />
                 </span>
                 <span className="flex min-w-0 flex-1 flex-col gap-0.5 pb-3.5">
-                  <span className="text-xs font-semibold text-[#4B5563]">
+                  <span className="text-xs font-semibold text-suave">
                     {formatarBR(a.data)} · por {a.criadoPorNome}
                   </span>
                   <span className="whitespace-pre-wrap break-words text-sm leading-snug">{a.descricao}</span>
@@ -130,7 +130,7 @@ export function Detalhe({ processo, papel, hoje, clientes, acoes, historico }: P
       <section aria-label="Anexos" className="flex flex-col gap-2">
         <h3 className="text-sm font-bold">Anexos</h3>
         {processo.anexos.length === 0 ? (
-          <p className="text-sm text-[#4B5563]">Nenhum anexo.</p>
+          <p className="text-sm text-suave">Nenhum anexo.</p>
         ) : (
           <ul className="m-0 flex list-none flex-col gap-2 p-0">
             {processo.anexos.map((x) => (
@@ -138,7 +138,7 @@ export function Detalhe({ processo, papel, hoje, clientes, acoes, historico }: P
                 {/* A rota recebe o id do anexo, nunca um caminho; baixa com o nome que a pessoa enviou. */}
                 <a
                   href={`/processos/anexo/${x.id}`}
-                  className="flex min-h-10 items-center gap-2.5 rounded-lg border border-[#E5E7EB] px-2.5 py-1.5 text-[13px] text-[#1F2937] hover:bg-[#F9FAFB] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F766E]"
+                  className="flex min-h-10 items-center gap-2.5 rounded-lg border border-linha px-2.5 py-1.5 text-[13px] text-tinta hover:bg-sutil focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mar"
                 >
                   <svg
                     width="16"
@@ -157,7 +157,7 @@ export function Detalhe({ processo, papel, hoje, clientes, acoes, historico }: P
                   </svg>
                   <span className="min-w-0 break-all">{x.nomeArquivo}</span>
                 </a>
-                <span className="pl-1 text-xs text-[#4B5563]">Enviado por {x.criadoPorNome}</span>
+                <span className="pl-1 text-xs text-suave">Enviado por {x.criadoPorNome}</span>
               </li>
             ))}
           </ul>
@@ -175,7 +175,7 @@ export function Detalhe({ processo, papel, hoje, clientes, acoes, historico }: P
         />
       )}
 
-      <hr className="border-[#E5E7EB]" />
+      <hr className="border-linha" />
       {historico}
     </aside>
   )

@@ -42,19 +42,19 @@ export function Lateral({
     <div className="flex flex-col gap-4">
       <section
         aria-label="Dia selecionado"
-        className="flex flex-col gap-3 rounded-[14px] border border-[#E5E7EB] bg-white p-[18px]"
+        className="flex flex-col gap-3 rounded-[14px] border border-linha bg-white p-[18px]"
       >
         <div className="flex flex-col gap-0.5">
-          <span className="text-xs font-semibold uppercase tracking-wide text-[#0F5E57]">
+          <span className="text-xs font-semibold uppercase tracking-wide text-mar-escuro">
             {dia === hoje ? 'Hoje' : 'Dia selecionado'}
           </span>
           <h2 className="text-[19px] font-bold">{porExtenso(dia)}</h2>
         </div>
         {itens.length === 0 ? (
-          <p className="text-sm text-[#4B5563]">Nada vence neste dia.</p>
+          <p className="text-sm text-suave">Nada vence neste dia.</p>
         ) : (
           itens.map((e, i) => (
-            <div key={i} className="flex flex-col gap-1.5 rounded-[10px] border border-[#EEF0F2] bg-[#F9FAFB] p-3">
+            <div key={i} className="flex flex-col gap-1.5 rounded-[10px] border border-linha bg-sutil p-3">
               <span
                 className="inline-block self-start rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide"
                 style={{ background: COR_CATEGORIA[e.categoria].fundo, color: COR_CATEGORIA[e.categoria].texto }}
@@ -62,9 +62,9 @@ export function Lateral({
                 {ROTULO_CATEGORIA[e.categoria]}
               </span>
               <span className="text-[15px] font-semibold">{e.titulo}</span>
-              <span className="text-[13px] leading-snug text-[#4B5563]">{e.subtitulo}</span>
+              <span className="text-[13px] leading-snug text-suave">{e.subtitulo}</span>
               {e.regimesAplicaveis && e.regimesAplicaveis.length > 0 && (
-                <span className="text-[13px] leading-snug text-[#4B5563]">
+                <span className="text-[13px] leading-snug text-suave">
                   Regimes aplicáveis (informativo): {e.regimesAplicaveis.map((r) => ROTULO_REGIME[r]).join(', ')}
                 </span>
               )}
@@ -75,19 +75,19 @@ export function Lateral({
 
       <section
         aria-label="Próximos 7 dias"
-        className="flex flex-col gap-2.5 rounded-[14px] border border-[#E5E7EB] bg-white p-[18px]"
+        className="flex flex-col gap-2.5 rounded-[14px] border border-linha bg-white p-[18px]"
       >
         <h2 className="text-base font-bold">Próximos 7 dias</h2>
-        {proximos.length === 0 && <p className="text-sm text-[#4B5563]">Nada vence nos próximos 7 dias.</p>}
+        {proximos.length === 0 && <p className="text-sm text-suave">Nada vence nos próximos 7 dias.</p>}
         {proximos.map((e, i) => (
-          <div key={i} className="flex items-center gap-3 border-b border-[#F3F4F6] py-1.5 last:border-0">
-            <div className="flex w-[46px] flex-none flex-col items-center rounded-lg bg-[#F3F4F6] py-1">
-              <span className="text-[10px] font-bold tracking-wide text-[#4B5563]">{DOW3[diaDaSemana(e.data)]}</span>
+          <div key={i} className="flex items-center gap-3 border-b border-espuma py-1.5 last:border-0">
+            <div className="flex w-[46px] flex-none flex-col items-center rounded-lg bg-espuma py-1">
+              <span className="text-[10px] font-bold tracking-wide text-suave">{DOW3[diaDaSemana(e.data)]}</span>
               <span className="text-lg font-bold leading-none">{numeroDoDia(e.data)}</span>
             </div>
             <div className="flex min-w-0 flex-1 flex-col gap-0.5">
               <span className="truncate text-sm font-semibold leading-tight">{e.titulo}</span>
-              <span className="flex items-center gap-1.5 text-xs text-[#4B5563]">
+              <span className="flex items-center gap-1.5 text-xs text-suave">
                 {COR_CATEGORIA[e.categoria].ponto && (
                   <span
                     aria-hidden="true"
@@ -102,7 +102,7 @@ export function Lateral({
         ))}
       </section>
 
-      <p className="px-1 text-xs leading-relaxed text-[#4B5563]">
+      <p className="px-1 text-xs leading-relaxed text-suave">
         Prazos de processos entram aqui automaticamente quando cadastrados na tela Processos.
       </p>
     </div>

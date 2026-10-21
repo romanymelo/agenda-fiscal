@@ -23,7 +23,7 @@ export function Header({
 }) {
   const caminho = usePathname()
   return (
-    <header className="bg-white border-b border-[#E5E7EB]">
+    <header className="bg-white border-b border-linha">
       <div className="mx-auto flex max-w-[1360px] flex-wrap items-center gap-x-8 gap-y-3 px-4 py-3 sm:px-6">
         <div className="order-1 flex shrink-0 items-center gap-2.5">
           <svg
@@ -67,8 +67,8 @@ export function Header({
                 aria-current={ativo ? 'page' : undefined}
                 className={`shrink-0 rounded-lg px-3.5 py-2.5 text-sm ${
                   ativo
-                    ? 'bg-[#E6F2F0] font-semibold text-[#0F5E57]'
-                    : 'font-medium text-[#374151] hover:bg-[#F3F4F6]'
+                    ? 'bg-mar-claro font-semibold text-mar-escuro'
+                    : 'font-medium text-corpo hover:bg-espuma'
                 }`}
               >
                 {item.rotulo}
@@ -80,13 +80,13 @@ export function Header({
         {/* `flex-1` com largura base zero: o bloco não força quebra de linha, ele encolhe e a
             data é truncada. É isso que mantém a altura do header previsível. */}
         <div className="order-2 ml-auto flex min-w-0 flex-1 flex-nowrap items-center justify-end gap-x-4 lg:order-3 lg:flex-none">
-          <span className="truncate text-[13px] text-[#4B5563]">{hoje}</span>
+          <span className="truncate text-[13px] text-suave">{hoje}</span>
           <span className="flex shrink-0 items-center gap-2 text-[13px]">
             <span className="font-semibold">{nome}</span>
             <form action={trocar}>
               <button
                 type="submit"
-                className="cursor-pointer rounded-lg border border-[#D1D5DB] bg-white px-2.5 py-1 text-[#374151] hover:bg-[#F3F4F6]"
+                className="cursor-pointer rounded-lg border border-linha-forte bg-white px-2.5 py-1 text-corpo hover:bg-espuma"
               >
                 Trocar
               </button>

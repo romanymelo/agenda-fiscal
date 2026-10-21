@@ -12,13 +12,13 @@ export default function Identificar() {
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center gap-6 px-4 py-10 sm:px-6">
       <div className="flex flex-col gap-2">
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Quem é você?</h1>
-        <p className="text-sm text-[#4B5563]">
+        <p className="text-sm text-suave">
           A escolha serve para registrar quem anotou cada informação. Não há senha: é só nos dizer
           quem está usando o painel.
         </p>
       </div>
       {/* A lista vem do banco, em tempo de requisição: fica atrás de um limite de Suspense. */}
-      <Suspense fallback={<p className="text-sm text-[#4B5563]">Carregando a equipe…</p>}>
+      <Suspense fallback={<p className="text-sm text-suave">Carregando a equipe…</p>}>
         <Equipe />
       </Suspense>
     </main>
@@ -32,7 +32,7 @@ async function Equipe() {
   const equipe = await listarEquipeAtiva()
   if (equipe.length === 0)
     return (
-      <p className="text-sm text-[#4B5563]">
+      <p className="text-sm text-suave">
         Nenhuma pessoa ativa cadastrada. Procure quem administra o painel.
       </p>
     )
@@ -44,10 +44,10 @@ async function Equipe() {
           <form action={escolherUsuario.bind(null, pessoa.id)}>
             <button
               type="submit"
-              className="w-full cursor-pointer rounded-xl border border-[#E5E7EB] bg-white px-4 py-4 text-left transition-colors hover:border-[#0F766E] hover:bg-[#E6F2F0] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F766E]"
+              className="w-full cursor-pointer rounded-xl border border-linha bg-white px-4 py-4 text-left transition-colors hover:border-mar hover:bg-mar-claro focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mar"
             >
               <span className="block font-semibold">{pessoa.nome}</span>
-              <span className="block text-sm text-[#4B5563]">{PAPEL[pessoa.papel]}</span>
+              <span className="block text-sm text-suave">{PAPEL[pessoa.papel]}</span>
             </button>
           </form>
         </li>

@@ -86,7 +86,7 @@ export function Controles({
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
         <div className="flex flex-col gap-0.5">
           <h1 className="text-[28px] font-bold tracking-tight">{tituloDoPeriodo(visao, dia, hoje)}</h1>
-          <p className="text-sm text-[#4B5563]">
+          <p className="text-sm text-suave">
             {hojeCount} vencimentos hoje · {proximosCount} nos próximos 7 dias
           </p>
         </div>
@@ -95,7 +95,7 @@ export function Controles({
           <Link
             href={href(visao, diaVizinho(visao, dia, -1), esfera)}
             aria-label="Período anterior"
-            className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#D1D5DB] bg-white text-[#374151]"
+            className="flex h-10 w-10 items-center justify-center rounded-lg border border-linha-forte bg-white text-corpo"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M15 6l-6 6 6 6" />
@@ -104,7 +104,7 @@ export function Controles({
           <Link
             href={href(visao, diaVizinho(visao, dia, 1), esfera)}
             aria-label="Próximo período"
-            className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#D1D5DB] bg-white text-[#374151]"
+            className="flex h-10 w-10 items-center justify-center rounded-lg border border-linha-forte bg-white text-corpo"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M9 6l6 6-6 6" />
@@ -112,7 +112,7 @@ export function Controles({
           </Link>
         </div>
 
-        <div role="group" aria-label="Visualização" className="ml-auto flex gap-1 rounded-[10px] bg-[#E5E7EB] p-1">
+        <div role="group" aria-label="Visualização" className="ml-auto flex gap-1 rounded-[10px] bg-linha p-1">
           {VISOES.map((v) => {
             const ativo = visao === v.valor
             // Trocar para "Hoje" sempre recentra no dia de hoje; as outras visões mantêm o dia atual.
@@ -123,7 +123,7 @@ export function Controles({
                 href={href(v.valor, diaAlvo, esfera)}
                 aria-pressed={ativo}
                 className={`min-h-10 rounded-lg px-[18px] py-2 text-sm ${
-                  ativo ? 'bg-white font-semibold text-[#111827] shadow-sm' : 'font-medium text-[#374151]'
+                  ativo ? 'bg-white font-semibold text-tinta shadow-sm' : 'font-medium text-corpo'
                 }`}
               >
                 {v.rotulo}
@@ -142,7 +142,7 @@ export function Controles({
               href={href(visao, dia, f.valor)}
               aria-pressed={ativo}
               className={`inline-flex min-h-10 items-center gap-2 rounded-full border px-3.5 py-2 text-[13px] font-semibold ${
-                ativo ? 'border-[#111827] bg-[#111827] text-white' : 'border-[#D1D5DB] bg-white text-[#374151]'
+                ativo ? 'border-tinta bg-tinta text-white' : 'border-linha-forte bg-white text-corpo'
               }`}
             >
               {f.ponto && <span aria-hidden="true" className="h-2 w-2 rounded-full" style={{ background: f.ponto }} />}

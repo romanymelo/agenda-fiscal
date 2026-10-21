@@ -29,7 +29,7 @@ export default function Processos({ searchParams }: { searchParams: Parametros }
   return (
     <main className="mx-auto flex w-full max-w-[1360px] flex-col gap-[18px] px-4 py-6 sm:px-6">
       {/* Lê o banco, o cookie, a data de hoje e a URL: só com a requisição em mãos, atrás de um Suspense. */}
-      <Suspense fallback={<p className="text-sm text-[#4B5563]">Carregando os processos…</p>}>
+      <Suspense fallback={<p className="text-sm text-suave">Carregando os processos…</p>}>
         <Conteudo searchParams={searchParams} />
       </Suspense>
     </main>
@@ -60,7 +60,7 @@ async function Conteudo({ searchParams }: { searchParams: Parametros }) {
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
         <div className="flex flex-col gap-0.5">
           <h1 className="text-[28px] font-bold tracking-tight">Processos</h1>
-          <p className="text-sm text-[#4B5563]">
+          <p className="text-sm text-suave">
             Processos administrativos e pedidos em órgãos, visíveis para toda a equipe
           </p>
         </div>
@@ -83,7 +83,7 @@ async function Conteudo({ searchParams }: { searchParams: Parametros }) {
       </div>
 
       {processos.length === 0 && (
-        <p className="rounded-[14px] border border-[#E5E7EB] bg-white p-5 text-sm text-[#4B5563]">
+        <p className="rounded-[14px] border border-linha bg-white p-5 text-sm text-suave">
           {busca ? 'Nenhum processo encontrado para essa busca.' : 'Nenhum processo cadastrado ainda.'}
         </p>
       )}
@@ -113,7 +113,7 @@ async function Conteudo({ searchParams }: { searchParams: Parametros }) {
           ) : (
             <aside
               aria-label="Detalhe do processo"
-              className="rounded-[14px] border border-[#E5E7EB] bg-white p-5 text-sm text-[#4B5563]"
+              className="rounded-[14px] border border-linha bg-white p-5 text-sm text-suave"
             >
               Escolha um processo no quadro para ver o detalhe.
             </aside>

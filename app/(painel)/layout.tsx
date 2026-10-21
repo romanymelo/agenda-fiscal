@@ -18,7 +18,7 @@ export default function LayoutPainel({ children }: { children: React.ReactNode }
   // Quem garante a igualdade é o script de verificação: ele mede o esqueleto e o header.
   return (
     <Suspense
-      fallback={<div className="h-[107px] border-b border-[#E5E7EB] bg-white lg:h-[65px]" />}
+      fallback={<div className="h-[107px] border-b border-linha bg-white lg:h-[65px]" />}
     >
       <Painel>{children}</Painel>
     </Suspense>

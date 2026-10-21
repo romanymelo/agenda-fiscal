@@ -1,11 +1,65 @@
 @import "tailwindcss";
 
+/*
+ * Identidade "Maré": claro, frio, de beira-mar. O verde-mar (#0F766E) e as cores por esfera e por
+ * status são do projeto e não mudam; o resto é neutro azulado para o dado fiscal ser o destaque.
+ * Cores nas classes só pelos nomes abaixo (bg-espuma, text-suave...), nunca hex solto.
+ */
 @theme inline {
-  --font-sans: var(--font-plex-sans);
+  --font-sans: var(--font-plex-sans), system-ui, sans-serif;
+  --font-display: var(--font-bricolage), var(--font-plex-sans), system-ui, sans-serif;
+
+  --color-espuma: #eaf1f0; /* fundo da página */
+  --color-papel: #ffffff; /* superfícies */
+  --color-sutil: #f4f8f7; /* preenchimento discreto dentro de uma superfície */
+  --color-linha: #d7e3e2; /* divisores e bordas */
+  --color-linha-forte: #bccfcd; /* bordas de campos e botões */
+
+  --color-tinta: #0e2a31; /* texto principal e trilho de navegação */
+  --color-corpo: #2c454c;
+  --color-suave: #4a6169; /* texto secundário (6:1 sobre branco) */
+  --color-apagado: #667c83; /* placeholders e apoios (4,5:1 sobre branco) */
+
+  --color-mar: #0f766e; /* marca */
+  --color-mar-escuro: #0a5750;
+  --color-mar-claro: #ddf0ed;
+
+  --color-sol: #ffd23f; /* marca-texto: só "hoje" e urgência */
+  --color-sol-claro: #fff4c2;
+
+  --color-perigo: #b42318;
+  --color-perigo-claro: #fef1f0;
+  --color-perigo-borda: #f3b4ae;
+
+  --radius-celula: 0.5rem;
+  --radius-cartao: 1rem;
+  --shadow-flutua: 0 1px 2px rgb(14 42 49 / 0.06), 0 8px 24px -8px rgb(14 42 49 / 0.18);
 }
 
 body {
-  background: #f3f4f6;
-  color: #111827;
-  font-family: var(--font-plex-sans), system-ui, sans-serif;
+  background: var(--color-espuma);
+  color: var(--color-tinta);
+  font-family: var(--font-sans);
+}
+
+/* O marca-texto da identidade: selecionar texto também usa o sol. */
+::selection {
+  background: var(--color-sol);
+  color: var(--color-tinta);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-mar);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

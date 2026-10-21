@@ -44,7 +44,7 @@ export function Mes({
       <div className="flex min-w-[680px] flex-col gap-1.5">
         <div className="grid grid-cols-7 gap-1.5">
           {DOW.map((w) => (
-            <div key={w} className="px-2 py-1 text-xs font-semibold uppercase tracking-wide text-[#4B5563]">
+            <div key={w} className="px-2 py-1 text-xs font-semibold uppercase tracking-wide text-suave">
               {w}
             </div>
           ))}
@@ -58,9 +58,9 @@ export function Mes({
               return (
                 <div
                   key={c.data}
-                  className="min-h-[112px] min-w-0 rounded-[10px] border border-[#F3F4F6] bg-[#F9FAFB] p-2 box-border"
+                  className="min-h-[112px] min-w-0 rounded-[10px] border border-espuma bg-sutil p-2 box-border"
                 >
-                  <span className="px-1 py-0.5 text-[13px] font-medium text-[#6B7280]">{numero}</span>
+                  <span className="px-1 py-0.5 text-[13px] font-medium text-apagado">{numero}</span>
                 </div>
               )
             }
@@ -76,14 +76,14 @@ export function Mes({
                 aria-current={selecionado ? 'date' : undefined}
                 className={`box-border flex min-h-[112px] min-w-0 flex-col gap-1 rounded-[10px] text-left ${
                   selecionado
-                    ? 'border-2 border-[#0F766E] bg-white p-[7px]'
-                    : `border border-[#E5E7EB] p-2 ${fimDeSemana ? 'bg-[#FAFAFA]' : 'bg-white'}`
+                    ? 'border-2 border-mar bg-white p-[7px]'
+                    : `border border-linha p-2 ${fimDeSemana ? 'bg-sutil' : 'bg-white'}`
                 }`}
               >
                 <span
                   className={
                     eHoje
-                      ? 'inline-flex h-[26px] w-[26px] items-center justify-center rounded-full bg-[#0F766E] text-[13px] font-bold text-white'
+                      ? 'inline-flex h-[26px] w-[26px] items-center justify-center rounded-full bg-mar text-[13px] font-bold text-white'
                       : 'px-1 py-0.5 text-[13px] font-semibold'
                   }
                 >
