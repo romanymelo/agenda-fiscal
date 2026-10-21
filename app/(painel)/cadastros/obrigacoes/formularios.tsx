@@ -30,7 +30,7 @@ const OPCOES_SITUACAO = [
  * volta se a pessoa mudar de ideia) mas desabilitado, então não vai no envio: quem decide o que gravar
  * a partir do que veio é a ação.
  */
-function Condicional({ mostra, className, children }: { mostra: boolean; className: string; children: ReactNode }) {
+export function Condicional({ mostra, className, children }: { mostra: boolean; className: string; children: ReactNode }) {
   return (
     <fieldset hidden={!mostra} disabled={!mostra} className={`m-0 min-w-0 border-0 p-0 ${className}`}>
       {children}

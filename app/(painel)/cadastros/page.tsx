@@ -19,6 +19,11 @@ const CADASTROS = [
     titulo: 'Obrigações',
     descricao: 'DAS, EFD-Contribuições, FGTS Digital, ICMS, ISS e as regras que definem quando cada uma vence.',
   },
+  {
+    href: '/cadastros/feriados',
+    titulo: 'Feriados e praça do escritório',
+    descricao: 'Os feriados que deslocam vencimentos e a UF e o município do escritório, que decidem quais deles valem.',
+  },
 ]
 
 export default function Cadastros() {

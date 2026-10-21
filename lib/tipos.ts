@@ -102,3 +102,12 @@ export type Cliente = {
   atualizadoEm: string | null
   atualizadoPorNome: string | null
 }
+
+/** Feriado como o cadastro o enxerga: o que o cálculo consome (`Feriado`) mais o id, para editar e excluir. */
+export type FeriadoCadastro = Feriado & { id: string }
+
+export const ROTULO_ABRANGENCIA: Record<Abrangencia, string> = {
+  nacional: 'Nacional',
+  estadual: 'Estadual',
+  municipal: 'Municipal',
+}
