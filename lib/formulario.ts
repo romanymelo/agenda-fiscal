@@ -42,3 +42,13 @@ export function inteiro(fd: FormData, campo: string): number | undefined {
   if (!/^-?\d+$/.test(v)) throw new ErroDeFormulario(`O campo ${campo} precisa ser um número inteiro.`)
   return Number(v)
 }
+
+/**
+ * Como `inteiro`, mas campo vazio vira `null`: é o que limpa uma coluna numérica opcional (ex.: trocar a
+ * regra de `dia_util_n` para `antecipa` limpa `dia_util_n`). Ausente: `undefined`. Outra coisa: erro.
+ */
+export function inteiroOuNulo(fd: FormData, campo: string): number | null | undefined {
+  const v = bruto(fd, campo)
+  if (v === undefined) return undefined
+  return v === '' ? null : inteiro(fd, campo)
+}

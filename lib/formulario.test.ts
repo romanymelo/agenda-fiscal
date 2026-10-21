@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { booleano, ErroDeFormulario, inteiro, texto, textoOuNulo } from './formulario'
+import { booleano, ErroDeFormulario, inteiro, inteiroOuNulo, texto, textoOuNulo } from './formulario'
 
 function form(campos: Record<string, string>): FormData {
   const f = new FormData()
@@ -35,4 +35,15 @@ test('inteiro converte, deixa vazio e ausente como undefined e recusa o resto', 
   expect(inteiro(form({}), 'a')).toBeUndefined()
   for (const ruim of ['1.5', 'abc', '1e3', '12a'])
     expect(() => inteiro(form({ a: ruim }), 'a')).toThrow(/número inteiro/)
+})
+
+test('inteiroOuNulo converte, devolve null quando vazio, undefined quando ausente e recusa o resto', () => {
+  expect(inteiroOuNulo(form({ a: ' 15 ' }), 'a')).toBe(15)
+  expect(inteiroOuNulo(form({ a: '0' }), 'a')).toBe(0)
+  expect(inteiroOuNulo(form({ a: '' }), 'a')).toBeNull()
+  expect(inteiroOuNulo(form({ a: '   ' }), 'a')).toBeNull()
+  expect(inteiroOuNulo(form({}), 'a')).toBeUndefined()
+  for (const ruim of ['1.5', 'abc', '12a'])
+    expect(() => inteiroOuNulo(form({ a: ruim }), 'a')).toThrow(ErroDeFormulario)
+  expect(() => inteiroOuNulo(form({ a: 'abc' }), 'a')).toThrow(/número inteiro/)
 })
