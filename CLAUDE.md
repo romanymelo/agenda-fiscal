@@ -3,6 +3,10 @@
 Web app de uso interno da equipe de um escritório de contabilidade. Painel visual e compartilhado:
 quem abre vê o que vence hoje, na semana e no mês, e acompanha os processos administrativos em andamento.
 
+**Fase atual**: construção local, sem Supabase. O banco é o PGlite (Postgres em WASM) rodando no
+próprio processo Node, com os dados em `pgdata/`; os anexos ficam em `arquivos/`. Supabase, Vercel e
+GitHub remoto entram numa fase seguinte, sem reescrever as migrations SQL já versionadas.
+
 **Não é gestão de tarefas**: não controla quem fez ou deixou de fazer o quê. É um painel de consulta e registro.
 
 ## Stack
@@ -43,8 +47,9 @@ cores, textos e comportamento, e reconstrua as telas como componentes React.
 - `clientes`: id, nome, codigo_dominio (texto, pode ter zero à esquerda), cnpj,
   regime (simples, presumido, real, mei), uf, municipio, particularidades, ativo
 - `obrigacoes`: id, nome, esfera (federal, estadual, municipal, trabalhista), periodicidade (mensal, trimestral, anual),
-  dia_vencimento, meses (para trimestral/anual), regra_dia_nao_util (antecipa, posterga, dia_util_n),
-  competencia_defasagem (ex.: EFD-Contribuições vence no mês seguinte ao seguinte), regimes_aplicaveis, observacao, base_legal
+  dia_vencimento, meses (para trimestral/anual), regra_dia_nao_util (antecipa, posterga, dia_util_n), dia_util_n,
+  competencia_defasagem (ex.: EFD-Contribuições vence no mês seguinte ao seguinte), regimes_aplicaveis, observacao,
+  base_legal, ativo, + colunas de auditoria (criado_por, criado_em, atualizado_por, atualizado_em, excluido_por, excluido_em)
 - `feriados`: data, descricao, abrangencia (nacional, estadual, municipal), uf, municipio
 - `configuracao`: linha única com uf e municipio do escritório (define a praça do recorte de feriados)
 - `historico`: tabela, registro_id, acao, campos_alterados, usuario_id, usuario_nome, em
