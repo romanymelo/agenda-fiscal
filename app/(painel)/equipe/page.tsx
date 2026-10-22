@@ -66,7 +66,7 @@ async function Conteudo() {
                     </span>
                     <span
                       className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                        u.ativo ? 'bg-[#DCFCE7] text-sucesso' : 'bg-linha text-suave'
+                        u.ativo ? 'bg-sucesso-claro text-sucesso' : 'bg-linha text-suave'
                       }`}
                     >
                       {u.ativo ? 'Ativo' : 'Inativo'}

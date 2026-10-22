@@ -105,7 +105,7 @@ async function Conteudo({ searchParams }: { searchParams: Promise<{ [chave: stri
         </Link>
       </nav>
 
-      <NovoFeriado ano={ano} praca={praca} />
+      <NovoFeriado praca={praca} />
 
       {feriados.length === 0 ? (
         <p className="rounded-2xl border border-linha bg-papel p-5 text-sm text-suave">
@@ -124,6 +124,11 @@ async function Conteudo({ searchParams }: { searchParams: Promise<{ [chave: stri
                       <span className="font-semibold tabular-nums">{formatarBR(f.data)}</span>
                       <span className="text-sm text-suave">{DIAS[diaDaSemana(f.data)]}</span>
                       <SeloAbrangencia abrangencia={f.abrangencia} />
+                      {f.automatico && (
+                        <span className="rounded-full bg-sutil px-2 py-0.5 text-xs font-semibold text-suave">
+                          Automático
+                        </span>
+                      )}
                       {f.uf && (
                         <span className="text-sm text-suave">
                           {f.municipio ? `${f.municipio}/${f.uf}` : f.uf}
@@ -132,22 +137,24 @@ async function Conteudo({ searchParams }: { searchParams: Promise<{ [chave: stri
                     </span>
                     <span className="font-semibold">{f.descricao}</span>
                     {!vale && (
-                      <span className="text-sm text-[#92400E]">Fora da praça do escritório: não desloca vencimentos.</span>
+                      <span className="text-sm text-aviso">Fora da praça do escritório: não desloca vencimentos.</span>
                     )}
                   </div>
-                  <AcoesFeriado
-                    feriado={f}
-                    praca={praca}
-                    admin={admin}
-                    historico={
-                      <Historico
-                        tabela="feriados"
-                        registroId={f.id}
-                        rotulos={ROTULOS_FERIADO}
-                        formatar={formatarFeriado}
-                      />
-                    }
-                  />
+                  {f.automatico ? null : (
+                    <AcoesFeriado
+                      feriado={f}
+                      praca={praca}
+                      admin={admin}
+                      historico={
+                        <Historico
+                          tabela="feriados"
+                          registroId={f.id}
+                          rotulos={ROTULOS_FERIADO}
+                          formatar={formatarFeriado}
+                        />
+                      }
+                    />
+                  )}
                 </li>
               )
             })}

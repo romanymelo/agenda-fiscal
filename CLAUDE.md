@@ -25,13 +25,23 @@ Eles foram feitos num formato de protótipo próprio (não rodam sozinhos): use 
 textos e comportamento. O visual foi redesenhado depois (identidade "Maré"), então onde o mockup e o
 código divergirem em cor de fundo, navegação e títulos, vale o código.
 
-- Cor principal #0F766E (mantida); fundo espuma #EAF1F0; tinta #0E2A31 (texto e trilho de navegação);
-  cartões brancos com borda #D7E3E2; amarelo-sol #FFD23F só para "hoje" e urgência.
-- Tipografia: IBM Plex Sans no corpo; Bricolage Grotesque (`font-display`) em títulos e números grandes.
+- Marca: o projeto tem identidade própria, neutra (sem marca de cliente). O símbolo é um calendário com o dia de
+  hoje marcado em amarelo, em `components/marca.tsx` (`Simbolo`, `Logotipo`) e em `app/icon.svg` (favicon). O nome
+  do produto é "AGENDA FISCAL". Verde-água só sobre fundo escuro (`text-marca`, #00C8A8); sobre fundo claro a
+  marca é o verde-mar `mar` #007565. Quem adaptar o painel para um escritório troca nome e símbolo nesses arquivos.
+- Fundo espuma #EAF1F0; tinta #003440 (texto e trilho de navegação); cartões brancos com
+  borda #D7E3E2; amarelo-sol #FFD23F só para "hoje" e urgência (não faz parte do logotipo).
+- Tipografia: IBM Plex Sans no corpo; Bricolage Grotesque (`font-display`) em títulos e números grandes;
+  Montserrat (`font-marca`) só no nome "AGENDA FISCAL" e no slogan.
+- Tema claro (o original) e escuro. As cores são variáveis CSS (`--c-*`) em `app/globals.css`, com duas paletas
+  (`:root` e `:root[data-theme="dark"]`); o tema é o atributo `data-theme` da `<html>`, posto por um script em
+  `app/layout.tsx` antes da primeira pintura (escolha salva em `localStorage` ou, sem ela, o tema do sistema).
+  O botão fica em `components/tema.tsx`. Texto sobre fundo `sol` usa `text-sobre-sol`; sobre `mar`, `text-sobre-mar`.
 - Cores só pelos tokens de `app/globals.css` (`bg-espuma`, `text-suave`, `bg-mar`...), nunca hex solto.
 - Cores por esfera e por situação são fixas, em `lib/tipos.ts`: Federal azul, Estadual laranja, Municipal roxo,
-  Trabalhista verde, Processo grafite, Feriado cinza.
-- Navegação: trilho lateral escuro no computador; barra de abas fixa embaixo no celular.
+  Trabalhista verde, Processo amarelo, Feriado cinza.
+- Navegação: trilho lateral escuro no computador ("Cadastros" é um menu suspenso com Visão geral, Clientes, Obrigações,
+  Feriados e Equipe; o logotipo leva ao Calendário); barra de abas fixa embaixo no celular.
 - Ações raras (editar, excluir, histórico) ficam discretas e só abrem o painel quando pedidas.
 - Deve funcionar bem no celular (layout empilha em telas pequenas; o quadro de processos vira carrossel).
 
@@ -46,6 +56,8 @@ código divergirem em cor de fundo, navegação e títulos, vale o código.
    - Quadro em colunas por status: Em andamento, Aguardando órgão, Em exigência, Concluído.
    - Busca por cliente, órgão ou protocolo; botão "Novo processo".
    - Detalhe: órgão, protocolo, abertura, última atualização, prazo destacado, linha do tempo de andamentos, anexos.
+   - Relatório (`/processos/relatorio`): folha para imprimir ou salvar em PDF, com filtros (situação, cliente, prazo, busca),
+     ordem, agrupamento, andamentos (nenhum, último ou todos) e orientação do papel. A folha é sempre clara (`claro-fixo`).
 3. **Cadastros**: clientes, obrigações, feriados e configuração do escritório.
    - Cliente tem um campo `particularidades` de digitação livre (como a nota fiscal é emitida, portal, etc.).
 4. **Equipe**: usuários do escritório, com papel. Só o admin edita.

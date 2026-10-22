@@ -20,6 +20,7 @@ type Linha = {
   prazo: Data | null
   prazo_descricao: string | null
   atualizado_em: Date | null
+  concluido_em: Date | null
 }
 
 // snake_case do banco para camelCase da aplicação: a conversão mora aqui.
@@ -36,18 +37,25 @@ function paraProcesso(l: Linha): Processo {
     prazo: l.prazo,
     prazoDescricao: l.prazo_descricao,
     atualizadoEm: l.atualizado_em ? l.atualizado_em.toISOString() : null,
+    concluidoEm: l.concluido_em ? l.concluido_em.toISOString() : null,
   }
 }
 
 // O cliente entra pela junção sem filtrar `excluido_em`: o processo continua mostrando o nome de um cliente
 // excluído depois. A última atualização é a mais recente entre alterar o processo e registrar um andamento
-// (`greatest` ignora o que for nulo).
+// (`greatest` ignora o que for nulo). Quando concluiu vem do histórico: a última vez que a situação virou
+// "concluido"; se o processo foi reaberto, não está concluído e a coluna fica nula.
 const SELECAO = `select p.id, p.cliente_id, c.nome as cliente_nome, p.tipo, p.orgao, p.protocolo, p.status,
                         to_char(p.data_abertura, 'YYYY-MM-DD') as data_abertura,
                         to_char(p.prazo, 'YYYY-MM-DD') as prazo, p.prazo_descricao,
                         greatest(coalesce(p.atualizado_em, p.criado_em),
                                  (select max(a.criado_em) from andamentos a
-                                  where a.processo_id = p.id and a.excluido_em is null)) as atualizado_em
+                                  where a.processo_id = p.id and a.excluido_em is null)) as atualizado_em,
+                        case when p.status = 'concluido' then
+                          (select max(h.em) from historico h
+                           where h.tabela = 'processos' and h.registro_id = p.id
+                             and h.campos_alterados -> 'status' ->> 'depois' = 'concluido')
+                        end as concluido_em
                  from processos p join clientes c on c.id = p.cliente_id`
 
 /**
@@ -113,9 +121,34 @@ export async function buscarProcesso(
   }
 }
 
-// As páginas não importam `obterBanco`: estas duas abrem o banco por elas.
+/** Os andamentos (data crescente) de vários processos de uma vez, por id do processo: é o que o relatório imprime. */
+export async function andamentosDosProcessos(db: PGlite, ids: string[]): Promise<Record<string, Andamento[]>> {
+  const porProcesso: Record<string, Andamento[]> = {}
+  if (ids.length === 0) return porProcesso
+  const r = await db.query<{ processo_id: string; id: string; data: Data; descricao: string; criado_por_nome: string }>(
+    `select a.processo_id, a.id, to_char(a.data, 'YYYY-MM-DD') as data, a.descricao, u.nome as criado_por_nome
+     from andamentos a join usuarios u on u.id = a.criado_por
+     where a.processo_id = any($1::uuid[]) and a.excluido_em is null
+     order by a.data, a.criado_em, a.id`,
+    [ids],
+  )
+  for (const a of r.rows)
+    (porProcesso[a.processo_id] ??= []).push({
+      id: a.id,
+      data: a.data,
+      descricao: a.descricao,
+      criadoPorNome: a.criado_por_nome,
+    })
+  return porProcesso
+}
+
+// As páginas não importam `obterBanco`: estas abrem o banco por elas.
 export async function processosDaTela(busca?: string): Promise<Processo[]> {
   return listarProcessos(await obterBanco(), busca)
+}
+
+export async function andamentosDaTela(ids: string[]): Promise<Record<string, Andamento[]>> {
+  return andamentosDosProcessos(await obterBanco(), ids)
 }
 
 export async function processoDaTela(id: string) {

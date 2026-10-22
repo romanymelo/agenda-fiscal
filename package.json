@@ -1,9 +1,15 @@
 {
   "name": "agenda-fiscal",
   "version": "0.1.0",
+  "description": "Painel interno de vencimentos fiscais e processos administrativos para escritório de contabilidade (Next.js, TypeScript, PGlite).",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.9"
+  },
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "demo": "node scripts/demo.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

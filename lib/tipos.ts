@@ -51,11 +51,12 @@ export const ROTULO_ESFERA: Record<Esfera, string> = {
   municipal: 'Municipal',
   trabalhista: 'Trabalhista',
 }
+// As cores vivem em app/globals.css, como variáveis dos dois temas (claro e escuro).
 export const COR_ESFERA: Record<Esfera, { texto: string; fundo: string; ponto: string }> = {
-  federal: { texto: '#1E40AF', fundo: '#DBEAFE', ponto: '#2563EB' },
-  estadual: { texto: '#9A3412', fundo: '#FFEDD5', ponto: '#EA580C' },
-  municipal: { texto: '#5B21B6', fundo: '#EDE9FE', ponto: '#7C3AED' },
-  trabalhista: { texto: '#166534', fundo: '#DCFCE7', ponto: '#16A34A' },
+  federal: { texto: 'var(--c-federal-t)', fundo: 'var(--c-federal-f)', ponto: 'var(--c-federal-p)' },
+  estadual: { texto: 'var(--c-estadual-t)', fundo: 'var(--c-estadual-f)', ponto: 'var(--c-estadual-p)' },
+  municipal: { texto: 'var(--c-municipal-t)', fundo: 'var(--c-municipal-f)', ponto: 'var(--c-municipal-p)' },
+  trabalhista: { texto: 'var(--c-trabalhista-t)', fundo: 'var(--c-trabalhista-f)', ponto: 'var(--c-trabalhista-p)' },
 }
 
 /** Categoria de um item do calendário: as quatro esferas, mais processo e feriado. */
@@ -68,11 +69,11 @@ export const ROTULO_CATEGORIA: Record<CategoriaCalendario, string> = {
   feriado: 'Feriado',
 }
 
-// Processo não tem `ponto` (spec: fundo escuro com texto branco, sem marcador de cor à parte).
+// Processo não tem `ponto` na categoria: a barra amarela (o marca-texto) vem de components/calendario/estilo.ts.
 export const COR_CATEGORIA: Record<CategoriaCalendario, { texto: string; fundo: string; ponto?: string }> = {
   ...COR_ESFERA,
-  processo: { texto: '#FFFFFF', fundo: '#1F2937' },
-  feriado: { texto: '#374151', fundo: '#E5E7EB', ponto: '#9CA3AF' },
+  processo: { texto: 'var(--c-processo-t)', fundo: 'var(--c-processo-f)' },
+  feriado: { texto: 'var(--c-feriado-t)', fundo: 'var(--c-feriado-f)', ponto: 'var(--c-feriado-p)' },
 }
 export const ROTULO_PERIODICIDADE: Record<Periodicidade, string> = {
   mensal: 'Mensal',
@@ -121,7 +122,7 @@ export type Cliente = {
 }
 
 /** Feriado como o cadastro o enxerga: o que o cálculo consome (`Feriado`) mais o id, para editar e excluir. */
-export type FeriadoCadastro = Feriado & { id: string }
+export type FeriadoCadastro = Feriado & { id: string; /** Calculado pelo sistema (não está no banco): não se edita nem se exclui. */ automatico?: boolean }
 
 export const ROTULO_ABRANGENCIA: Record<Abrangencia, string> = {
   nacional: 'Nacional',
@@ -137,10 +138,10 @@ export const ROTULO_STATUS: Record<StatusProcesso, string> = {
   concluido: 'Concluído',
 }
 export const COR_STATUS: Record<StatusProcesso, { texto: string; fundo: string; ponto: string }> = {
-  em_andamento: { texto: '#1E40AF', fundo: '#DBEAFE', ponto: '#2563EB' },
-  aguardando_orgao: { texto: '#92400E', fundo: '#FEF3C7', ponto: '#D97706' },
-  em_exigencia: { texto: '#9F1239', fundo: '#FFE4E6', ponto: '#E11D48' },
-  concluido: { texto: '#166534', fundo: '#DCFCE7', ponto: '#16A34A' },
+  em_andamento: { texto: 'var(--c-federal-t)', fundo: 'var(--c-federal-f)', ponto: 'var(--c-federal-p)' },
+  aguardando_orgao: { texto: 'var(--c-aviso)', fundo: 'var(--c-aviso-claro)', ponto: 'var(--c-aguardando-p)' },
+  em_exigencia: { texto: 'var(--c-exigencia-t)', fundo: 'var(--c-exigencia-f)', ponto: 'var(--c-exigencia-p)' },
+  concluido: { texto: 'var(--c-trabalhista-t)', fundo: 'var(--c-trabalhista-f)', ponto: 'var(--c-trabalhista-p)' },
 }
 
 /** Processo administrativo em um órgão, como o quadro o enxerga. */
@@ -157,6 +158,8 @@ export type Processo = {
   prazoDescricao: string | null
   /** Instante da última mudança: alteração do processo ou andamento novo, o que for mais recente. */
   atualizadoEm: string | null
+  /** Quando passou para Concluído, tirado do histórico. Nulo se não está concluído (ou se nunca houve registro). */
+  concluidoEm: string | null
 }
 
 export type Andamento = { id: string; data: Data; descricao: string; criadoPorNome: string }

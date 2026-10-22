@@ -54,6 +54,7 @@ function FormularioCliente({
         <Campo
           rotulo="Código no Domínio"
           nome="codigo_dominio"
+          obrigatorio
           autoComplete="off"
           defaultValue={valor(cliente?.codigoDominio)}
           className="sm:col-span-2"

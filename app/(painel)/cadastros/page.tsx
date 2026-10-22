@@ -10,8 +10,9 @@ export const metadata = { title: 'Cadastros — Agenda Fiscal' }
 // com o caminho, o título e uma linha dizendo para que serve.
 // Ícones de traço simples, no mesmo desenho da navegação.
 const ICONES: Record<string, string> = {
-  '/cadastros/clientes': 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
+  '/cadastros/clientes': 'M3 8h18v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8zM8 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18',
   '/cadastros/obrigacoes': 'M9 11l3 3 8-8M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9',
+  '/equipe': 'M12.2 8.5a3.2 3.2 0 1 1-6.4 0 3.2 3.2 0 0 1 6.4 0ZM3 19.5c.4-3.2 2.8-5 6-5s5.6 1.8 6 5M16 5.6a3.2 3.2 0 0 1 0 5.8M18 14.9c1.7.6 2.7 2.1 3 4.6',
   '/cadastros/feriados': 'M3 10h18M8 3v4M16 3v4M5 5h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zM12 14v3',
 }
 
@@ -30,6 +31,11 @@ const CADASTROS = [
     href: '/cadastros/feriados',
     titulo: 'Feriados e praça do escritório',
     descricao: 'Os feriados que deslocam vencimentos e a UF e o município do escritório, que decidem quais deles valem.',
+  },
+  {
+    href: '/equipe',
+    titulo: 'Equipe',
+    descricao: 'Quem usa o painel, com qual papel, e quem está ativo. Só o administrador altera.',
   },
 ]
 

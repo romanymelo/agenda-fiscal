@@ -145,7 +145,7 @@ function Linha({
         <span
           aria-hidden="true"
           className={`mt-[3px] size-3 flex-none rounded-full border-2 ${
-            maisRecente ? 'border-mar bg-mar' : 'border-apagado bg-white'
+            maisRecente ? 'border-mar bg-mar' : 'border-apagado bg-papel'
           }`}
         />
         <span aria-hidden="true" className={`mt-0.5 w-0.5 flex-1 ${ultima ? 'bg-transparent' : 'bg-linha'}`} />

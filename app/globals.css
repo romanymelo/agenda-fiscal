@@ -1,41 +1,137 @@
 @import "tailwindcss";
 
 /*
- * Identidade "Maré": claro, frio, de beira-mar. O verde-mar (#0F766E) e as cores por esfera e por
- * status são do projeto e não mudam; o resto é neutro azulado para o dado fiscal ser o destaque.
+ * Identidade "Maré": frio, de beira-mar, em tema claro e escuro. Tinta azul-petróleo e verde-mar são as cores do projeto. As cores por esfera e por
+ * status são do projeto (as mesmas nos dois temas, mais escuras no escuro); o resto é neutro azulado para o dado fiscal ser o destaque.
  * Cores nas classes só pelos nomes abaixo (bg-espuma, text-suave...), nunca hex solto.
  */
 @theme inline {
   --font-sans: var(--font-plex-sans), system-ui, sans-serif;
+  --font-marca: var(--font-montserrat), system-ui, sans-serif;
   --font-display: var(--font-bricolage), var(--font-plex-sans), system-ui, sans-serif;
 
-  --color-espuma: #eaf1f0; /* fundo da página */
-  --color-papel: #ffffff; /* superfícies */
-  --color-sutil: #f4f8f7; /* preenchimento discreto dentro de uma superfície */
-  --color-linha: #d7e3e2; /* divisores e bordas */
-  --color-linha-forte: #bccfcd; /* bordas de campos e botões */
+  --color-espuma: var(--c-espuma); /* fundo da página */
+  --color-papel: var(--c-papel); /* superfícies */
+  --color-sutil: var(--c-sutil); /* preenchimento discreto dentro de uma superfície */
+  --color-linha: var(--c-linha); /* divisores e bordas */
+  --color-linha-forte: var(--c-linha-forte); /* bordas de campos e botões */
 
-  --color-tinta: #0e2a31; /* texto principal e trilho de navegação */
-  --color-corpo: #2c454c;
-  --color-suave: #4a6169; /* texto secundário (6:1 sobre branco) */
-  --color-apagado: #667c83; /* placeholders e apoios (4,5:1 sobre branco) */
+  --color-tinta: var(--c-tinta); /* texto principal */
+  --color-corpo: var(--c-corpo);
+  --color-suave: var(--c-suave); /* texto secundário */
+  --color-apagado: var(--c-apagado); /* placeholders e apoios */
 
-  --color-mar: #0f766e; /* marca */
-  --color-mar-escuro: #0a5750;
-  --color-mar-claro: #ddf0ed;
+  --color-trilho: var(--c-trilho); /* fundo do trilho de navegação e das faixas escuras */
+  --color-ativo: var(--c-ativo); /* filtro escolhido: escuro no claro, verde-água no escuro */
+  --color-sobre-ativo: var(--c-sobre-ativo);
+
+  --color-mar: var(--c-mar); /* marca: texto, links, destaques e botão principal */
+  --color-mar-escuro: var(--c-mar-escuro);
+  --color-mar-claro: var(--c-mar-claro);
+  --color-sobre-mar: var(--c-sobre-mar); /* texto sobre fundo mar */
+  --color-marca: #00c8a8; /* verde-água do logotipo: só sobre fundo escuro (6,3:1 sobre a tinta) */
 
   --color-sol: #ffd23f; /* marca-texto: só "hoje" e urgência */
-  --color-sol-claro: #fff4c2;
+  --color-sol-claro: var(--c-sol-claro);
+  --color-sobre-sol: #003440; /* texto sobre o sol, nos dois temas */
 
-  --color-sucesso: #166534;
+  --color-sucesso: var(--c-sucesso);
+  --color-sucesso-claro: var(--c-sucesso-claro);
 
-  --color-perigo: #b42318;
-  --color-perigo-claro: #fef1f0;
-  --color-perigo-borda: #f3b4ae;
+  --color-aviso: var(--c-aviso);
+  --color-aviso-claro: var(--c-aviso-claro);
+
+  --color-perigo: var(--c-perigo);
+  --color-perigo-claro: var(--c-perigo-claro);
+  --color-perigo-borda: var(--c-perigo-borda);
+  --color-perigo-solido: #b42318; /* fundo com texto branco (selo "vencido"), nos dois temas */
 
   --radius-celula: 0.5rem;
   --radius-cartao: 1rem;
-  --shadow-flutua: 0 1px 2px rgb(14 42 49 / 0.06), 0 8px 24px -8px rgb(14 42 49 / 0.18);
+  --shadow-flutua: var(--sombra-flutua);
+}
+
+/*
+ * Tema claro (o original) e tema escuro. `data-theme` na <html> é posto antes da primeira pintura
+ * (script em app/layout.tsx): a escolha da pessoa, ou o tema do sistema quando ela ainda não escolheu.
+ * `.claro-fixo` repete a paleta clara num trecho da página (a folha do relatório, que é papel e imprime igual).
+ */
+:root,
+.claro-fixo {
+  color-scheme: light;
+  --c-espuma: #eaf1f0;
+  --c-papel: #ffffff;
+  --c-sutil: #f4f8f7;
+  --c-linha: #d7e3e2;
+  --c-linha-forte: #bccfcd;
+  --c-tinta: #003440;
+  --c-corpo: #2c454c;
+  --c-suave: #4a6169; /* 6:1 sobre branco */
+  --c-apagado: #667c83; /* 4,5:1 sobre branco */
+  --c-trilho: #003440;
+  --c-ativo: #003440;
+  --c-sobre-ativo: #ffffff;
+  --c-mar: #007565; /* 5,6:1 sobre branco */
+  --c-mar-escuro: #00574a;
+  --c-mar-claro: #d9f2ed;
+  --c-sobre-mar: #ffffff;
+  --c-sol-claro: #fff4c2;
+  --c-sucesso: #166534;
+  --c-sucesso-claro: #dcfce7;
+  --c-aviso: #92400e;
+  --c-aviso-claro: #fef3c7;
+  --c-perigo: #b42318;
+  --c-perigo-claro: #fef1f0;
+  --c-perigo-borda: #f3b4ae;
+  --sombra-flutua: 0 1px 2px rgb(14 42 49 / 0.06), 0 8px 24px -8px rgb(14 42 49 / 0.18);
+
+  /* Cores por esfera e por situação: texto, fundo e ponto de cada uma */
+  --c-federal-t: #1e40af; --c-federal-f: #dbeafe; --c-federal-p: #2563eb;
+  --c-estadual-t: #9a3412; --c-estadual-f: #ffedd5; --c-estadual-p: #ea580c;
+  --c-municipal-t: #5b21b6; --c-municipal-f: #ede9fe; --c-municipal-p: #7c3aed;
+  --c-trabalhista-t: #166534; --c-trabalhista-f: #dcfce7; --c-trabalhista-p: #16a34a;
+  --c-feriado-t: #374151; --c-feriado-f: #e5e7eb; --c-feriado-p: #9ca3af;
+  --c-processo-t: #5b3a06; --c-processo-f: #ffeba0; --c-processo-rotulo: #5b3a06;
+  --c-aguardando-p: #d97706;
+  --c-exigencia-t: #9f1239; --c-exigencia-f: #ffe4e6; --c-exigencia-p: #e11d48;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --c-espuma: #071a1f;
+  --c-papel: #0e2830;
+  --c-sutil: #12323b;
+  --c-linha: #1d414a;
+  --c-linha-forte: #2a5560;
+  --c-tinta: #e8f3f2;
+  --c-corpo: #c5d8d8;
+  --c-suave: #9db7ba;
+  --c-apagado: #7e9a9e;
+  --c-trilho: #0a2f38;
+  --c-ativo: #2cc9b0;
+  --c-sobre-ativo: #04201c;
+  --c-mar: #2cc9b0;
+  --c-mar-escuro: #8febdb;
+  --c-mar-claro: #0f3f43;
+  --c-sobre-mar: #04201c;
+  --c-sol-claro: #3b3413;
+  --c-sucesso: #4ade80;
+  --c-sucesso-claro: #123a25;
+  --c-aviso: #fcd34d;
+  --c-aviso-claro: #3a2c0e;
+  --c-perigo: #ff8a80;
+  --c-perigo-claro: #3a1a1c;
+  --c-perigo-borda: #7f2d2d;
+  --sombra-flutua: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px -8px rgb(0 0 0 / 0.6);
+
+  --c-federal-t: #93c5fd; --c-federal-f: #14284a; --c-federal-p: #3b82f6;
+  --c-estadual-t: #fdba74; --c-estadual-f: #3b1f0c; --c-estadual-p: #f97316;
+  --c-municipal-t: #c4b5fd; --c-municipal-f: #2a1c52; --c-municipal-p: #8b5cf6;
+  --c-trabalhista-t: #86efac; --c-trabalhista-f: #12351f; --c-trabalhista-p: #22c55e;
+  --c-feriado-t: #cbd5e1; --c-feriado-f: #2a3a40; --c-feriado-p: #94a3b8;
+  --c-processo-t: #fde68a; --c-processo-f: #4a3f12; --c-processo-rotulo: #fde68a;
+  --c-aguardando-p: #f59e0b;
+  --c-exigencia-t: #fda4af; --c-exigencia-f: #4a1424; --c-exigencia-p: #f43f5e;
 }
 
 body {
@@ -47,12 +143,18 @@ body {
 /* O marca-texto da identidade: selecionar texto também usa o sol. */
 ::selection {
   background: var(--color-sol);
-  color: var(--color-tinta);
+  color: var(--color-sobre-sol);
 }
 
 :focus-visible {
   outline: 2px solid var(--color-mar);
   outline-offset: 2px;
+}
+
+@media print {
+  body {
+    background: #fff;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -76,6 +178,7 @@ body {
   background-repeat: no-repeat;
   background-position: left center;
   background-size: 0% 100%;
+  color: var(--color-sobre-sol);
   animation: marcar 0.55s 0.25s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
 }
 

@@ -4,8 +4,8 @@ import { COR_CATEGORIA, type CategoriaCalendario } from '@/lib/tipos'
 // Como cada categoria aparece no calendário, em todas as visões. As cores por esfera vêm de
 // lib/tipos.ts (são do projeto); aqui só se decide onde cada uma entra: barra, fundo e texto.
 
-const SOL = '#FFD23F'
-const APAGADO = '#667C83'
+const SOL = 'var(--color-sol)'
+const APAGADO = 'var(--c-apagado)'
 
 /** Barra de cor à esquerda da etiqueta. Prazo de processo leva o marca-texto: é urgência. */
 export function corBarra(c: CategoriaCalendario): string {
@@ -21,6 +21,6 @@ export function estiloEtiqueta(c: CategoriaCalendario): CSSProperties {
 
 /** Cor do nome da categoria sobre fundo branco (processo tem texto branco na etiqueta cheia). */
 export function corRotulo(c: CategoriaCalendario): string {
-  if (c === 'processo') return '#1F2937'
+  if (c === 'processo') return 'var(--c-processo-rotulo)'
   return COR_CATEGORIA[c].texto
 }

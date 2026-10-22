@@ -70,6 +70,18 @@ test('codigo do dominio preserva zero a esquerda', async () => {
   expect((await buscarCliente(ctx.db, cliente.id))?.codigoDominio).toBe('0042')
 })
 
+test('codigo do dominio e obrigatorio ao criar e nao pode ser apagado ao alterar', async () => {
+  const erro = { erro: 'Informe o código do cliente no Domínio.' }
+  expect(await criarCliente(formulario({ ...PADARIA, codigo_dominio: '' }))).toEqual(erro)
+  expect(await criarCliente(formulario({ ...PADARIA, codigo_dominio: '   ' }))).toEqual(erro)
+  expect(await listarClientes(ctx.db)).toHaveLength(0)
+  await criarCliente(formulario(PADARIA))
+  const [cliente] = await listarClientes(ctx.db)
+  expect(await alterarCliente(cliente.id, formulario({ codigo_dominio: '' }))).toEqual(erro)
+  expect(await alterarCliente(cliente.id, formulario({ nome: 'Novo nome' }))).toEqual({ ok: true })
+  expect((await buscarCliente(ctx.db, cliente.id))?.codigoDominio).toBe('0042')
+})
+
 test('cliente excluido sai da lista mas o historico continua legivel', async () => {
   await criarCliente(formulario(PADARIA))
   const [cliente] = await listarClientes(ctx.db)

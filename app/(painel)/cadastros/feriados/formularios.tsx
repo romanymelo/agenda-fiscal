@@ -7,9 +7,6 @@ import { alterarConfiguracao, alterarFeriado, criarFeriado, excluirFeriado } fro
 
 const OPCOES_ABRANGENCIA = Object.entries(ROTULO_ABRANGENCIA).map(([valor, rotulo]) => ({ valor, rotulo }))
 
-/** Feriados móveis: mudam de data a cada ano, então a equipe os cadastra à mão. O atalho só poupa a digitação do nome. */
-const MOVEIS = ['Carnaval', 'Sexta-feira Santa', 'Corpus Christi']
-
 function Mensagens({ resultado, sucesso }: { resultado: Resultado | null; sucesso: string }) {
   return (
     <>
@@ -31,23 +28,20 @@ function Mensagens({ resultado, sucesso }: { resultado: Resultado | null; sucess
 function FormularioFeriado({
   feriado,
   praca,
-  inicial,
   acao,
   envio,
   sucesso,
 }: {
   feriado?: FeriadoCadastro
   praca: Praca
-  /** Só no cadastro: o que o atalho de feriado móvel preencheu. */
-  inicial?: { descricao: string; abrangencia: string }
   acao: (f: FormData) => Promise<Resultado>
   envio: string
   sucesso: string
 }) {
   // A abrangência decide se UF e município aparecem; a descrição é controlada só para o cadastro poder
-  // zerá-la depois de gravar (o `reset()` devolveria o nome do atalho).
-  const [abrangencia, setAbrangencia] = useState<string>(feriado?.abrangencia ?? inicial?.abrangencia ?? '')
-  const [descricao, setDescricao] = useState<string>(feriado?.descricao ?? inicial?.descricao ?? '')
+  // zerá-la depois de gravar.
+  const [abrangencia, setAbrangencia] = useState<string>(feriado?.abrangencia ?? '')
+  const [descricao, setDescricao] = useState<string>(feriado?.descricao ?? '')
   const [resultado, setResultado] = useState<Resultado | null>(null)
   const [enviando, iniciar] = useTransition()
   // Envio à mão, e não por `<form action>`: o React 19 reinicia o formulário depois da ação e a lista de
@@ -126,15 +120,9 @@ function FormularioFeriado({
   )
 }
 
-/** "Novo feriado": o botão e os atalhos dos móveis abrem o formulário de cadastro, no próprio lugar. */
-export function NovoFeriado({ ano, praca }: { ano: number; praca: Praca }) {
+/** "Novo feriado": o botão abre o formulário de cadastro, no próprio lugar. */
+export function NovoFeriado({ praca }: { praca: Praca }) {
   const [aberto, setAberto] = useState(false)
-  // A chave refaz o formulário quando um atalho preenche os campos.
-  const [modelo, setModelo] = useState<{ chave: number; descricao: string; abrangencia: string }>({
-    chave: 0,
-    descricao: '',
-    abrangencia: '',
-  })
   return (
     <div className="flex flex-col gap-3">
       <Botao
@@ -145,29 +133,11 @@ export function NovoFeriado({ ano, praca }: { ano: number; praca: Praca }) {
       >
         {aberto ? 'Fechar' : 'Novo feriado'}
       </Botao>
-      <section
-        aria-label={`Feriados móveis de ${ano}`}
-        className="flex flex-col gap-2 rounded-2xl border border-linha bg-papel p-4 sm:p-5"
-      >
-        <h2 className="text-base font-bold">Feriados móveis de {ano}</h2>
-        <p className="text-sm text-suave">
-          Os feriados fixos já vêm cadastrados. Os móveis mudam de data todo ano: confira a data e cadastre à mão.
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {MOVEIS.map((nome) => (
-            <Botao
-              key={nome}
-              variante="secundario"
-              onClick={() => {
-                setModelo((m) => ({ chave: m.chave + 1, descricao: nome, abrangencia: 'nacional' }))
-                setAberto(true)
-              }}
-            >
-              {nome}
-            </Botao>
-          ))}
-        </div>
-      </section>
+      <p className="text-sm text-suave">
+        Os feriados nacionais, fixos e móveis (Carnaval, Sexta-feira Santa e Corpus Christi), são calculados pelo
+        sistema para qualquer ano. Para mudar um deles, cadastre um feriado nacional na mesma data. Cadastre aqui também os estaduais, os municipais e qualquer outro dia que desloque
+        vencimentos.
+      </p>
       {aberto && (
         <section
           aria-label="Novo feriado"
@@ -175,9 +145,7 @@ export function NovoFeriado({ ano, praca }: { ano: number; praca: Praca }) {
         >
           <h2 className="text-base font-bold">Novo feriado</h2>
           <FormularioFeriado
-            key={modelo.chave}
             praca={praca}
-            inicial={modelo}
             acao={criarFeriado}
             envio="Cadastrar feriado"
             sucesso="Feriado cadastrado."

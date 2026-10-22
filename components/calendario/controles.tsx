@@ -57,14 +57,14 @@ const VISOES: { valor: Visao; rotulo: string }[] = [
 ]
 
 type Filtro = { valor: string; rotulo: string; ponto?: string; fundo?: string; texto?: string }
-// "Prazos de processos" não tem ponto de cor (processo é fundo escuro, sem marcador à parte).
+// "Prazos de processos" leva o ponto amarelo (o marca-texto): é a mesma barra que o prazo tem no calendário.
 const FILTROS: Filtro[] = [
   { valor: 'todas', rotulo: 'Todas' },
   { valor: 'federal', rotulo: 'Federal', ...COR_CATEGORIA.federal },
   { valor: 'estadual', rotulo: 'Estadual', ...COR_CATEGORIA.estadual },
   { valor: 'municipal', rotulo: 'Municipal', ...COR_CATEGORIA.municipal },
   { valor: 'trabalhista', rotulo: 'Trabalhista', ...COR_CATEGORIA.trabalhista },
-  { valor: 'processo', rotulo: 'Prazos de processos', ...COR_CATEGORIA.processo },
+  { valor: 'processo', rotulo: 'Prazos de processos', ...COR_CATEGORIA.processo, ponto: 'var(--color-sol)' },
 ]
 
 function Seta({ sentido, ...rest }: { sentido: 'esq' | 'dir'; href: string; rotulo: string }) {
@@ -101,7 +101,7 @@ export function Controles({
   return (
     <header className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
-        <h1 className="font-display text-[34px] font-bold leading-none tracking-tight sm:text-[42px]">
+        <h1 className="font-display text-[32px] leading-none font-semibold tracking-tight">
           {tituloDoPeriodo(visao, dia, hoje)}
         </h1>
         <div className="flex gap-1.5">
@@ -130,8 +130,8 @@ export function Controles({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
-        <p className="flex flex-wrap items-baseline gap-x-6 gap-y-1 text-sm text-suave">
+      <div className={`@container flex flex-wrap items-center gap-x-6 gap-y-3 ${visao === 'semana' ? '' : 'xl:max-w-[calc(100%-340px)]'}`}>
+        <p className="flex flex-wrap items-baseline gap-x-5 gap-y-1 text-sm text-suave">
           <span>
             <strong className="font-display text-[28px] font-bold tabular-nums text-tinta">{hojeCount}</strong>{' '}
             {hojeCount === 1 ? 'vence hoje' : 'vencem hoje'}
@@ -142,7 +142,7 @@ export function Controles({
           </span>
         </p>
 
-        <div role="group" aria-label="Filtrar por tipo" className="flex flex-wrap gap-2">
+        <div role="group" aria-label="Filtrar por tipo" className="flex flex-wrap gap-2 @[940px]:ml-auto">
           {FILTROS.map((f) => {
             const ativo = esfera === f.valor
             const colorido = ativo && f.fundo
@@ -151,11 +151,11 @@ export function Controles({
                 key={f.valor}
                 href={href(visao, dia, f.valor)}
                 aria-pressed={ativo}
-                className={`inline-flex min-h-9 items-center gap-2 rounded-full border px-3.5 py-1.5 text-[13px] font-semibold transition-colors ${
+                className={`inline-flex min-h-9 items-center gap-2 rounded-full border px-3 py-1.5 text-[13px] font-semibold transition-colors ${
                   colorido
                     ? 'border-transparent'
                     : ativo
-                      ? 'border-tinta bg-tinta text-white'
+                      ? 'border-ativo bg-ativo text-sobre-ativo'
                       : 'border-linha-forte bg-papel text-corpo hover:bg-sutil'
                 }`}
                 style={colorido ? { background: f.fundo, color: f.texto } : undefined}

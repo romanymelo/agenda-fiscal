@@ -21,9 +21,12 @@ const VISOES = ['hoje', 'semana', 'mes'] as const
 const ESFERAS = ['todas', 'federal', 'estadual', 'municipal', 'trabalhista', 'processo'] as const
 const FORMATO_DATA = /^\d{4}-\d{2}-\d{2}$/
 
+// Data que existe (2026-13-45 não) e entre 1900 e 2100, como na tela de feriados: fora disso usa-se hoje.
+const diaAceito = (d: string) => FORMATO_DATA.test(d) && somarDias(d, 0) === d && d >= '1900-01-01' && d <= '2100-12-31'
+
 export default function Pagina({ searchParams }: { searchParams: Parametros }) {
   return (
-    <main className="mx-auto flex w-full max-w-[1360px] flex-col gap-6 px-4 py-6 sm:px-8 lg:py-8">
+    <main className="mr-auto flex w-full max-w-[1360px] flex-col gap-6 px-4 py-6 sm:px-8 lg:py-8">
       {/* Lê o banco, o cookie e a data de hoje: só com a requisição em mãos, atrás de um Suspense. */}
       <Suspense fallback={<p className="text-sm text-suave">Carregando o calendário…</p>}>
         <Conteudo searchParams={searchParams} />
@@ -44,7 +47,7 @@ async function Conteudo({ searchParams }: { searchParams: Parametros }) {
   const hoje = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Maceio' }).format(new Date())
 
   const diaPedido = primeiro(params.dia)
-  const dia = diaPedido && FORMATO_DATA.test(diaPedido) ? diaPedido : hoje
+  const dia = diaPedido && diaAceito(diaPedido) ? diaPedido : hoje
 
   const esferaPedida = primeiro(params.esfera)
   const esfera = (ESFERAS as readonly string[]).includes(esferaPedida ?? '') ? esferaPedida! : 'todas'

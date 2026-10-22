@@ -23,13 +23,13 @@ function selo(p: Processo, hoje: Data): { texto: string; relativo?: string; clas
   const cinza = 'bg-espuma text-suave'
   if (p.status === 'concluido')
     return {
-      texto: p.atualizadoEm ? `Concluído em ${formatarDataHoraBR(p.atualizadoEm).slice(0, 5)}` : 'Concluído',
+      texto: p.concluidoEm ? `Concluído em ${formatarDataHoraBR(p.concluidoEm).slice(0, 5)}` : 'Concluído',
       classe: cinza,
     }
   if (!p.prazo) return { texto: 'Sem prazo pendente', classe: cinza }
   const s = situacaoDoPrazo(p.prazo, hoje)
   const classe =
-    s.tipo === 'vencido' ? 'bg-perigo text-white' : s.tipo === 'urgente' ? 'bg-sol text-tinta' : 'bg-[#FEF3C7] text-[#78350F]'
+    s.tipo === 'vencido' ? 'bg-perigo-solido text-white' : s.tipo === 'urgente' ? 'bg-sol text-sobre-sol' : 'bg-aviso-claro text-aviso'
   return { texto: `Prazo ${formatarBR(p.prazo).slice(0, 5)}`, relativo: textoDoPrazo(s.dias), classe }
 }
 

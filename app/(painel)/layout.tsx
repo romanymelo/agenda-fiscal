@@ -15,7 +15,7 @@ export default function LayoutPainel({ children }: { children: React.ReactNode }
   // Suspense, senão a rota não pode ser pré-renderizada (cacheComponents está ligado).
   // O esqueleto reserva o trilho lateral (desktop), para a página não se deslocar quando ele chega.
   return (
-    <Suspense fallback={<div aria-hidden="true" className="fixed inset-y-0 left-0 hidden w-60 bg-tinta lg:block" />}>
+    <Suspense fallback={<div aria-hidden="true" className="fixed inset-y-0 left-0 hidden w-60 bg-trilho lg:block" />}>
       <Painel>{children}</Painel>
     </Suspense>
   )
@@ -30,7 +30,7 @@ async function Painel({ children }: { children: React.ReactNode }) {
     <>
       <Navegacao nome={usuario.nome} hoje={dataDeHoje()} trocar={sairDaIdentificacao} />
       {/* O trilho é fixo (lg+): o conteúdo sobra à direita dele. No celular, sobra espaço para a barra de abas. */}
-      <div className="flex-1 pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0 lg:pl-60">{children}</div>
+      <div className="flex-1 pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0 lg:pl-60 print:p-0">{children}</div>
     </>
   )
 }

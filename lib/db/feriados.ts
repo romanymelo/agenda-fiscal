@@ -1,4 +1,5 @@
 import type { PGlite } from '@electric-sql/pglite'
+import { comNacionaisCalculados } from '../regras/feriados-nacionais'
 import type { Abrangencia, Data, FeriadoCadastro } from '../tipos'
 import { obterBanco } from './conexao'
 import { UUID } from './usuarios'
@@ -53,5 +54,7 @@ export async function buscarFeriado(db: PGlite, id: string): Promise<FeriadoCada
 
 // As páginas não importam `obterBanco`: esta abre o banco por elas.
 export async function feriadosDaTela(ano: number): Promise<FeriadoCadastro[]> {
-  return listarFeriados(await obterBanco(), ano)
+  const cadastrados = await listarFeriados(await obterBanco(), ano)
+  const a = String(ano).padStart(4, '0')
+  return comNacionaisCalculados(cadastrados, `${a}-01-01`, `${a}-12-31`)
 }

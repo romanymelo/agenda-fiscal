@@ -50,7 +50,7 @@ export function Lateral({
         <div className="flex items-center gap-4">
           <span
             className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl font-display text-[34px] font-bold leading-none tabular-nums ${
-              eHoje ? 'bg-sol text-tinta' : 'bg-mar-claro text-mar-escuro'
+              eHoje ? 'bg-sol text-sobre-sol' : 'bg-mar-claro text-mar-escuro'
             }`}
           >
             {numeroDoDia(dia)}
@@ -61,7 +61,7 @@ export function Lateral({
             </h2>
             <p className="text-sm text-suave">
               {MESES[mes - 1]} de {ano}
-              {eHoje && <span className="ml-2 rounded-full bg-sol px-2 py-0.5 text-xs font-semibold text-tinta">hoje</span>}
+              {eHoje && <span className="ml-2 rounded-full bg-sol px-2 py-0.5 text-xs font-semibold text-sobre-sol">hoje</span>}
             </p>
           </div>
         </div>

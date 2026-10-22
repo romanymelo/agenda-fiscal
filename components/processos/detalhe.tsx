@@ -39,6 +39,9 @@ export function Detalhe({ processo, papel, hoje, clientes, acoes, historico }: P
     ['Protocolo', processo.protocolo ?? '—'],
     ['Aberto em', formatarBR(processo.dataAbertura)],
     ['Última atualização', processo.atualizadoEm ? formatarDataHoraBR(processo.atualizadoEm) : '—'],
+    ...(processo.concluidoEm
+      ? [['Concluído em', formatarDataHoraBR(processo.concluidoEm)] as [string, string]]
+      : []),
   ]
   // Concluído não tem prazo pendente (o cartão do quadro também diz isso): a faixa só aparece enquanto o prazo vale.
   const prazoPendente = processo.prazo !== null && processo.status !== 'concluido'

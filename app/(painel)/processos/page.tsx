@@ -1,4 +1,5 @@
 import Form from 'next/form'
+import Link from 'next/link'
 import { connection } from 'next/server'
 import { Suspense } from 'react'
 import { Botao, Campo } from '@/components/campos'
@@ -28,7 +29,7 @@ const primeiro = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] 
 
 export default function Processos({ searchParams }: { searchParams: Parametros }) {
   return (
-    <main className="mx-auto flex w-full max-w-[1360px] flex-col gap-5 px-4 py-6 sm:px-8 lg:py-8">
+    <main className="mr-auto flex w-full max-w-[1360px] flex-col gap-5 px-4 py-6 sm:px-8 lg:py-8">
       {/* Lê o banco, o cookie, a data de hoje e a URL: só com a requisição em mãos, atrás de um Suspense. */}
       <Suspense fallback={<p className="text-sm text-suave">Carregando os processos…</p>}>
         <Conteudo searchParams={searchParams} />
@@ -80,6 +81,12 @@ async function Conteudo({ searchParams }: { searchParams: Parametros }) {
             Buscar
           </Botao>
         </Form>
+        <Link
+          href="/processos/relatorio"
+          className="flex min-h-[44px] items-center rounded-full border border-linha-forte bg-papel px-4 text-sm font-semibold text-tinta transition-colors hover:bg-sutil focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mar"
+        >
+          Relatório
+        </Link>
         <NovoProcesso clientes={opcoes} hoje={hoje} criar={criarProcesso} />
       </div>
 

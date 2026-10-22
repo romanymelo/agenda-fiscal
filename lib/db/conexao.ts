@@ -1,6 +1,7 @@
 import { mkdirSync } from 'node:fs'
 import path from 'node:path'
 import { PGlite } from '@electric-sql/pglite'
+import { carregarDadosDemo } from './demo'
 import { migrar } from './migrar'
 
 const globalComBanco = globalThis as typeof globalThis & {
@@ -55,6 +56,8 @@ export function obterBanco(): Promise<PGlite> {
       mkdirSync(path.dirname(caminho), { recursive: true })
       const db = new PGlite(caminho)
       await migrar(db)
+      // Só com `npm run demo`: dados fictícios para conhecer o painel (ver lib/db/demo.ts).
+      if (process.env.AGENDA_FISCAL_DEMO === '1') await carregarDadosDemo(db)
       return db
     } catch (erro) {
       globalComBanco.__agendaFiscalBanco = undefined

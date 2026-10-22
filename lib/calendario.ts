@@ -5,6 +5,7 @@ import { feriadosEntre } from './db/feriados'
 import { listarObrigacoes } from './db/obrigacoes'
 import { listarProcessos } from './db/processos'
 import { feriadosDaPraca } from './regras/feriados-aplicaveis'
+import { comNacionaisCalculados } from './regras/feriados-nacionais'
 import { montarData, somarDias, somarMeses, ultimoDiaDoMes, diaDaSemana } from './regras/data'
 import { vencimentosDaObrigacao } from './regras/vencimentos'
 import { ROTULO_ABRANGENCIA, type CategoriaCalendario, type Data, type Regime } from './tipos'
@@ -45,7 +46,7 @@ export async function itensDoPeriodo(db: PGlite, de: Data, ate: Data): Promise<I
 
   const [praca, feriadosCadastrados, obrigacoes, processos] = await Promise.all([
     obterConfiguracao(db),
-    feriadosEntre(db, feriadosDe, feriadosAte),
+    feriadosEntre(db, feriadosDe, feriadosAte).then((f) => comNacionaisCalculados(f, feriadosDe, feriadosAte)),
     listarObrigacoes(db),
     listarProcessos(db),
   ])

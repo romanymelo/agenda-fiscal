@@ -22,6 +22,7 @@ function traduzir(e: unknown): Resultado {
 // (`undefined`) é "não mexa". Opcionais usam `textoOuNulo`: vazio limpa a coluna.
 function ler(form: FormData, criacao: boolean): { erro: string } | { dados: Record<string, unknown> } {
   const nome = texto(form, 'nome')
+  const codigoDominio = texto(form, 'codigo_dominio')
   const regime = texto(form, 'regime')
   const uf = texto(form, 'uf')?.toUpperCase()
   const municipio = texto(form, 'municipio')
@@ -37,6 +38,7 @@ function ler(form: FormData, criacao: boolean): { erro: string } | { dados: Reco
   }
   const falta = (v: string | undefined) => (criacao ? !v : v === '')
   if (falta(nome)) return { erro: 'Informe o nome do cliente.' }
+  if (falta(codigoDominio)) return { erro: 'Informe o código do cliente no Domínio.' }
   if (falta(regime) || (regime !== undefined && !REGIMES.includes(regime)))
     return { erro: 'Escolha o regime tributário.' }
   if (falta(uf) || (uf !== undefined && !ufValida(uf))) return { erro: 'Informe uma UF válida, como AL.' }
@@ -44,7 +46,7 @@ function ler(form: FormData, criacao: boolean): { erro: string } | { dados: Reco
   return {
     dados: {
       nome,
-      codigo_dominio: textoOuNulo(form, 'codigo_dominio'),
+      codigo_dominio: codigoDominio,
       cnpj: textoOuNulo(form, 'cnpj'),
       regime: regime as Regime | undefined,
       uf,

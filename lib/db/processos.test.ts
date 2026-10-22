@@ -212,3 +212,40 @@ test('alterarProcesso muda os dados e grava a alteracao no historico so com o qu
   expect(await recusa({ prazo: '2026-02-31' })).toBe('Informe o prazo como uma data válida.')
   expect((await buscarProcesso(ctx.db, id))!.orgao).toBe('SEFAZ-AL')
 })
+
+test('concluido em vem do historico: some ao reabrir e volta com a nova conclusao', async () => {
+  const cliente = await novoCliente('Padaria Trigo Dourado')
+  const id = await novoProcesso(cliente)
+  expect((await buscarProcesso(ctx.db, id))?.concluidoEm).toBeNull()
+
+  expect(await mudarStatus(id, 'concluido')).toEqual({ ok: true })
+  const primeira = (await buscarProcesso(ctx.db, id))?.concluidoEm
+  expect(primeira).toEqual(expect.any(String))
+  // Um andamento novo mexe na última atualização, mas não na data de conclusão.
+  await adicionarAndamento(id, formulario({ data: '2026-10-20', descricao: 'Retirada do comprovante' }))
+  expect((await buscarProcesso(ctx.db, id))?.concluidoEm).toBe(primeira)
+
+  expect(await mudarStatus(id, 'em_exigencia')).toEqual({ ok: true })
+  expect((await buscarProcesso(ctx.db, id))?.concluidoEm).toBeNull()
+  expect(await mudarStatus(id, 'concluido')).toEqual({ ok: true })
+  expect(new Date((await buscarProcesso(ctx.db, id))!.concluidoEm!).getTime()).toBeGreaterThanOrEqual(
+    new Date(primeira!).getTime(),
+  )
+})
+
+test('andamentos de varios processos de uma vez, por processo, em ordem cronologica', async () => {
+  const cliente = await novoCliente('Auto Peças Beira Mar')
+  const a = await novoProcesso(cliente, { orgao: 'SEFAZ-AL' })
+  const b = await novoProcesso(cliente, { orgao: 'Prefeitura' })
+  const c = await novoProcesso(cliente, { orgao: 'Receita' })
+  await adicionarAndamento(a, formulario({ data: '2026-10-10', descricao: 'Segundo' }))
+  await adicionarAndamento(a, formulario({ data: '2026-10-05', descricao: 'Primeiro' }))
+  await adicionarAndamento(b, formulario({ data: '2026-10-07', descricao: 'Só um' }))
+
+  const { andamentosDosProcessos } = await import('./processos')
+  const porProcesso = await andamentosDosProcessos(ctx.db, [a, b, c])
+  expect(porProcesso[a].map((x) => x.descricao)).toEqual(['Primeiro', 'Segundo'])
+  expect(porProcesso[b].map((x) => x.descricao)).toEqual(['Só um'])
+  expect(porProcesso[c]).toBeUndefined()
+  expect(await andamentosDosProcessos(ctx.db, [])).toEqual({})
+})

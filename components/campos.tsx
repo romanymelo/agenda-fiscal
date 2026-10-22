@@ -239,7 +239,7 @@ export function Condicional({ mostra, className, children }: { mostra: boolean; 
 }
 
 const VARIANTES = {
-  primario: 'border-transparent bg-mar text-white hover:bg-mar-escuro',
+  primario: 'border-transparent bg-mar text-sobre-mar hover:bg-mar-escuro',
   secundario: 'border-linha-forte bg-papel text-tinta hover:bg-sutil',
   // Ação rara ou secundária dentro de um painel: sem contorno, só a cor da marca.
   discreto: 'border-transparent bg-transparent text-mar-escuro hover:bg-mar-claro',

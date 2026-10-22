@@ -1,5 +1,6 @@
 import { connection } from 'next/server'
 import { Suspense } from 'react'
+import { Logotipo } from '@/components/marca'
 import { listarEquipeAtiva } from '@/lib/db/usuarios'
 import { escolherUsuario } from './acoes'
 
@@ -15,18 +16,23 @@ export const metadata = { title: 'Quem é você? — Agenda Fiscal' }
 
 export default function Identificar() {
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center gap-6 px-4 py-10 sm:px-6">
-      <div className="flex flex-col gap-2">
-        <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">Quem é você?</h1>
-        <p className="text-sm text-suave">
-          A escolha serve para registrar quem anotou cada informação. Não há senha: é só nos dizer
-          quem está usando o painel.
-        </p>
+    <main className="flex w-full flex-1 flex-col">
+      <header className="flex flex-col items-center bg-trilho px-4 pb-14 pt-12 text-white sm:pt-16">
+        <Logotipo tamanho="grande" slogan />
+      </header>
+      <div className="mx-auto -mt-8 flex w-full max-w-2xl flex-col gap-6 px-4 pb-10 sm:px-6">
+        <div className="flex flex-col gap-2 rounded-2xl border border-linha bg-papel p-5 shadow-flutua sm:p-6">
+          <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">Quem é você?</h1>
+          <p className="text-sm text-suave">
+            A escolha serve para registrar quem anotou cada informação. Não há senha: é só nos dizer
+            quem está usando o painel.
+          </p>
+        </div>
+        {/* A lista vem do banco, em tempo de requisição: fica atrás de um limite de Suspense. */}
+        <Suspense fallback={<p className="text-sm text-suave">Carregando a equipe…</p>}>
+          <Equipe />
+        </Suspense>
       </div>
-      {/* A lista vem do banco, em tempo de requisição: fica atrás de um limite de Suspense. */}
-      <Suspense fallback={<p className="text-sm text-suave">Carregando a equipe…</p>}>
-        <Equipe />
-      </Suspense>
     </main>
   )
 }
